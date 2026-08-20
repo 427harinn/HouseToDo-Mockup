@@ -110,7 +110,7 @@ Mandatory workflow:
 - [x] Add/update Shopping behavior tests while keeping M1–M4 tests passing.
 - [x] Confirm no backend/API dependency exists.
 - [x] Run lint/typecheck/test/build successfully.
-- [ ] Capture required screenshots from final PR HEAD.
+- [x] Capture required screenshots from final PR HEAD.
 - [ ] Add a clearly labeled `Screenshots` section to the PR body.
 - [x] Update this file with actual M5 completion state.
 - [ ] Commit and push the M5 branch.
