@@ -33,22 +33,24 @@ Do not begin M3 automatically after finishing M2; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M2 branch before implementation.
-- [ ] Implement shared smartphone AppShell.
-- [ ] Add Home / Calendar / Shopping / Other hash routes.
-- [ ] Add five-position icon-only bottom navigation in the required order.
-- [ ] Add selected/current navigation state and accessibility labels.
-- [ ] Add safe-area-aware scroll/content behavior.
-- [ ] Add lightweight center Add action with `家事 / 買い物` choices only.
-- [ ] Establish shared icon and minimal motion conventions.
-- [ ] Add/update behavior tests for shell/navigation/Add action.
-- [ ] Confirm `uilabState` hash query remains functional.
-- [ ] Confirm no backend/API dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Update this file with actual M2 completion state.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M2 branch before implementation.
+- [x] Implement shared smartphone AppShell.
+- [x] Add Home / Calendar / Shopping / Other hash routes.
+- [x] Add five-position icon-only bottom navigation in the required order.
+- [x] Add selected/current navigation state and accessibility labels.
+- [x] Add safe-area-aware scroll/content behavior.
+- [x] Add lightweight center Add action with `家事 / 買い物` choices only.
+- [x] Establish shared icon and minimal motion conventions.
+- [x] Add/update behavior tests for shell/navigation/Add action.
+- [x] Confirm `uilabState` hash query remains functional.
+- [x] Confirm no backend/API dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Update this file with actual M2 completion state.
 - [ ] Commit and push the M2 branch.
 - [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M3.
+- [x] Do not merge the PR.
+- [x] Do not begin M3.
 - [ ] Report branch, commit, PR, changed files, dependencies, checks, and deviations.
+
+M2 implementation is complete on `codex/m2-shared-app-shell`. It includes only the shared shell, placeholder routes, and the lightweight Add choice surface; M3 screen-specific UI was not started.

@@ -1,5 +1,7 @@
 import { useHashRoute } from './router';
+import { AppShell } from '../components/AppShell/AppShell';
 import { FoundationPage } from '../pages/FoundationPage';
+import { PlaceholderPage } from '../pages/PlaceholderPage';
 
 export function App() {
   const route = useHashRoute();
@@ -8,11 +10,27 @@ export function App() {
     return <FoundationPage routePath={route.pathname} />;
   }
 
+  const placeholderTitles: Record<string, string> = {
+    '/home': 'ホーム',
+    '/calendar': 'カレンダー',
+    '/shopping': '買い物',
+    '/other': 'その他',
+  };
+  const placeholderTitle = placeholderTitles[route.pathname];
+
+  if (placeholderTitle) {
+    return (
+      <AppShell currentPath={route.pathname}>
+        <PlaceholderPage title={placeholderTitle} />
+      </AppShell>
+    );
+  }
+
   return (
-    <main className="foundation-page">
-      <h1>HouseToDo Mockup</h1>
+    <main className="route-error-page">
+      <h1>ページが見つかりません</h1>
       <p>ルートが見つかりません。</p>
-      <a href="#/foundation">Foundationを開く</a>
+      <a href="#/home">ホームを開く</a>
     </main>
   );
 }
