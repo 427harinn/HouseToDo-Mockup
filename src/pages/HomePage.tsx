@@ -172,6 +172,13 @@ function TaskRow({
 
   const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!suppressClick.current) return;
+    if (
+      event.target instanceof Element &&
+      event.target.closest('.home-task-row__actions')
+    ) {
+      suppressClick.current = false;
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     suppressClick.current = false;

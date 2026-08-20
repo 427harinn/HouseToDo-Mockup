@@ -86,8 +86,16 @@ describe('HomePage', () => {
 
   it('reveals edit/pass on a left swipe and pass removes without completing', () => {
     renderHome('normal');
-    fireEvent.click(
-      screen.getByRole('button', { name: 'ゴミをまとめるの操作' }),
+    const row = document.querySelector('[data-uilab-id="normal-trash"]');
+
+    if (!row) throw new Error('Expected the normal trash task row to exist');
+    fireEvent(
+      row,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 220 }),
+    );
+    fireEvent(
+      row,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 140 }),
     );
 
     expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
