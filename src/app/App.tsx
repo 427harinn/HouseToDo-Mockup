@@ -3,9 +3,11 @@ import { AppShell } from '../components/AppShell/AppShell';
 import { FoundationPage } from '../pages/FoundationPage';
 import { HomePage } from '../pages/HomePage';
 import { CalendarPage } from '../pages/CalendarPage';
+import { ShoppingPage } from '../pages/ShoppingPage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { getHomeUiLabState } from '../mock/homeState';
 import { getCalendarUiLabState } from '../mock/calendarState';
+import { getShoppingUiLabState } from '../mock/shoppingState';
 
 export function App() {
   const route = useHashRoute();
@@ -43,6 +45,18 @@ export function App() {
       return (
         <AppShell currentPath={route.pathname}>
           <CalendarPage key={calendarState} state={calendarState} />
+        </AppShell>
+      );
+    }
+
+    if (route.pathname === '/shopping') {
+      const shoppingState = getShoppingUiLabState(
+        `#${route.pathname}?${route.searchParams.toString()}`,
+      );
+
+      return (
+        <AppShell currentPath={route.pathname}>
+          <ShoppingPage key={shoppingState} state={shoppingState} />
         </AppShell>
       );
     }
