@@ -2,8 +2,10 @@ import { useHashRoute } from './router';
 import { AppShell } from '../components/AppShell/AppShell';
 import { FoundationPage } from '../pages/FoundationPage';
 import { HomePage } from '../pages/HomePage';
+import { CalendarPage } from '../pages/CalendarPage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { getHomeUiLabState } from '../mock/homeState';
+import { getCalendarUiLabState } from '../mock/calendarState';
 
 export function App() {
   const route = useHashRoute();
@@ -29,6 +31,18 @@ export function App() {
       return (
         <AppShell currentPath={route.pathname}>
           <HomePage key={homeState} state={homeState} />
+        </AppShell>
+      );
+    }
+
+    if (route.pathname === '/calendar') {
+      const calendarState = getCalendarUiLabState(
+        `#${route.pathname}?${route.searchParams.toString()}`,
+      );
+
+      return (
+        <AppShell currentPath={route.pathname}>
+          <CalendarPage key={calendarState} state={calendarState} />
         </AppShell>
       );
     }

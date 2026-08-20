@@ -1,4 +1,6 @@
 .bottom-navigation {
+  width: 100%;
+  min-width: 0;
   min-height: calc(var(--shell-nav-height) + env(safe-area-inset-bottom));
   padding: 0 var(--space-2) env(safe-area-inset-bottom);
   background: var(--color-surface);
@@ -10,6 +12,8 @@
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: center;
   max-width: 40rem;
+  width: 100%;
+  min-width: 0;
   min-height: var(--shell-nav-height);
   margin: 0 auto;
 }

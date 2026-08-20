@@ -42,7 +42,7 @@ describe('hash routing', () => {
       expect(window.location.hash).toBe(`#${path}`);
       expect(
         screen.getByRole('heading', {
-          name: path === '/home' ? 'やること' : title,
+          name: path === '/home' ? 'やること' : path === '/calendar' ? '2026年8月' : title,
         }),
       ).toBeVisible();
     });
