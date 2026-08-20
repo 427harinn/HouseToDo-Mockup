@@ -101,8 +101,8 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
   };
 
   return (
-    <div className="screen-content shopping-page" data-uilab-component="Shopping.Page">
-      <header className="shopping-header" data-uilab-component="Shopping.Header">
+    <div className="screen-content shopping-page" data-uilab-component="Shopping.Page" data-uilab-id="shopping-page">
+      <header className="shopping-header" data-uilab-component="Shopping.Header" data-uilab-id="shopping-header">
         <h1>買い物</h1>
       </header>
 
@@ -111,6 +111,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
           className="shopping-active-list"
           aria-label="未購入の買い物一覧"
           data-uilab-component="Shopping.ActiveList"
+          data-uilab-id="shopping-active-list"
         >
           {activeItems.map((item) => (
             <ShoppingItemRow
@@ -157,7 +158,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
           ))}
         </section>
       ) : (
-        <section className="shopping-empty-state" aria-label="買うものなし" data-uilab-component="Shopping.EmptyState">
+        <section className="shopping-empty-state" aria-label="買うものなし" data-uilab-component="Shopping.EmptyState" data-uilab-id="shopping-empty-state">
           <div className="shopping-empty-state__illustration" aria-hidden="true">
             <ShoppingCart />
             <span>✓</span>
@@ -166,7 +167,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
         </section>
       )}
 
-      <section className="shopping-purchased" data-uilab-component="Shopping.PurchasedSection">
+      <section className="shopping-purchased" data-uilab-component="Shopping.PurchasedSection" data-uilab-id="shopping-purchased-section">
         <button
           type="button"
           className="shopping-purchased__toggle"
@@ -362,13 +363,15 @@ function ShoppingItemRow({
         >
           {purchased ? (
             <span className="shopping-item-row__purchased-details">
-              <span className="shopping-item-row__name">{item.name}</span>
+          <span className="shopping-item-row__name" data-uilab-component="Shopping.ItemRow.Name" data-uilab-id={`shopping-item-${item.id}-name`}>
+            {item.name}
+          </span>
               <span className="shopping-item-row__meta">
                 {item.purchasedAt ?? '購入済み'}
               </span>
             </span>
           ) : (
-            <span className="shopping-item-row__name" data-uilab-component="Shopping.ItemRow.Name">
+              <span className="shopping-item-row__name" data-uilab-component="Shopping.ItemRow.Name" data-uilab-id={`shopping-item-${item.id}-name`}>
               {item.name}
             </span>
           )}
@@ -382,7 +385,11 @@ function ShoppingItemRow({
               <ImageIcon aria-hidden="true" />
             </span>
           ) : null}
-          <span className="shopping-item-row__quantity" data-uilab-component="Shopping.ItemRow.Quantity">
+          <span
+            className="shopping-item-row__quantity"
+            data-uilab-component="Shopping.ItemRow.Quantity"
+            data-uilab-id={`shopping-item-${item.id}-quantity`}
+          >
             {item.quantity}
           </span>
           {purchased && item.purchaser ? <Avatar person={item.purchaser} /> : null}
@@ -395,6 +402,8 @@ function ShoppingItemRow({
             aria-expanded={actionsOpen}
             aria-hidden={actionsOpen}
             tabIndex={actionsOpen ? -1 : 0}
+            data-uilab-component="Shopping.ItemRow.MoreButton"
+            data-uilab-id={`shopping-item-${item.id}-more`}
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => {
               event.currentTarget.blur();
@@ -416,24 +425,25 @@ function ShoppingItemRow({
       ) : null}
 
       {expanded ? (
-        <div className="shopping-item-row__expanded" data-uilab-component="Shopping.ItemExpanded">
+        <div className="shopping-item-row__expanded" data-uilab-component="Shopping.ItemExpanded" data-uilab-id={`shopping-item-${item.id}-expanded`}>
           <button
             type="button"
             className="shopping-item-row__primary-action"
             onClick={purchased ? onRestore : onPurchase}
             data-uilab-component={purchased ? 'Shopping.PurchasedRestoreButton' : 'Shopping.ItemPurchaseButton'}
+            data-uilab-id={`shopping-item-${item.id}-primary-action`}
           >
             {purchased ? <Undo2 aria-hidden="true" /> : null}
             {purchased ? '戻す' : '購入'}
           </button>
           {item.memo ? (
-            <div className="shopping-item-row__memo" data-uilab-component="Shopping.ItemMemo">
+            <div className="shopping-item-row__memo" data-uilab-component="Shopping.ItemMemo" data-uilab-id={`shopping-item-${item.id}-memo`}>
               <span className="shopping-item-row__detail-label">メモ</span>
               <p>{item.memo}</p>
             </div>
           ) : null}
           {item.photoSrc ? (
-            <div className="shopping-item-row__photo" data-uilab-component="Shopping.ItemPhoto">
+            <div className="shopping-item-row__photo" data-uilab-component="Shopping.ItemPhoto" data-uilab-id={`shopping-item-${item.id}-photo`}>
               <span className="shopping-item-row__detail-label">写真</span>
               <img src={item.photoSrc} alt={`${item.name}の写真`} />
             </div>

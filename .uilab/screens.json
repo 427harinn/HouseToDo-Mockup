@@ -1,0 +1,5 @@
+{
+  "home": { "name": "Home", "path": "/home", "defaultState": "normal" },
+  "calendar": { "name": "Calendar", "path": "/calendar", "defaultState": "normal" },
+  "shopping": { "name": "Shopping", "path": "/shopping", "defaultState": "normal" }
+}

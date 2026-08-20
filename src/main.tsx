@@ -1,4 +1,5 @@
 import { StrictMode } from 'react';
+import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { App } from './app/App';
 import './components/AppShell/AppShell.css';
@@ -10,8 +11,11 @@ import './pages/ShoppingPage.css';
 import './styles/globals.css';
 import './styles/tokens.css';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+const root = createRoot(document.getElementById('root')!);
+flushSync(() => {
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  );
+});

@@ -33,7 +33,12 @@ export function BottomNavigation({
   onAdd,
 }: BottomNavigationProps) {
   return (
-    <nav className="bottom-navigation" aria-label="メインナビゲーション">
+    <nav
+      className="bottom-navigation"
+      aria-label="メインナビゲーション"
+      data-uilab-component="AppShell.BottomNavigation"
+      data-uilab-id="app-bottom-navigation"
+    >
       <div className="bottom-navigation__items">
         <NavigationLink item={navigationItems[0]} currentPath={currentPath} />
         <NavigationLink item={navigationItems[1]} currentPath={currentPath} />

@@ -39,6 +39,8 @@ export function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="bottom-sheet-title"
+        data-uilab-component="AppShell.AddSheet"
+        data-uilab-id="app-add-sheet"
       >
         <div className="bottom-sheet__handle" aria-hidden="true" />
         <div className="bottom-sheet__header">
