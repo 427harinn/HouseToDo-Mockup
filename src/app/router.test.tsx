@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+import { AppShell } from '../components/AppShell/AppShell';
 import { App } from './App';
 
 describe('hash routing', () => {
@@ -62,5 +63,27 @@ describe('hash routing', () => {
     expect(screen.queryByRole('dialog', { name: '追加' })).not.toBeInTheDocument();
     expect(window.location.hash).toBe('#/home?uilabState=normal');
     expect(screen.getByRole('heading', { name: 'ホーム' })).toBeVisible();
+  });
+
+  it('keeps long content in a separate scroll region from bottom navigation', () => {
+    render(
+      <AppShell currentPath="/home">
+        <section data-testid="long-placeholder-content">
+          {Array.from({ length: 80 }, (_, index) => (
+            <p key={index}>プレースホルダー行 {index + 1}</p>
+          ))}
+        </section>
+      </AppShell>,
+    );
+
+    const shell = document.querySelector('.app-shell');
+    const viewport = document.querySelector('.app-shell__viewport');
+    const navigation = document.querySelector('.bottom-navigation');
+
+    expect(screen.getByTestId('long-placeholder-content')).toBeVisible();
+    expect(viewport).toContainElement(screen.getByTestId('long-placeholder-content'));
+    expect(viewport).not.toBe(navigation);
+    expect(viewport?.parentElement).toBe(shell);
+    expect(navigation?.parentElement).toBe(shell);
   });
 });

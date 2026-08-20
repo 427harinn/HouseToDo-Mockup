@@ -3,7 +3,10 @@
 
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
+  height: 100dvh;
   min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
   background: var(--color-bg);
 }
 
@@ -11,7 +14,7 @@
   min-height: 0;
   overflow-y: auto;
   padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4)
-    calc(var(--shell-nav-height) + var(--space-4) + env(safe-area-inset-bottom));
+    calc(var(--space-4) + env(safe-area-inset-bottom));
   overscroll-behavior-y: contain;
 }
 
