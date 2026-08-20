@@ -395,6 +395,10 @@
   background: var(--color-primary-soft);
 }
 
+.shopping-item-row.is-actions-open .shopping-item-row__main:hover {
+  background: transparent;
+}
+
 .shopping-purchased__toggle:focus-visible,
 .shopping-item-row__main:focus-visible,
 .shopping-item-row__more:focus-visible,
