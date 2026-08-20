@@ -8,12 +8,40 @@ import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { getHomeUiLabState } from '../mock/homeState';
 import { getCalendarUiLabState } from '../mock/calendarState';
 import { getShoppingUiLabState } from '../mock/shoppingState';
+import { TaskFormPage } from '../pages/TaskFormPage';
+import { ShoppingFormPage } from '../pages/ShoppingFormPage';
 
 export function App() {
   const route = useHashRoute();
 
   if (route.pathname === '/foundation') {
     return <FoundationPage routePath={route.pathname} />;
+  }
+
+  if (route.pathname === '/tasks/new' || route.pathname === '/tasks/edit') {
+    const isEdit = route.pathname === '/tasks/edit';
+    return (
+      <AppShell currentPath="" showBottomNavigation={false}>
+        <TaskFormPage
+          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`}
+          isEdit={isEdit}
+          state={route.searchParams.get('uilabState') ?? 'normal'}
+        />
+      </AppShell>
+    );
+  }
+
+  if (route.pathname === '/shopping/new' || route.pathname === '/shopping/edit') {
+    const isEdit = route.pathname === '/shopping/edit';
+    return (
+      <AppShell currentPath="" showBottomNavigation={false}>
+        <ShoppingFormPage
+          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`}
+          isEdit={isEdit}
+          state={route.searchParams.get('uilabState') ?? 'normal'}
+        />
+      </AppShell>
+    );
   }
 
   const placeholderTitles: Record<string, string> = {

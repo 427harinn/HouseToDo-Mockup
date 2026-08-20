@@ -91,7 +91,7 @@ export function HomePage({ state = getHomeUiLabState() }: HomePageProps) {
               completing={completingIds.has(task.id)}
               onComplete={() => completeTask(task)}
               onPass={() => passTask(task)}
-              onEdit={() => setStatusMessage('編集はこのモックでは表示のみです')}
+              onEdit={() => { window.location.hash = '#/tasks/edit'; }}
             />
           ))}
         </section>

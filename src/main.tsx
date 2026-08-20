@@ -8,6 +8,7 @@ import './components/BottomSheet/BottomSheet.css';
 import './pages/HomePage.css';
 import './pages/CalendarPage.css';
 import './pages/ShoppingPage.css';
+import './pages/FormPage.css';
 import './styles/globals.css';
 import './styles/tokens.css';
 

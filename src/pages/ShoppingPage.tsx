@@ -125,7 +125,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
               onToggle={() => toggleExpanded(item.id)}
               onPurchase={() => purchaseItem(item)}
               onRestore={() => restoreItem(item)}
-              onEdit={() => setStatusMessage('編集はM6で実装します')}
+              onEdit={() => { window.location.hash = '#/shopping/edit'; }}
               onSwipeOpen={() => {
                 setActionsOpenId(item.id);
                 setExpandedId(null);
