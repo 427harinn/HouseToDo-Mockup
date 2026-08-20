@@ -138,11 +138,11 @@ Mandatory workflow:
 - [x] Add/update behavior tests while keeping M1–M5 tests passing.
 - [x] Confirm no backend/API dependency exists.
 - [x] Run lint/typecheck/test/build successfully.
-- [ ] Capture all required screenshots from final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Capture all required screenshots from final PR HEAD.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
 - [x] Update this file with actual M6 completion state.
-- [ ] Commit and push the M6 branch.
-- [ ] Open a draft Pull Request targeting `main`.
+- [x] Commit and push the M6 branch.
+- [x] Open a draft Pull Request targeting `main`.
 - [x] Do not merge the PR.
 - [x] Do not begin M7.
 - [ ] Report branch, commit, PR, files, dependencies, checks, routes/states, screenshots, behavior decisions, and deviations.
