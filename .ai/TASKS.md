@@ -18,14 +18,18 @@ M1 implementation is approved.
 Follow `docs/M1_IMPLEMENTATION_SPEC.md` as the implementation contract.
 Do not begin M2 automatically after finishing M1; stop for review.
 
-- [ ] Scaffold React + Vite + TypeScript.
-- [ ] Add Hash Router-compatible routing.
-- [ ] Create design-token foundation from `DESIGN.md`.
-- [ ] Add fixture/state architecture and `uilabState` helper.
-- [ ] Add minimal Foundation route/page for verification only.
-- [ ] Add base quality scripts: lint, typecheck, test, build.
-- [ ] Add minimum foundation tests.
-- [ ] Confirm mockup runs without backend/API access.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Report files changed, dependency choices, test results, and deviations.
-- [ ] Stop and request review before M2.
+- [x] Scaffold React + Vite + TypeScript.
+- [x] Add Hash Router-compatible routing.
+- [x] Create design-token foundation from `DESIGN.md`.
+- [x] Add fixture/state architecture and `uilabState` helper.
+- [x] Add minimal Foundation route/page for verification only.
+- [x] Add base quality scripts: lint, typecheck, test, build.
+- [x] Add minimum foundation tests.
+- [x] Confirm mockup runs without backend/API access.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Report files changed, dependency choices, test results, and deviations.
+- [x] Stop and request review before M2.
+
+### M1 completion note
+
+M1 implementation is complete on the dedicated branch. The placeholder is intentionally plain and only verifies React rendering, hash routing, `uilabState`, and loaded design tokens. No Home, production behavior, backend/API, or M2 work was started.
