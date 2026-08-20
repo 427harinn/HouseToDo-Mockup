@@ -61,11 +61,16 @@ describe('M6 add and edit forms', () => {
     expect(screen.getByRole('dialog', { name: '繰り返し' })).toBeVisible();
     expect(screen.getByRole('button', { name: '火', pressed: false })).toBeVisible();
     expect(screen.getByRole('button', { name: '金', pressed: false })).toBeVisible();
+    const confirmWeekdays = screen.getByRole('button', { name: '決定' });
+    expect(confirmWeekdays).toBeDisabled();
+    fireEvent.click(confirmWeekdays);
+    expect(screen.getByRole('dialog', { name: '繰り返し' })).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: '火', pressed: false }));
     fireEvent.click(screen.getByRole('button', { name: '金', pressed: false }));
     expect(screen.getByRole('button', { name: '火', pressed: true })).toBeVisible();
     expect(screen.getByRole('button', { name: '金', pressed: true })).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: '決定' }));
+    expect(confirmWeekdays).not.toBeDisabled();
+    fireEvent.click(confirmWeekdays);
     expect(screen.getByText('火・金')).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: '繰り返し: 火・金' }));

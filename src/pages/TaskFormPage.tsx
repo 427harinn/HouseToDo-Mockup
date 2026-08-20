@@ -207,7 +207,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
               <div className="weekday-control__options">
                 {WEEKDAYS.map((weekday) => <button key={weekday} type="button" className={`weekday-button${form.weekdays.includes(weekday) ? ' is-selected' : ''}`} aria-pressed={form.weekdays.includes(weekday)} onClick={() => toggleWeekday(weekday)}>{weekday}</button>)}
               </div>
-              <button type="button" className="form-save repeat-sheet__confirm" onClick={() => setSheet(null)}>決定</button>
+              <button type="button" className="form-save repeat-sheet__confirm" disabled={form.weekdays.length === 0} onClick={() => setSheet(null)}>決定</button>
             </div>
           ) : null}
           {form.repeat === '毎月○日' ? (
