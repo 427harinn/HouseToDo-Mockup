@@ -217,6 +217,9 @@
 }
 
 .form-toggle__current {
+  position: absolute;
+  top: 12px;
+  right: 60px;
   display: inline-flex;
   align-items: center;
   min-height: 28px;
@@ -233,7 +236,7 @@
   background: var(--color-primary-strong);
 }
 
-.form-toggle input:checked + .form-toggle__visual::after {
+.form-toggle input:checked ~ .form-toggle__visual::after {
   transform: translateX(20px);
 }
 
@@ -267,8 +270,6 @@
 }
 
 .form-actions {
-  position: sticky;
-  bottom: 0;
   display: grid;
   gap: var(--space-3);
   padding: var(--space-4) 0 calc(var(--space-3) + env(safe-area-inset-bottom));
@@ -339,6 +340,11 @@
 
 .bottom-sheet .selection-list__row {
   min-height: 44px;
+}
+
+.bottom-sheet {
+  max-height: calc(100dvh - var(--space-2));
+  overflow-y: auto;
 }
 
 .selection-list__row svg {
