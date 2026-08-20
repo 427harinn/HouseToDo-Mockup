@@ -111,10 +111,10 @@ Mandatory workflow:
 - [x] Confirm no backend/API dependency exists.
 - [x] Run lint/typecheck/test/build successfully.
 - [x] Capture required screenshots from final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
 - [x] Update this file with actual M5 completion state.
-- [ ] Commit and push the M5 branch.
-- [ ] Open a draft Pull Request targeting `main`.
+- [x] Commit and push the M5 branch.
+- [x] Open a draft Pull Request targeting `main`.
 - [x] Do not merge the PR.
 - [x] Do not begin M6.
-- [ ] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, behavior decisions, and deviations.
+- [x] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, behavior decisions, and deviations.
