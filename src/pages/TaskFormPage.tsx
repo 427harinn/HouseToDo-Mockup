@@ -110,11 +110,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
   const chooseRepeat = (repeat: RepeatOption) => {
     update('repeat', repeat);
-    if (repeat === '曜日を決める') {
-      if (form.weekdays.length === 0) update('weekdays', ['火', '金']);
-      return;
-    }
-    if (repeat === '毎月○日') return;
+    if (repeat === '曜日を決める' || repeat === '毎月○日') return;
     setSheet(null);
   };
 
