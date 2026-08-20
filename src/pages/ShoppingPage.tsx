@@ -1,5 +1,6 @@
 import {
   ChevronRight,
+  Ellipsis,
   Image as ImageIcon,
   MessageCircle,
   ShoppingCart,
@@ -58,7 +59,6 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
     ]);
     setExpandedId(null);
     setActionsOpenId(null);
-    setPurchasedOpen(true);
     setStatusMessage(`「${item.name}」を購入済みに移しました`);
   };
 
@@ -325,7 +325,8 @@ function ShoppingItemRow({
       event.target instanceof Element &&
       (event.target.closest('.shopping-item-row__actions') ||
         event.target.closest('.shopping-item-row__actions-dismiss') ||
-        event.target.closest('.shopping-reorder-fallback'))
+        event.target.closest('.shopping-reorder-fallback') ||
+        event.target.closest('.shopping-item-row__more'))
     ) {
       suppressClick.current = false;
       return;
@@ -386,6 +387,18 @@ function ShoppingItemRow({
           </span>
           {purchased && item.purchaser ? <Avatar person={item.purchaser} /> : null}
         </button>
+        {!purchased ? (
+          <button
+            type="button"
+            className="shopping-item-row__more"
+            aria-label={`${item.name}の操作`}
+            aria-expanded={actionsOpen}
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={() => (actionsOpen ? onDismissActions() : onSwipeOpen())}
+          >
+            <Ellipsis aria-hidden="true" />
+          </button>
+        ) : null}
         {!purchased && actionsOpen ? (
           <div className="shopping-item-row__actions" aria-label={`${item.name}の操作メニュー`}>
             <button type="button" onClick={onEdit}>

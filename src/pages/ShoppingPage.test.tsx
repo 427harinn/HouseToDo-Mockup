@@ -75,15 +75,26 @@ describe('ShoppingPage', () => {
     fireEvent.click(screen.getByRole('button', { name: '購入' }));
 
     const list = document.querySelector('[data-uilab-component="Shopping.ActiveList"]');
-    expect(list).not.toContainElement(screen.getByText('牛乳'));
+    if (!list) throw new Error('Expected the active shopping list');
+    expect(within(list as HTMLElement).queryByText('牛乳')).not.toBeInTheDocument();
+    expect(screen.getByText('購入済み 3件')).toBeVisible();
+    const purchasedSection = document.querySelector('[data-uilab-component="Shopping.PurchasedSection"]');
+    if (!purchasedSection) throw new Error('Expected the purchased section');
+    expect(within(purchasedSection as HTMLElement).queryByText('牛乳')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '購入' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '戻す' })).not.toBeInTheDocument();
+  });
+
+  it('preserves an already-open purchased section when purchasing an item', () => {
+    renderShopping('purchased-open');
+
+    const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!milkRow) throw new Error('Expected the milk row');
+    fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '購入' }));
+
     expect(screen.getByText('購入済み 3件')).toBeVisible();
     expect(screen.getByText('牛乳')).toBeVisible();
-    expect(screen.queryByRole('button', { name: '購入' })).not.toBeInTheDocument();
-
-    const purchasedMilkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
-    if (!purchasedMilkRow) throw new Error('Expected the purchased milk row');
-    fireEvent.click(purchasedMilkRow.querySelector('.shopping-item-row__main') as HTMLElement);
-    expect(screen.getByRole('button', { name: '戻す' })).toBeVisible();
   });
 
   it('keeps purchased collapsed by default and supports purchased-open', () => {
@@ -122,6 +133,22 @@ describe('ShoppingPage', () => {
     fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 300, clientY: 120 }));
     fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 220, clientY: 120 }));
 
+    expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
+  });
+
+  it('provides a focus-only keyboard/mouse fallback for 編集', () => {
+    renderShopping('normal');
+    const row = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!row) throw new Error('Expected the milk row');
+
+    const more = within(row as HTMLElement).getByRole('button', { name: '牛乳の操作' });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    more.focus();
+    fireEvent.keyDown(more, { key: 'Enter', code: 'Enter' });
+    fireEvent.click(more);
+
+    expect(more).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
   });

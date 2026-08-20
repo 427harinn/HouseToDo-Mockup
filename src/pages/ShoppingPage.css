@@ -37,6 +37,8 @@
 .shopping-item-row__content {
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: stretch;
   background: var(--color-bg);
   transition: transform 180ms ease-out;
 }
@@ -47,8 +49,10 @@
 
 .shopping-item-row__main {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
-  width: 100%;
+  width: auto;
+  min-width: 0;
   min-height: 62px;
   gap: var(--space-2);
   padding: var(--space-3) 0;
@@ -57,6 +61,38 @@
   background: transparent;
   border: 0;
   cursor: pointer;
+}
+
+.shopping-item-row__more {
+  display: inline-flex;
+  flex: 0 0 0;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: width 180ms ease-out, flex-basis 180ms ease-out, opacity 180ms ease-out,
+    background-color 180ms ease-out;
+}
+
+.shopping-item-row:hover .shopping-item-row__more,
+.shopping-item-row:focus-within .shopping-item-row__more,
+.shopping-item-row__more:focus-visible {
+  flex-basis: 44px;
+  width: 44px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shopping-item-row__more svg {
+  width: 18px;
+  height: 18px;
 }
 
 .shopping-item-row__name,
@@ -355,6 +391,7 @@
 
 .shopping-purchased__toggle:focus-visible,
 .shopping-item-row__main:focus-visible,
+.shopping-item-row__more:focus-visible,
 .shopping-item-row__actions button:focus-visible,
 .shopping-item-row__primary-action:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-primary-strong) 42%, transparent);
@@ -390,5 +427,45 @@
   .shopping-item-row__photo img {
     width: 58%;
     max-height: 120px;
+  }
+
+  .shopping-item-row__more {
+    flex-basis: 0;
+    width: 0;
+  }
+
+  .shopping-item-row:hover .shopping-item-row__more,
+  .shopping-item-row:focus-within .shopping-item-row__more {
+    flex-basis: 40px;
+    width: 40px;
+  }
+}
+
+@media (hover: none) {
+  .shopping-item-row:hover .shopping-item-row__more {
+    flex-basis: 0;
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .shopping-item-row:focus-within .shopping-item-row__more,
+  .shopping-item-row__more:focus-visible {
+    flex-basis: 44px;
+    width: 44px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shopping-item-row__content,
+  .shopping-item-row__more,
+  .shopping-purchased__toggle svg {
+    transition: none;
+  }
+
+  .shopping-item-row__expanded {
+    animation: none;
   }
 }
