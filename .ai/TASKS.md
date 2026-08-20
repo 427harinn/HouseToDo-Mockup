@@ -8,13 +8,13 @@
 - [x] Add `.gitignore`.
 - [x] Add `.editorconfig`.
 - [x] Add `.ai/MILESTONE.md`.
-- [ ] Add `docs/UI_LAB_ADAPTER_SPEC_v1.md`.
-- [ ] Review repository preparation files.
-- [ ] Mark M0 complete.
+- [x] Add `docs/UI_LAB_ADAPTER_SPEC_v1.md`.
+- [x] Review repository preparation files.
+- [x] Mark M0 complete.
 
 ## Next milestone: M1 — React/Vite mockup foundation
 
-Do not begin M1 until M0 is reviewed and explicitly approved.
+Do not begin M1 implementation until it is explicitly approved.
 
 Planned M1 tasks:
 
