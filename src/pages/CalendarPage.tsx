@@ -9,7 +9,6 @@ import { getCalendarUiLabState } from '../mock/calendarState';
 
 const TODAY = '2026-08-20';
 const INITIAL_MONTH = '2026-08-01';
-const MAX_CELL_TASKS = 2;
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 type CalendarPageProps = {
@@ -41,6 +40,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     [tasks],
   );
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
+  const maxCellTasks = getMaxCellTasks(monthDays.length / 7);
 
   const openDate = (date: string) => setSelectedDate(date);
   const moveMonth = (amount: number) => {
@@ -105,7 +105,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         <div className="calendar-grid-body">
           {monthDays.map((day) => {
             const dayTasks = visibleTasks.filter((task) => task.date === day.date);
-            const displayedTasks = dayTasks.slice(0, MAX_CELL_TASKS);
+            const displayedTasks = dayTasks.slice(0, maxCellTasks);
             const moreCount = dayTasks.length - displayedTasks.length;
 
             return (
@@ -366,6 +366,7 @@ function CalendarDetailTask({
         className="calendar-detail-task__more"
         aria-label={`${task.name}の操作`}
         aria-expanded={actionsOpen}
+        hidden={actionsOpen}
         onClick={() => setActionsOpen((open) => !open)}
       >
         …
@@ -398,7 +399,10 @@ function getMonthDays(monthDate: string): MonthDay[] {
   start.setDate(firstDay.getDate() - firstDay.getDay());
 
   const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12);
-  const weekCount = Math.ceil((firstDay.getDay() + lastDay.getDate()) / 7);
+  const weekCount = Math.max(
+    5,
+    Math.ceil((firstDay.getDay() + lastDay.getDate()) / 7),
+  );
 
   return Array.from({ length: weekCount * 7 }, (_, index) => {
     const day = new Date(start);
@@ -410,6 +414,10 @@ function getMonthDays(monthDate: string): MonthDay[] {
       weekday: day.getDay(),
     };
   });
+}
+
+function getMaxCellTasks(weekCount: number) {
+  return weekCount === 5 ? 3 : 2;
 }
 
 function addDays(date: string, amount: number) {

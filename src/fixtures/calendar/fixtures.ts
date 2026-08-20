@@ -62,6 +62,26 @@ const baseTasks: CalendarTask[] = [
     name: '家計簿を確認する',
     date: '2026-08-31',
   },
+  {
+    id: 'calendar-sep-14-1',
+    name: '玄関を掃除する',
+    date: '2026-09-14',
+  },
+  {
+    id: 'calendar-sep-14-2',
+    name: '洗濯槽を回す',
+    date: '2026-09-14',
+  },
+  {
+    id: 'calendar-sep-14-3',
+    name: '調味料を補充する',
+    date: '2026-09-14',
+  },
+  {
+    id: 'calendar-sep-14-4',
+    name: '書類を整理する',
+    date: '2026-09-14',
+  },
 ];
 
 const denseTasks: CalendarTask[] = [

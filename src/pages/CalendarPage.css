@@ -375,6 +375,20 @@
   background: var(--color-surface);
   border: 0;
   cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+
+.calendar-detail-task:hover .calendar-detail-task__more,
+.calendar-detail-task:focus-within .calendar-detail-task__more,
+.calendar-detail-task__more:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.calendar-detail-task.is-actions-open .calendar-detail-task__more {
+  display: none;
 }
 
 .calendar-detail-task__actions {
