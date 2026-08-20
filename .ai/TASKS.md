@@ -42,7 +42,7 @@
 - [x] Complete review fixes.
 - [x] Merge PR #2 to `main`.
 
-## Current milestone: M3 — Home mockup
+## Completed milestone: M3 — Home mockup
 
 M3 implementation is approved.
 Follow `docs/M3_IMPLEMENTATION_SPEC.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
@@ -50,27 +50,29 @@ Do not begin M4 automatically after finishing M3; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M3 branch before implementation.
-- [ ] Replace the Home placeholder with the real Home mockup.
-- [ ] Add screen-aware Home fixtures and required `uilabState` states.
-- [ ] Implement urgency-sorted active task list.
-- [ ] Implement task check colors and overdue rules from `DESIGN.md`.
-- [ ] Show assignee avatar only when a specific assignee exists.
-- [ ] Implement mock tap-to-complete interaction and restrained completion animation.
-- [ ] Represent left-swipe `編集 / パス` interaction without exposing delete.
-- [ ] Implement collapsed/expanded completed section.
-- [ ] Implement Home shopping summary navigation.
-- [ ] Implement empty state.
-- [ ] Validate 390×844 and narrow mobile viewport behavior.
-- [ ] Add/update Home behavior tests while keeping M1/M2 tests passing.
-- [ ] Confirm no backend/API dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Capture required screenshots from the final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M3 completion state.
-- [ ] Commit and push the M3 branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M4.
-- [ ] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, and deviations.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M3 branch before implementation.
+- [x] Replace the Home placeholder with the real Home mockup.
+- [x] Add screen-aware Home fixtures and required `uilabState` states.
+- [x] Implement urgency-sorted active task list.
+- [x] Implement task check colors and overdue rules from `DESIGN.md`.
+- [x] Show assignee avatar only when a specific assignee exists.
+- [x] Implement mock tap-to-complete interaction and restrained completion animation.
+- [x] Represent left-swipe `編集 / パス` interaction without exposing delete.
+- [x] Implement collapsed/expanded completed section.
+- [x] Implement Home shopping summary navigation.
+- [x] Implement empty state.
+- [x] Validate 390×844 and narrow mobile viewport behavior.
+- [x] Add/update Home behavior tests while keeping M1/M2 tests passing.
+- [x] Confirm no backend/API dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Capture required screenshots from the final PR HEAD.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Update this file with actual M3 completion state.
+- [x] Commit and push the M3 branch.
+- [x] Open a draft Pull Request targeting `main`.
+- [x] Do not merge the PR.
+- [x] Do not begin M4.
+- [x] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, and deviations.
+
+M4 is intentionally not started; M3 is awaiting review.

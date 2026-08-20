@@ -18,8 +18,9 @@ describe('hash routing', () => {
 
     render(<App />);
 
-    expect(screen.getByRole('heading', { name: 'ホーム' })).toBeVisible();
-    expect(screen.getByTestId('screen-placeholder')).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'やること' })).toBeVisible();
+    expect(screen.getByText('ゴミをまとめる')).toBeVisible();
+    expect(screen.queryByTestId('screen-placeholder')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'ホーム' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -39,7 +40,11 @@ describe('hash routing', () => {
 
     await waitFor(() => {
       expect(window.location.hash).toBe(`#${path}`);
-      expect(screen.getByRole('heading', { name: title })).toBeVisible();
+      expect(
+        screen.getByRole('heading', {
+          name: path === '/home' ? 'やること' : title,
+        }),
+      ).toBeVisible();
     });
 
     expect(screen.getByRole('link', { name: title })).toHaveAttribute(
@@ -62,7 +67,7 @@ describe('hash routing', () => {
 
     expect(screen.queryByRole('dialog', { name: '追加' })).not.toBeInTheDocument();
     expect(window.location.hash).toBe('#/home?uilabState=normal');
-    expect(screen.getByRole('heading', { name: 'ホーム' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'やること' })).toBeVisible();
   });
 
   it('keeps long content in a separate scroll region from bottom navigation', () => {
