@@ -116,33 +116,33 @@ Do not begin M7 automatically after finishing M6; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M6 branch before implementation.
-- [ ] Add task add/edit routes and Shopping add/edit routes.
-- [ ] Wire center Add choices to task/shopping add routes.
-- [ ] Implement Shopping add form and reuse picker.
-- [ ] Implement Shopping edit form without reuse picker and with separated delete action.
-- [ ] Implement Task add form and reuse picker.
-- [ ] Implement repeat selector with conditional repeat-specific controls.
-- [ ] Keep Start Date always visible.
-- [ ] Keep Date visible for all-day and time-specific tasks.
-- [ ] Hide Time/Notification when All-day is ON; reveal them when OFF.
-- [ ] Implement local Notification selection only for time-specific tasks.
-- [ ] Implement Assignee selection with Anyone + household members.
-- [ ] Implement Task edit form without reuse picker and with separated delete action.
-- [ ] Use local deterministic photo preview only; no real upload/storage.
-- [ ] Implement mock Save and delete-confirmation behavior without backend/API.
-- [ ] Hide main BottomNavigation on dedicated form routes if following preferred layout.
-- [ ] Add required `uilabState` fixtures for Task/Shopping add/edit screens.
-- [ ] Validate 390×844 and 320×568 responsive behavior.
-- [ ] Add/update behavior tests while keeping M1–M5 tests passing.
-- [ ] Confirm no backend/API dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Capture all required screenshots from final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M6 completion state.
-- [ ] Commit and push the M6 branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M7.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M6 branch before implementation.
+- [x] Add task add/edit routes and Shopping add/edit routes.
+- [x] Wire center Add choices to task/shopping add routes.
+- [x] Implement Shopping add form and reuse picker.
+- [x] Implement Shopping edit form without reuse picker and with separated delete action.
+- [x] Implement Task add form and reuse picker.
+- [x] Implement repeat selector with conditional repeat-specific controls.
+- [x] Keep Start Date always visible.
+- [x] Keep Date visible for all-day and time-specific tasks.
+- [x] Hide Time/Notification when All-day is ON; reveal them when OFF.
+- [x] Implement local Notification selection only for time-specific tasks.
+- [x] Implement Assignee selection with Anyone + household members.
+- [x] Implement Task edit form without reuse picker and with separated delete action.
+- [x] Use local deterministic photo preview only; no real upload/storage.
+- [x] Implement mock Save and delete-confirmation behavior without backend/API.
+- [x] Hide main BottomNavigation on dedicated form routes if following preferred layout.
+- [x] Add required `uilabState` fixtures for Task/Shopping add/edit screens.
+- [x] Validate 390×844 and 320×568 responsive behavior.
+- [x] Add/update behavior tests while keeping M1–M5 tests passing.
+- [x] Confirm no backend/API dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Capture all required screenshots from final PR HEAD.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Update this file with actual M6 completion state.
+- [x] Commit and push the M6 branch.
+- [x] Open a draft Pull Request targeting `main`.
+- [x] Do not merge the PR.
+- [x] Do not begin M7.
 - [ ] Report branch, commit, PR, files, dependencies, checks, routes/states, screenshots, behavior decisions, and deviations.

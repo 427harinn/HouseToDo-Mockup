@@ -378,7 +378,7 @@ function CalendarDetailTask({
       </button>
       {actionsOpen ? (
         <div className="calendar-detail-task__actions" aria-label={`${task.name}の操作メニュー`}>
-          <button type="button" onClick={() => setActionsOpen(false)}>
+          <button type="button" onClick={() => { window.location.hash = '#/tasks/edit'; }}>
             編集
           </button>
           <button type="button" className="is-pass" onClick={onPass}>
