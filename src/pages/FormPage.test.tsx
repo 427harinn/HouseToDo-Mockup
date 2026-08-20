@@ -38,16 +38,37 @@ describe('M6 add and edit forms', () => {
     expect(screen.getByLabelText('通知')).toBeVisible();
   });
 
+  it('keeps repeat and assignee hit areas scoped to their own rows', () => {
+    renderRoute('#/tasks/new?uilabState=normal');
+    const repeatRow = document.querySelector('[data-uilab-id="task-form-repeat"]');
+    const assigneeRow = document.querySelector('[data-uilab-id="task-form-assignee"]');
+    expect(repeatRow).not.toBeNull();
+    expect(assigneeRow).not.toBeNull();
+    expect(repeatRow?.querySelector('.form-row__value')).toBeInTheDocument();
+    expect(assigneeRow?.querySelector('.form-row__value')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('家事名'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('supports repeat choices and weekday-specific state', () => {
     renderRoute('#/tasks/new?uilabState=normal');
     fireEvent.click(screen.getByRole('button', { name: /繰り返し:/ }));
-    for (const option of ['今回だけ', '毎日', '曜日を決める', '毎月20日', '今週のどこか', '今月のどこか']) {
+    for (const option of ['今回だけ', '毎日', '曜日を決める', '毎月○日', '今週のどこか', '今月のどこか']) {
       expect(screen.getByRole('button', { name: option })).toBeVisible();
     }
     fireEvent.click(screen.getByRole('button', { name: '曜日を決める' }));
-    expect(screen.getByText('火・金')).toBeVisible();
+    expect(screen.getByRole('dialog', { name: '繰り返し' })).toBeVisible();
     expect(screen.getByRole('button', { name: '火', pressed: true })).toBeVisible();
     expect(screen.getByRole('button', { name: '金', pressed: true })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '決定' }));
+    expect(screen.getByText('火・金')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: '繰り返し: 火・金' }));
+    fireEvent.click(screen.getByRole('button', { name: '毎月○日' }));
+    expect(screen.getByRole('spinbutton', { name: '毎月の日' })).toHaveValue(20);
+    fireEvent.click(screen.getByRole('button', { name: '決定' }));
+    expect(screen.getByRole('button', { name: '繰り返し: 毎月20日' })).toBeVisible();
   });
 
   it('searches the combined task reuse picker and fills the form', () => {

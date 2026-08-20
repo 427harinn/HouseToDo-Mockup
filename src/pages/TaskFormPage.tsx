@@ -110,8 +110,16 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
   const chooseRepeat = (repeat: RepeatOption) => {
     update('repeat', repeat);
-    if (repeat === '曜日を決める' && form.weekdays.length === 0) update('weekdays', ['火', '金']);
+    if (repeat === '曜日を決める') {
+      if (form.weekdays.length === 0) update('weekdays', ['火', '金']);
+      return;
+    }
+    if (repeat === '毎月○日') return;
     setSheet(null);
+  };
+
+  const toggleWeekday = (weekday: string) => {
+    update('weekdays', form.weekdays.includes(weekday) ? form.weekdays.filter((item) => item !== weekday) : [...form.weekdays, weekday]);
   };
 
   const selectReuse = (item: (typeof TASK_REUSE_ITEMS)[number]) => {
@@ -153,41 +161,26 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
           <span className="form-row__current"><span>{repeatSummary(form)}</span><ChevronRight aria-hidden="true" /></span>
           <button type="button" className="form-row__value" aria-label={`繰り返し: ${repeatSummary(form)}`} onClick={() => setSheet('repeat')} />
         </div>
-        {form.repeat === '曜日を決める' ? (
-          <div className="weekday-control" data-uilab-component="TaskForm.WeekdayRepeat" data-uilab-id="task-form-weekday-repeat">
-            <span className="form-row__label">曜日</span>
-            <div className="weekday-control__options">
-              {WEEKDAYS.map((weekday) => {
-                const selected = form.weekdays.includes(weekday);
-                return <button key={weekday} type="button" className={`weekday-button${selected ? ' is-selected' : ''}`} aria-pressed={selected} onClick={() => update('weekdays', selected ? form.weekdays.filter((item) => item !== weekday) : [...form.weekdays, weekday])}>{weekday}</button>;
-              })}
-            </div>
-          </div>
-        ) : null}
-        {form.repeat === '毎月○日' ? (
-          <label className="form-control form-control--compact" data-uilab-component="TaskForm.MonthDay" data-uilab-id="task-form-month-day">
-            <span>毎月の日</span><input type="number" min="1" max="31" value={form.monthDay} onChange={(event) => update('monthDay', event.target.value)} />
-          </label>
-        ) : null}
-
         <label className="form-control" data-uilab-component="TaskForm.StartDate" data-uilab-id="task-form-start-date">
           <span>開始日</span><input type="date" value={form.startDate} onChange={(event) => update('startDate', event.target.value)} />
         </label>
         <label className="form-toggle" data-uilab-component="TaskForm.AllDay" data-uilab-id="task-form-all-day">
           <span>終日</span><input aria-label="終日" type="checkbox" checked={form.allDay} onChange={(event) => update('allDay', event.target.checked)} /><span className="form-toggle__current">{form.allDay ? 'オン' : 'オフ'}</span><span className="form-toggle__visual" aria-hidden="true" />
         </label>
-        <label className="form-control" data-uilab-component="TaskForm.Date" data-uilab-id="task-form-date">
-          <span>日付</span><input type="date" value={form.date} onChange={(event) => update('date', event.target.value)} />
-        </label>
-        {!form.allDay ? (
-          <>
+        <div className={`form-datetime-grid${form.allDay ? ' form-datetime-grid--all-day' : ''}`}>
+          <label className="form-control" data-uilab-component="TaskForm.Date" data-uilab-id="task-form-date">
+            <span>日付</span><input type="date" value={form.date} onChange={(event) => update('date', event.target.value)} />
+          </label>
+          {!form.allDay ? (
             <label className="form-control" data-uilab-component="TaskForm.Time" data-uilab-id="task-form-time">
               <span>時刻</span><input type="time" value={form.time} onChange={(event) => update('time', event.target.value)} />
             </label>
-            <label className="form-control" data-uilab-component="TaskForm.Notification" data-uilab-id="task-form-notification">
-              <span>通知</span><select value={form.notification} onChange={(event) => update('notification', event.target.value)}><option>なし</option><option>時刻ちょうど</option><option>10分前</option><option>30分前</option></select>
-            </label>
-          </>
+          ) : null}
+        </div>
+        {!form.allDay ? (
+          <label className="form-control form-control--compact-field" data-uilab-component="TaskForm.Notification" data-uilab-id="task-form-notification">
+            <span>通知</span><select value={form.notification} onChange={(event) => update('notification', event.target.value)}><option>なし</option><option>時刻ちょうど</option><option>10分前</option><option>30分前</option></select>
+          </label>
         ) : null}
 
         <div className="form-row" data-uilab-component="TaskForm.Assignee" data-uilab-id="task-form-assignee">
@@ -199,7 +192,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
           <span>メモ</span><textarea rows={2} value={form.memo} onChange={(event) => update('memo', event.target.value)} placeholder="メモを入力" />
         </label>
 
-        <div className="form-actions">
+        <div className={`form-actions${isEdit ? ' form-actions--edit' : ''}`}>
           <button type="submit" className="form-save" data-uilab-component="TaskForm.Save" data-uilab-id="task-form-save">保存</button>
           {isEdit ? <button type="button" className="form-delete" data-uilab-component="TaskForm.Delete" data-uilab-id="task-form-delete" onClick={() => setSheet('delete')}>削除</button> : null}
         </div>
@@ -208,7 +201,22 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
       <BottomSheet open={sheet === 'repeat'} title="繰り返し" onClose={() => setSheet(null)}>
         <div className="selection-list" data-uilab-component="TaskForm.RepeatSheet" data-uilab-id="task-repeat-sheet">
-          {REPEAT_OPTIONS.map((option) => <button key={option} type="button" className="selection-list__row" onClick={() => chooseRepeat(option)}><span>{option === '毎月○日' ? `毎月${form.monthDay}日` : option}</span>{form.repeat === option ? <Check aria-hidden="true" /> : null}</button>)}
+          {REPEAT_OPTIONS.map((option) => <button key={option} type="button" className="selection-list__row" onClick={() => chooseRepeat(option)}><span>{option}</span>{form.repeat === option ? <Check aria-hidden="true" /> : null}</button>)}
+          {form.repeat === '曜日を決める' ? (
+            <div className="repeat-sheet__detail" data-uilab-component="TaskForm.WeekdayRepeat" data-uilab-id="task-repeat-weekday-detail">
+              <span className="repeat-sheet__detail-label">曜日を選択</span>
+              <div className="weekday-control__options">
+                {WEEKDAYS.map((weekday) => <button key={weekday} type="button" className={`weekday-button${form.weekdays.includes(weekday) ? ' is-selected' : ''}`} aria-pressed={form.weekdays.includes(weekday)} onClick={() => toggleWeekday(weekday)}>{weekday}</button>)}
+              </div>
+              <button type="button" className="form-save repeat-sheet__confirm" onClick={() => setSheet(null)}>決定</button>
+            </div>
+          ) : null}
+          {form.repeat === '毎月○日' ? (
+            <div className="repeat-sheet__detail" data-uilab-component="TaskForm.MonthDay" data-uilab-id="task-repeat-month-day-detail">
+              <label className="form-control form-control--compact-field"><span>毎月の日</span><input type="number" min="1" max="31" value={form.monthDay} onChange={(event) => update('monthDay', event.target.value)} /></label>
+              <button type="button" className="form-save repeat-sheet__confirm" onClick={() => setSheet(null)}>決定</button>
+            </div>
+          ) : null}
         </div>
       </BottomSheet>
 

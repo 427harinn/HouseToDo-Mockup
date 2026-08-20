@@ -40,13 +40,13 @@ export function ShoppingFormPage({ isEdit, state }: { isEdit: boolean; state: st
       {!isEdit ? <button type="button" className="form-reuse-trigger" data-uilab-component="ShoppingForm.ReusePickerTrigger" data-uilab-id="shopping-form-reuse-trigger" onClick={() => setSheet('reuse')}><span>以前の項目から選ぶ</span><ChevronRight aria-hidden="true" /></button> : null}
       <form className="form-layout" onSubmit={(event) => { event.preventDefault(); setStatusMessage('保存しました'); }}>
         <label className="form-control" data-uilab-component="ShoppingForm.Name" data-uilab-id="shopping-form-name"><span>商品名</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="商品名を入力" required /></label>
-        <label className="form-control" data-uilab-component="ShoppingForm.Quantity" data-uilab-id="shopping-form-quantity"><span>数量</span><input value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="例：1本" /></label>
+        <label className="form-control form-control--compact-field shopping-form__quantity" data-uilab-component="ShoppingForm.Quantity" data-uilab-id="shopping-form-quantity"><span>数量</span><input value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="例：1本" /></label>
         <label className="form-control" data-uilab-component="ShoppingForm.Memo" data-uilab-id="shopping-form-memo"><span>メモ</span><textarea rows={2} value={memo} onChange={(event) => setMemo(event.target.value)} placeholder="メモを入力" /></label>
         <div className="photo-control" data-uilab-component="ShoppingForm.Photo" data-uilab-id="shopping-form-photo">
           <div><span>写真</span>{photoSelected ? <span className="photo-control__state">選択済み</span> : null}</div>
           {photoSelected ? <div className="photo-preview"><img src={PHOTO_SRC} alt="選択した写真のプレビュー" /><button type="button" className="form-secondary" onClick={() => setPhotoSelected(false)}>外す</button></div> : <button type="button" className="photo-select" onClick={() => setPhotoSelected(true)}><ImageIcon aria-hidden="true" />写真を選ぶ</button>}
         </div>
-        <div className="form-actions"><button type="submit" className="form-save" data-uilab-component="ShoppingForm.Save" data-uilab-id="shopping-form-save">保存</button>{isEdit ? <button type="button" className="form-delete" data-uilab-component="ShoppingForm.Delete" data-uilab-id="shopping-form-delete" onClick={() => setSheet('delete')}>削除</button> : null}</div>
+        <div className={`form-actions${isEdit ? ' form-actions--edit' : ''}`}><button type="submit" className="form-save" data-uilab-component="ShoppingForm.Save" data-uilab-id="shopping-form-save">保存</button>{isEdit ? <button type="button" className="form-delete" data-uilab-component="ShoppingForm.Delete" data-uilab-id="shopping-form-delete" onClick={() => setSheet('delete')}>削除</button> : null}</div>
       </form>
       <p className="form-status" role="status" aria-live="polite">{statusMessage}</p>
       <BottomSheet open={sheet === 'reuse'} title="以前の項目から選ぶ" onClose={() => setSheet(null)}>
