@@ -12,11 +12,7 @@
 - [x] Review repository preparation files.
 - [x] Mark M0 complete.
 
-## Current milestone: M1 — React/Vite mockup foundation
-
-M1 implementation is approved.
-Follow `docs/M1_IMPLEMENTATION_SPEC.md` as the implementation contract.
-Do not begin M2 automatically after finishing M1; stop for review.
+## Completed milestone: M1 — React/Vite mockup foundation
 
 - [x] Scaffold React + Vite + TypeScript.
 - [x] Add Hash Router-compatible routing.
@@ -27,9 +23,32 @@ Do not begin M2 automatically after finishing M1; stop for review.
 - [x] Add minimum foundation tests.
 - [x] Confirm mockup runs without backend/API access.
 - [x] Run lint/typecheck/test/build successfully.
-- [x] Report files changed, dependency choices, test results, and deviations.
-- [x] Stop and request review before M2.
+- [x] Merge PR #1 to `main`.
 
-### M1 completion note
+## Current milestone: M2 — Shared app shell
 
-M1 implementation is complete on the dedicated branch. The placeholder is intentionally plain and only verifies React rendering, hash routing, `uilabState`, and loaded design tokens. No Home, production behavior, backend/API, or M2 work was started.
+M2 implementation is approved.
+Follow `docs/M2_IMPLEMENTATION_SPEC.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
+Do not begin M3 automatically after finishing M2; stop for review.
+
+Mandatory workflow:
+
+- [ ] Update to latest `main` before starting.
+- [ ] Create a dedicated M2 branch before implementation.
+- [ ] Implement shared smartphone AppShell.
+- [ ] Add Home / Calendar / Shopping / Other hash routes.
+- [ ] Add five-position icon-only bottom navigation in the required order.
+- [ ] Add selected/current navigation state and accessibility labels.
+- [ ] Add safe-area-aware scroll/content behavior.
+- [ ] Add lightweight center Add action with `家事 / 買い物` choices only.
+- [ ] Establish shared icon and minimal motion conventions.
+- [ ] Add/update behavior tests for shell/navigation/Add action.
+- [ ] Confirm `uilabState` hash query remains functional.
+- [ ] Confirm no backend/API dependency exists.
+- [ ] Run lint/typecheck/test/build successfully.
+- [ ] Update this file with actual M2 completion state.
+- [ ] Commit and push the M2 branch.
+- [ ] Open a draft Pull Request targeting `main`.
+- [ ] Do not merge the PR.
+- [ ] Do not begin M3.
+- [ ] Report branch, commit, PR, changed files, dependencies, checks, and deviations.
