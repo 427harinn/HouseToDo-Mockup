@@ -47,10 +47,10 @@ Mandatory workflow:
 - [x] Confirm no backend/API dependency exists.
 - [x] Run lint/typecheck/test/build successfully.
 - [x] Update this file with actual M2 completion state.
-- [ ] Commit and push the M2 branch.
-- [ ] Open a draft Pull Request targeting `main`.
+- [x] Commit and push the M2 branch.
+- [x] Open a draft Pull Request targeting `main`.
 - [x] Do not merge the PR.
 - [x] Do not begin M3.
-- [ ] Report branch, commit, PR, changed files, dependencies, checks, and deviations.
+- [x] Report branch, commit, PR, changed files, dependencies, checks, and deviations.
 
 M2 implementation is complete on `codex/m2-shared-app-shell`. It includes only the shared shell, placeholder routes, and the lightweight Add choice surface; M3 screen-specific UI was not started.
