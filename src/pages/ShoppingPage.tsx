@@ -393,20 +393,27 @@ function ShoppingItemRow({
             className="shopping-item-row__more"
             aria-label={`${item.name}の操作`}
             aria-expanded={actionsOpen}
+            aria-hidden={actionsOpen}
+            tabIndex={actionsOpen ? -1 : 0}
             onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => (actionsOpen ? onDismissActions() : onSwipeOpen())}
+            onClick={(event) => {
+              event.currentTarget.blur();
+              if (actionsOpen) onDismissActions();
+              else onSwipeOpen();
+            }}
           >
             <Ellipsis aria-hidden="true" />
           </button>
         ) : null}
-        {!purchased && actionsOpen ? (
-          <div className="shopping-item-row__actions" aria-label={`${item.name}の操作メニュー`}>
-            <button type="button" onClick={onEdit}>
-              編集
-            </button>
-          </div>
-        ) : null}
       </div>
+
+      {!purchased && actionsOpen ? (
+        <div className="shopping-item-row__actions" aria-label={`${item.name}の操作メニュー`}>
+          <button type="button" onClick={onEdit}>
+            編集
+          </button>
+        </div>
+      ) : null}
 
       {expanded ? (
         <div className="shopping-item-row__expanded" data-uilab-component="Shopping.ItemExpanded">

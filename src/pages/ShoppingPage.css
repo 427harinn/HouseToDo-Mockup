@@ -82,12 +82,18 @@
 }
 
 .shopping-item-row:hover .shopping-item-row__more,
-.shopping-item-row:focus-within .shopping-item-row__more,
 .shopping-item-row__more:focus-visible {
   flex-basis: 44px;
   width: 44px;
   opacity: 1;
   pointer-events: auto;
+}
+
+.shopping-item-row.is-actions-open .shopping-item-row__more {
+  flex-basis: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .shopping-item-row__more svg {
@@ -435,7 +441,7 @@
   }
 
   .shopping-item-row:hover .shopping-item-row__more,
-  .shopping-item-row:focus-within .shopping-item-row__more {
+  .shopping-item-row__more:focus-visible {
     flex-basis: 40px;
     width: 40px;
   }
@@ -449,13 +455,19 @@
     pointer-events: none;
   }
 
-  .shopping-item-row:focus-within .shopping-item-row__more,
   .shopping-item-row__more:focus-visible {
     flex-basis: 44px;
     width: 44px;
     opacity: 1;
     pointer-events: auto;
   }
+}
+
+.shopping-item-row.is-actions-open .shopping-item-row__more {
+  flex-basis: 0;
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

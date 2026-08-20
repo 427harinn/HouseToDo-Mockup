@@ -134,6 +134,14 @@ describe('ShoppingPage', () => {
     fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 220, clientY: 120 }));
 
     expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(row).toHaveClass('is-actions-open');
+    const swipeMore = row.querySelector('.shopping-item-row__more');
+    if (!swipeMore) throw new Error('Expected the hidden edit fallback button');
+    expect(swipeMore).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    expect(swipeMore).toHaveAttribute('aria-hidden', 'true');
     expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
   });
 
@@ -149,6 +157,8 @@ describe('ShoppingPage', () => {
     fireEvent.click(more);
 
     expect(more).toHaveAttribute('aria-expanded', 'true');
+    expect(row).toHaveClass('is-actions-open');
+    expect(more).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
     expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
   });
