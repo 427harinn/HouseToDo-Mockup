@@ -5,6 +5,7 @@ import './components/AppShell/AppShell.css';
 import './components/BottomNavigation/BottomNavigation.css';
 import './components/BottomSheet/BottomSheet.css';
 import './pages/HomePage.css';
+import './pages/CalendarPage.css';
 import './styles/globals.css';
 import './styles/tokens.css';
 

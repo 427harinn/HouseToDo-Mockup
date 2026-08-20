@@ -70,27 +70,27 @@ Do not begin M5 automatically after finishing M4; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M4 branch before implementation.
-- [ ] Replace the Calendar placeholder with the real month-view Calendar mockup.
-- [ ] Add screen-aware Calendar fixtures and required `uilabState` states.
-- [ ] Implement full 7-column month grid with Saturday/Sunday/today treatments.
-- [ ] Show only date-meaningful tasks in month cells.
-- [ ] Implement restrained shared calendar task emphasis and `+N` overflow handling.
-- [ ] Exclude completed/passed tasks from month cells.
-- [ ] Implement large date detail sheet with `この日` / `期間中` / completed section.
-- [ ] Implement date cell/task/`+N` opening the date detail sheet.
-- [ ] Implement previous/next and horizontal-swipe date navigation.
-- [ ] Keep detail task completion/pass semantics consistent with Home.
-- [ ] Validate 390×844 and narrow mobile viewport behavior.
-- [ ] Add/update Calendar behavior tests while keeping M1–M3 tests passing.
-- [ ] Confirm no backend/API dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Capture required screenshots from final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M4 completion state.
-- [ ] Commit and push the M4 branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M5.
-- [ ] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, and deviations.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M4 branch before implementation.
+- [x] Replace the Calendar placeholder with the real month-view Calendar mockup.
+- [x] Add screen-aware Calendar fixtures and required `uilabState` states.
+- [x] Implement full 7-column month grid with Saturday/Sunday/today treatments.
+- [x] Show only date-meaningful tasks in month cells.
+- [x] Implement restrained shared calendar task emphasis and `+N` overflow handling.
+- [x] Exclude completed/passed tasks from month cells.
+- [x] Implement large date detail sheet with `この日` / `期間中` / completed section.
+- [x] Implement date cell/task/`+N` opening the date detail sheet.
+- [x] Implement previous/next and horizontal-swipe date navigation.
+- [x] Keep detail task completion/pass semantics consistent with Home.
+- [x] Validate 390×844 and narrow mobile viewport behavior.
+- [x] Add/update Calendar behavior tests while keeping M1–M3 tests passing.
+- [x] Confirm no backend/API dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Capture required screenshots from final PR HEAD.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Update this file with actual M4 completion state.
+- [x] Commit and push the M4 branch.
+- [x] Open a draft Pull Request targeting `main`.
+- [x] Do not merge the PR.
+- [x] Do not begin M5.
+- [x] Report branch, PR, changed files, dependencies, checks, screenshots, states, and deviations.
