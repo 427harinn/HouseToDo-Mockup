@@ -119,6 +119,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
               expanded={expandedId === item.id}
               actionsOpen={actionsOpenId === item.id}
               dragging={draggingId === item.id}
+              dragSessionActive={draggingId !== null}
               dragOver={dragOverId === item.id}
               onToggle={() => toggleExpanded(item.id)}
               onPurchase={() => purchaseItem(item)}
@@ -185,6 +186,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
                 expanded={expandedId === item.id}
                 actionsOpen={false}
                 dragging={false}
+                dragSessionActive={false}
                 dragOver={false}
                 onToggle={() => toggleExpanded(item.id)}
                 onPurchase={() => purchaseItem(item)}
@@ -217,6 +219,7 @@ type ShoppingItemRowProps = {
   expanded: boolean;
   actionsOpen: boolean;
   dragging: boolean;
+  dragSessionActive: boolean;
   dragOver: boolean;
   onToggle: () => void;
   onPurchase: () => void;
@@ -238,6 +241,7 @@ function ShoppingItemRow({
   expanded,
   actionsOpen,
   dragging,
+  dragSessionActive,
   dragOver,
   onToggle,
   onPurchase,
@@ -279,6 +283,11 @@ function ShoppingItemRow({
   };
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    if (!purchased && dragSessionActive && !dragging && rowRef.current) {
+      const bounds = rowRef.current.getBoundingClientRect();
+      onDragOver(item.id, event.clientY, bounds.top, bounds.height);
+      return;
+    }
     const start = gestureStart.current;
     if (!start) return;
     const distanceX = Math.abs(start.x - event.clientX);
@@ -294,7 +303,10 @@ function ShoppingItemRow({
     clearLongPress();
     const start = gestureStart.current;
     gestureStart.current = null;
-    if (!start) return;
+    if (!start) {
+      if (!purchased && dragSessionActive && !dragging) onDragEnd();
+      return;
+    }
     if (dragStarted.current) {
       dragStarted.current = false;
       suppressClick.current = true;

@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
 
 function renderShopping(state?: string) {
@@ -135,6 +135,31 @@ describe('ShoppingPage', () => {
     const names = [...document.querySelectorAll('[data-uilab-component="Shopping.ItemRow.Name"]')]
       .map((node) => node.textContent);
     expect(names.slice(0, 2)).toEqual(['バナナ', '牛乳']);
+  });
+
+  it('supports the intended long-press and pointer-drag reorder path', () => {
+    vi.useFakeTimers();
+    try {
+      renderShopping('normal');
+      const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
+      const bananaRow = document.querySelector('[data-uilab-id="shopping-bananas"]');
+      if (!milkRow || !bananaRow) throw new Error('Expected draggable shopping rows');
+
+      fireEvent(milkRow, new MouseEvent('pointerdown', { bubbles: true, clientX: 180, clientY: 100 }));
+      act(() => {
+        vi.advanceTimersByTime(360);
+      });
+      act(() => {
+        fireEvent(bananaRow, new MouseEvent('pointermove', { bubbles: true, clientX: 180, clientY: 2 }));
+        fireEvent(milkRow, new MouseEvent('pointerup', { bubbles: true, clientX: 180, clientY: 2 }));
+      });
+
+      const names = [...document.querySelectorAll('[data-uilab-component="Shopping.ItemRow.Name"]')]
+        .map((node) => node.textContent);
+      expect(names.slice(0, 2)).toEqual(['バナナ', '牛乳']);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('shows the local photo only in expanded photo state', () => {
