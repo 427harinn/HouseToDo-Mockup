@@ -150,9 +150,8 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
         <div className="form-row" data-uilab-component="TaskForm.Repeat" data-uilab-id="task-form-repeat">
           <span className="form-row__label">繰り返し</span>
-          <button type="button" className="form-row__value" aria-label={`繰り返し: ${repeatSummary(form)}`} onClick={() => setSheet('repeat')}>
-            <span>{repeatSummary(form)}</span><ChevronRight aria-hidden="true" />
-          </button>
+          <span className="form-row__current"><span>{repeatSummary(form)}</span><ChevronRight aria-hidden="true" /></span>
+          <button type="button" className="form-row__value" aria-label={`繰り返し: ${repeatSummary(form)}`} onClick={() => setSheet('repeat')} />
         </div>
         {form.repeat === '曜日を決める' ? (
           <div className="weekday-control" data-uilab-component="TaskForm.WeekdayRepeat" data-uilab-id="task-form-weekday-repeat">
@@ -193,9 +192,8 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
         <div className="form-row" data-uilab-component="TaskForm.Assignee" data-uilab-id="task-form-assignee">
           <span className="form-row__label">担当</span>
-          <button type="button" className="form-row__value" aria-label={`担当: ${form.assignee?.name ?? '誰でも'}`} onClick={() => setSheet('assignee')}>
-            <span className="form-row__person">{form.assignee ? <span className="form-avatar" role="img" aria-label={`担当: ${form.assignee.name}`}>{form.assignee.initials}</span> : null}{form.assignee?.name ?? '誰でも'}</span><ChevronRight aria-hidden="true" />
-          </button>
+          <span className="form-row__current"><span className="form-row__person">{form.assignee ? <span className="form-avatar" role="img" aria-label={`担当: ${form.assignee.name}`}>{form.assignee.initials}</span> : null}{form.assignee?.name ?? '誰でも'}</span><ChevronRight aria-hidden="true" /></span>
+          <button type="button" className="form-row__value" aria-label={`担当: ${form.assignee?.name ?? '誰でも'}`} onClick={() => setSheet('assignee')} />
         </div>
         <label className="form-control" data-uilab-component="TaskForm.Memo" data-uilab-id="task-form-memo">
           <span>メモ</span><textarea rows={2} value={form.memo} onChange={(event) => update('memo', event.target.value)} placeholder="メモを入力" />
