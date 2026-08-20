@@ -55,7 +55,10 @@
 }
 
 .calendar-month-grid {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   width: 100%;
+  height: min(58dvh, 480px);
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
@@ -70,6 +73,15 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   width: 100%;
   min-width: 0;
+  min-height: 0;
+}
+
+.calendar-grid-body {
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+
+.calendar-month-grid--5 .calendar-grid-body {
+  grid-template-rows: repeat(5, minmax(0, 1fr));
 }
 
 .calendar-weekday-row span {
@@ -97,7 +109,8 @@
 
 .calendar-day-cell {
   min-width: 0;
-  min-height: 68px;
+  min-height: 0;
+  height: 100%;
   padding: 5px 3px 4px;
   overflow: hidden;
   background: var(--color-surface);
@@ -114,16 +127,15 @@
 }
 
 .calendar-day-cell.is-outside-month {
-  color: var(--color-disabled);
   background: color-mix(in srgb, var(--color-bg) 58%, var(--color-surface));
 }
 
 .calendar-day-number {
-  display: inline-grid;
+  display: grid;
   place-items: center;
   width: 24px;
   height: 24px;
-  margin-bottom: 2px;
+  margin: 0 auto 2px;
   color: var(--color-text);
   font-size: 0.8125rem;
   line-height: 1;
@@ -137,6 +149,18 @@
   color: var(--color-calendar-saturday);
 }
 
+.calendar-day-cell.is-outside-month .calendar-day-number {
+  color: var(--color-disabled);
+}
+
+.calendar-day-cell.is-outside-month .calendar-day-number--0 {
+  color: color-mix(in srgb, var(--color-calendar-sunday) 48%, var(--color-surface));
+}
+
+.calendar-day-cell.is-outside-month .calendar-day-number--6 {
+  color: color-mix(in srgb, var(--color-calendar-saturday) 48%, var(--color-surface));
+}
+
 .calendar-day-number.is-today {
   color: var(--color-text);
   background: var(--color-primary-soft);
@@ -147,6 +171,8 @@
   display: grid;
   gap: 2px;
   min-width: 0;
+  max-height: calc(100% - 26px);
+  overflow: hidden;
 }
 
 .calendar-day-task,
@@ -407,7 +433,6 @@
 
 @media (max-width: 340px) {
   .calendar-day-cell {
-    min-height: 64px;
     padding-inline: 2px;
   }
 

@@ -9,7 +9,7 @@ import { getCalendarUiLabState } from '../mock/calendarState';
 
 const TODAY = '2026-08-20';
 const INITIAL_MONTH = '2026-08-01';
-const MAX_CELL_TASKS = 3;
+const MAX_CELL_TASKS = 2;
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 type CalendarPageProps = {
@@ -24,7 +24,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
   );
   const [tasks, setTasks] = useState<CalendarTask[]>(fixture.tasks);
   const [completedCount, setCompletedCount] = useState(
-    fixture.tasks.filter((task) => task.completed || task.passed).length,
+    fixture.tasks.filter((task) => task.completed).length,
   );
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -32,7 +32,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     setMonthDate(INITIAL_MONTH);
     setSelectedDate(fixture.selectedDate ?? null);
     setTasks(fixture.tasks);
-    setCompletedCount(fixture.tasks.filter((task) => task.completed || task.passed).length);
+    setCompletedCount(fixture.tasks.filter((task) => task.completed).length);
     setStatusMessage('');
   }, [fixture, state]);
 
@@ -91,7 +91,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
       </header>
 
       <section
-        className="calendar-month-grid"
+        className={`calendar-month-grid calendar-month-grid--${monthDays.length / 7}`}
         aria-label={`${formatMonthLabel(monthDate)}のカレンダー`}
         data-uilab-component="Calendar.MonthGrid"
       >
@@ -342,12 +342,18 @@ function CalendarDetailTask({
       className={`calendar-detail-task${actionsOpen ? ' is-actions-open' : ''}`}
       data-uilab-id={task.id}
       onPointerDown={(event) => {
+        event.stopPropagation();
         startX.current = event.clientX;
       }}
       onPointerUp={(event) => {
+        event.stopPropagation();
         if (startX.current !== null && startX.current - event.clientX > 48) {
           setActionsOpen(true);
         }
+        startX.current = null;
+      }}
+      onPointerCancel={(event) => {
+        event.stopPropagation();
         startX.current = null;
       }}
     >
@@ -391,7 +397,10 @@ function getMonthDays(monthDate: string): MonthDay[] {
   const start = new Date(firstDay);
   start.setDate(firstDay.getDate() - firstDay.getDay());
 
-  return Array.from({ length: 42 }, (_, index) => {
+  const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12);
+  const weekCount = Math.ceil((firstDay.getDay() + lastDay.getDate()) / 7);
+
+  return Array.from({ length: weekCount * 7 }, (_, index) => {
     const day = new Date(start);
     day.setDate(start.getDate() + index);
     return {

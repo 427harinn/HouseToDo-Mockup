@@ -34,12 +34,15 @@ describe('CalendarPage', () => {
     expect(screen.queryByText('朝食の片付け')).not.toBeInTheDocument();
     expect(screen.queryByText('窓を少し開ける')).not.toBeInTheDocument();
     expect(screen.getByText('エアコンのフィルターを掃除')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('button', { name: /8月20日 木曜日/ }));
+    expect(screen.getByText('完了済み 1件')).toBeVisible();
   });
 
   it('shows overflow as +N in the dense fixture', () => {
     renderCalendar('dense');
 
-    expect(screen.getByText('+2')).toBeVisible();
+    expect(screen.getByText('+3')).toBeVisible();
   });
 
   it('opens date details from a cell and closes with the explicit control', () => {
@@ -85,6 +88,26 @@ describe('CalendarPage', () => {
     expect(screen.getByRole('heading', { name: '8月21日 金曜日' })).toBeVisible();
   });
 
+  it('keeps the selected date when a detail task swipe opens edit/pass actions', () => {
+    renderCalendar('date-open');
+    const sheet = screen.getByRole('dialog');
+    const task = sheet.querySelector('.calendar-detail-task');
+
+    if (!task) throw new Error('Expected a detail task');
+    fireEvent(
+      task,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 240 }),
+    );
+    fireEvent(
+      task,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 160 }),
+    );
+
+    expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'パス' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: '8月20日 木曜日' })).toBeVisible();
+  });
+
   it('removes a detail task after the Home-style completion action', () => {
     renderCalendar('date-open');
     const taskName = 'エアコンのフィルターを掃除';
@@ -103,6 +126,18 @@ describe('CalendarPage', () => {
     renderCalendar('long-text');
     expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(42);
     expect(screen.getByText('冷蔵庫の中を確認して足りない食材を買い物メモに追加する')).toBeVisible();
+  });
+
+  it('adapts the month grid between six and five week months', () => {
+    renderCalendar('normal');
+
+    fireEvent.click(screen.getByRole('button', { name: '次の月' }));
+    expect(screen.getByRole('heading', { name: '2026年9月' })).toBeVisible();
+    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(35);
+
+    fireEvent.click(screen.getByRole('button', { name: '前の月' }));
+    expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible();
+    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(42);
   });
 
   it('keeps BottomNavigation outside the Calendar content scroll region', () => {
