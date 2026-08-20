@@ -106,9 +106,9 @@
 
 .form-row,
 .form-toggle {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   min-height: 52px;
   padding: var(--space-2) 0;
 }
@@ -122,14 +122,12 @@
 
 .form-row__value {
   display: inline-flex;
-  flex: 1 1 auto;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-2);
   min-height: 44px;
   min-width: 0;
-  max-width: 70%;
-  margin-left: auto;
+  max-width: none;
   padding: var(--space-2) 0;
   overflow-wrap: anywhere;
   color: var(--color-text-secondary);
@@ -176,7 +174,7 @@
   flex: 0 0 48px;
   width: 48px;
   height: 28px;
-  margin-left: auto;
+  margin-left: 0;
   background: var(--color-border);
   border-radius: 999px;
   transition: background-color 180ms ease-out;
