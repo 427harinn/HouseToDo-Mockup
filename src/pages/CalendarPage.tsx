@@ -64,8 +64,8 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
   };
 
   return (
-    <div className="screen-content calendar-page" data-uilab-component="Calendar.Page">
-      <header className="calendar-header" data-uilab-component="Calendar.Header">
+    <div className="screen-content calendar-page" data-uilab-component="Calendar.Page" data-uilab-id="calendar-page">
+      <header className="calendar-header" data-uilab-component="Calendar.Header" data-uilab-id="calendar-header">
         <div className="calendar-header__title-row">
           <button
             type="button"
@@ -94,6 +94,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         className={`calendar-month-grid calendar-month-grid--${monthDays.length / 7}`}
         aria-label={`${formatMonthLabel(monthDate)}のカレンダー`}
         data-uilab-component="Calendar.MonthGrid"
+        data-uilab-id="calendar-month-grid"
       >
         <div className="calendar-weekday-row" aria-hidden="true">
           {WEEKDAYS.map((weekday, index) => (
@@ -128,6 +129,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                 <span
                   className={`calendar-day-number calendar-day-number--${day.weekday}${day.date === TODAY ? ' is-today' : ''}`}
                   data-uilab-component="Calendar.DayCell.Date"
+                  data-uilab-id={`calendar-day-${day.date}-date`}
                 >
                   {day.dayNumber}
                 </span>
@@ -153,6 +155,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                       type="button"
                       className="calendar-day-more"
                       data-uilab-component="Calendar.DayCell.More"
+                      data-uilab-id={`calendar-day-${day.date}-more`}
                       onClick={(event) => {
                         event.stopPropagation();
                         openDate(day.date);
@@ -233,6 +236,7 @@ function CalendarDateSheet({
         aria-modal="true"
         aria-labelledby="calendar-date-sheet-title"
         data-uilab-component="Calendar.DateSheet"
+        data-uilab-id="calendar-date-sheet"
         onPointerDown={(event) => {
           startX.current = event.clientX;
         }}
@@ -262,7 +266,7 @@ function CalendarDateSheet({
           </div>
         </header>
         <div className="calendar-date-sheet__content">
-          <h2 id="calendar-date-sheet-title" data-uilab-component="Calendar.DateSheet.Date">
+          <h2 id="calendar-date-sheet-title" data-uilab-component="Calendar.DateSheet.Date" data-uilab-id="calendar-date-sheet-date">
             {formatDateLabel(date)}
           </h2>
           <DateSection
@@ -279,7 +283,7 @@ function CalendarDateSheet({
             onComplete={onComplete}
             onPass={onPass}
           />
-          <section className="calendar-completed-section" data-uilab-component="Calendar.DateSheet.CompletedSection">
+          <section className="calendar-completed-section" data-uilab-component="Calendar.DateSheet.CompletedSection" data-uilab-id="calendar-date-sheet-completed">
             <button type="button" className="calendar-completed-section__toggle" aria-expanded="false">
               <span>完了済み {completedCount}件</span>
               <ChevronRight aria-hidden="true" />
@@ -340,6 +344,7 @@ function CalendarDetailTask({
   return (
     <div
       className={`calendar-detail-task${actionsOpen ? ' is-actions-open' : ''}`}
+      data-uilab-component="Calendar.DetailTask"
       data-uilab-id={task.id}
       onPointerDown={(event) => {
         event.stopPropagation();

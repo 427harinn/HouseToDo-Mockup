@@ -1,0 +1,19 @@
+{
+  "home": {
+    "normal": { "name": "Normal" }, "overdue": { "name": "Overdue" },
+    "assigned": { "name": "Assigned" }, "mixed": { "name": "Mixed" },
+    "completed-open": { "name": "Completed open" }, "many": { "name": "Many tasks" },
+    "long-text": { "name": "Long text" }, "empty": { "name": "Empty" }
+  },
+  "calendar": {
+    "normal": { "name": "Normal" }, "dense": { "name": "Dense" },
+    "date-open": { "name": "Date sheet open" }, "completed-hidden": { "name": "Completed hidden" },
+    "long-text": { "name": "Long text" }
+  },
+  "shopping": {
+    "normal": { "name": "Normal" }, "expanded": { "name": "Expanded item" },
+    "purchased-open": { "name": "Purchased open" }, "photo": { "name": "Photo item" },
+    "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
+    "empty": { "name": "Empty" }
+  }
+}

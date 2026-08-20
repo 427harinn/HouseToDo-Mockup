@@ -69,12 +69,12 @@ export function HomePage({ state = getHomeUiLabState() }: HomePageProps) {
   };
 
   return (
-    <div className="screen-content home-page" data-uilab-component="Home.Page">
-      <header className="home-header">
-        <p className="home-date" data-uilab-component="Home.Date">
+    <div className="screen-content home-page" data-uilab-component="Home.Page" data-uilab-id="home-page">
+      <header className="home-header" data-uilab-component="Home.Header" data-uilab-id="home-header">
+        <p className="home-date" data-uilab-component="Home.Date" data-uilab-id="home-date">
           8月20日 木曜日
         </p>
-        <h1 data-uilab-component="Home.SectionHeading">やること</h1>
+        <h1 data-uilab-component="Home.SectionHeading" data-uilab-id="home-section-heading">やること</h1>
       </header>
 
       {activeTasks.length > 0 ? (
@@ -82,6 +82,7 @@ export function HomePage({ state = getHomeUiLabState() }: HomePageProps) {
           className="home-task-list"
           aria-label="やること一覧"
           data-uilab-component="Home.TaskList"
+          data-uilab-id="home-task-list"
         >
           {activeTasks.map((task) => (
             <TaskRow
@@ -104,11 +105,13 @@ export function HomePage({ state = getHomeUiLabState() }: HomePageProps) {
         </section>
       )}
 
-      <section className="home-completed" data-uilab-component="Home.CompletedSection">
+      <section className="home-completed" data-uilab-component="Home.CompletedSection" data-uilab-id="home-completed-section">
         <button
           type="button"
           className="home-completed__toggle"
           aria-expanded={completedOpen}
+          data-uilab-component="Home.CompletedToggle"
+          data-uilab-id="home-completed-toggle"
           onClick={() => setCompletedOpen((open) => !open)}
         >
           <span>完了済み {completedTasks.length}件</span>
@@ -127,6 +130,7 @@ export function HomePage({ state = getHomeUiLabState() }: HomePageProps) {
         className="home-shopping-summary"
         href="#/shopping"
         data-uilab-component="Home.ShoppingSummary"
+        data-uilab-id="home-shopping-summary"
       >
         <span>買い物 {fixture.shoppingCount}件</span>
         <ChevronRight aria-hidden="true" />
@@ -207,17 +211,24 @@ function TaskRow({
           <span
             className={`task-check task-check--${task.timeScope}${task.overdue ? ' is-overdue' : ''}${completing ? ' is-completing' : ''}`}
             data-task-scope={task.overdue ? 'overdue' : task.timeScope}
+            data-uilab-component="Home.TaskRow.Check"
+            data-uilab-id={`home-task-${task.id}-check`}
             aria-hidden="true"
           >
             {completing ? <Check /> : null}
           </span>
           <span className="home-task-row__details">
-            <span className="home-task-row__name" data-uilab-component="Home.TaskRow.Name">
+            <span
+              className="home-task-row__name"
+              data-uilab-component="Home.TaskRow.Name"
+              data-uilab-id={`home-task-${task.id}-name`}
+            >
               {task.name}
             </span>
             <span
               className="home-task-row__deadline"
               data-uilab-component="Home.TaskRow.Deadline"
+              data-uilab-id={`home-task-${task.id}-deadline`}
             >
               {task.deadlineText}
             </span>
@@ -229,6 +240,8 @@ function TaskRow({
           className="home-task-row__more"
           aria-label={`${task.name}の操作`}
           aria-expanded={actionsOpen}
+          data-uilab-component="Home.TaskRow.MoreButton"
+          data-uilab-id={`home-task-${task.id}-more`}
           onClick={() => setActionsOpen((open) => !open)}
         >
           <Ellipsis aria-hidden="true" />

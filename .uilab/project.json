@@ -1,0 +1,6 @@
+{
+  "formatVersion": 1,
+  "name": "HouseToDo Mockup",
+  "entry": "dist/index.html",
+  "defaultViewport": { "width": 390, "height": 844 }
+}
