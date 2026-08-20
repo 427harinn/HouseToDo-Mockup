@@ -92,29 +92,29 @@ Do not begin M6 automatically after finishing M5; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M5 branch before implementation.
-- [ ] Replace the Shopping placeholder with the real Shopping list mockup.
-- [ ] Add screen-aware Shopping fixtures and required `uilabState` states.
-- [ ] Implement oldest-first active list ordering without priority labels.
-- [ ] Implement compact collapsed rows with name / memo-photo indicators / quantity.
-- [ ] Implement single-open inline row expansion.
-- [ ] Implement expanded `購入` / memo / photo presentation.
-- [ ] Implement local purchase action and collapsed purchased section.
-- [ ] Implement purchased rows with purchase time and purchaser avatar.
-- [ ] Implement purchased-row expansion and `戻す` action.
-- [ ] Implement unpurchased left-swipe `編集` only; do not expose delete.
-- [ ] Implement local reorder behavior representing manual priority.
-- [ ] Implement Shopping empty state.
-- [ ] Validate 390×844 and narrow mobile viewport behavior.
-- [ ] Add/update Shopping behavior tests while keeping M1–M4 tests passing.
-- [ ] Confirm no backend/API dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M5 branch before implementation.
+- [x] Replace the Shopping placeholder with the real Shopping list mockup.
+- [x] Add screen-aware Shopping fixtures and required `uilabState` states.
+- [x] Implement oldest-first active list ordering without priority labels.
+- [x] Implement compact collapsed rows with name / memo-photo indicators / quantity.
+- [x] Implement single-open inline row expansion.
+- [x] Implement expanded `購入` / memo / photo presentation.
+- [x] Implement local purchase action and collapsed purchased section.
+- [x] Implement purchased rows with purchase time and purchaser avatar.
+- [x] Implement purchased-row expansion and `戻す` action.
+- [x] Implement unpurchased left-swipe `編集` only; do not expose delete.
+- [x] Implement local reorder behavior representing manual priority.
+- [x] Implement Shopping empty state.
+- [x] Validate 390×844 and narrow mobile viewport behavior.
+- [x] Add/update Shopping behavior tests while keeping M1–M4 tests passing.
+- [x] Confirm no backend/API dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
 - [ ] Capture required screenshots from final PR HEAD.
 - [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M5 completion state.
+- [x] Update this file with actual M5 completion state.
 - [ ] Commit and push the M5 branch.
 - [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M6.
+- [x] Do not merge the PR.
+- [x] Do not begin M6.
 - [ ] Report branch, commit, PR, changed files, dependencies, checks, screenshots, states, behavior decisions, and deviations.
