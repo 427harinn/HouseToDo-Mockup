@@ -174,7 +174,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
           <span>開始日</span><input type="date" value={form.startDate} onChange={(event) => update('startDate', event.target.value)} />
         </label>
         <label className="form-toggle" data-uilab-component="TaskForm.AllDay" data-uilab-id="task-form-all-day">
-          <span>終日</span><input type="checkbox" checked={form.allDay} onChange={(event) => update('allDay', event.target.checked)} /><span className="form-toggle__visual" aria-hidden="true" />
+          <span>終日</span><input aria-label="終日" type="checkbox" checked={form.allDay} onChange={(event) => update('allDay', event.target.checked)} /><span className="form-toggle__current">{form.allDay ? 'オン' : 'オフ'}</span><span className="form-toggle__visual" aria-hidden="true" />
         </label>
         <label className="form-control" data-uilab-component="TaskForm.Date" data-uilab-id="task-form-date">
           <span>日付</span><input type="date" value={form.date} onChange={(event) => update('date', event.target.value)} />
