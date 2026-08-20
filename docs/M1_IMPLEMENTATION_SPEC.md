@@ -8,6 +8,28 @@ This milestone is **not** for designing Home, Calendar, Shopping, or other scree
 
 The visual source of truth is `DESIGN.md`.
 The UI Lab import contract is `docs/UI_LAB_ADAPTER_SPEC_v1.md`.
+The repository workflow is `docs/CODEX_WORKFLOW.md`.
+
+## Mandatory Git workflow
+
+Before starting implementation, create a dedicated branch from the latest `main`.
+
+When the requested M1 work and tests are complete:
+
+1. commit the changes on that branch
+2. push the branch
+3. open a Pull Request targeting `main`
+4. do **not** merge it
+5. do **not** start M2
+6. report the branch name, PR number/link, changed files, and test results
+
+Recommended branch name:
+
+```text
+feat/m1-react-foundation
+```
+
+This branch + PR workflow is mandatory for every implementation task in this repository.
 
 ## Scope
 
@@ -253,13 +275,19 @@ M1 is complete only when all of the following pass:
 - `npm run test` passes
 - `npm run build` passes
 - `.ai/TASKS.md` is updated with actual completion state
+- implementation was done on a dedicated branch
+- branch was pushed
+- Pull Request to `main` was opened
 
 At completion, report:
 
-1. files added/changed
-2. dependency choices and why
-3. commands run and results
-4. any deviations from this spec
-5. whether M2 can safely begin
+1. branch name
+2. Pull Request number/link
+3. files added/changed
+4. dependency choices and why
+5. commands run and results
+6. any deviations from this spec
+7. whether M2 can safely begin
 
+Do not merge the Pull Request.
 Do not start M2 automatically after finishing M1. Stop and wait for review.
