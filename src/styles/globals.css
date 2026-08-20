@@ -30,6 +30,17 @@ a {
   color: var(--color-primary-strong);
 }
 
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary-strong) 42%, transparent);
+  outline-offset: 2px;
+}
+
 .foundation-page {
   width: min(100% - (2 * var(--space-4)), 40rem);
   margin: 0 auto;
@@ -59,4 +70,26 @@ a {
 
 .foundation-page dd {
   margin: 0;
+}
+
+.route-error-page {
+  width: min(100% - (2 * var(--space-4)), 40rem);
+  margin: 0 auto;
+  padding: var(--space-8) 0;
+}
+
+.route-error-page h1 {
+  margin: 0 0 var(--space-4);
+  font-size: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

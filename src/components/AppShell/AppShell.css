@@ -1,0 +1,66 @@
+.app-shell {
+  --shell-nav-height: 64px;
+
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100dvh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.app-shell__viewport {
+  min-height: 0;
+  overflow-y: auto;
+  padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4)
+    calc(var(--space-4) + env(safe-area-inset-bottom));
+  overscroll-behavior-y: contain;
+}
+
+.screen-content {
+  width: min(100%, 40rem);
+  margin: 0 auto;
+  animation: screen-content-enter 180ms ease-out both;
+}
+
+.screen-content h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+@keyframes screen-content-enter {
+  from {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.add-action-sheet__options {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.add-action-sheet__option {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-2);
+  color: var(--color-text);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+}
+
+.add-action-sheet__option:last-child {
+  border-bottom: 0;
+}
