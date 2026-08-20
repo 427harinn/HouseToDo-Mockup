@@ -1,7 +1,9 @@
 import { useHashRoute } from './router';
 import { AppShell } from '../components/AppShell/AppShell';
 import { FoundationPage } from '../pages/FoundationPage';
+import { HomePage } from '../pages/HomePage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
+import { getHomeUiLabState } from '../mock/homeState';
 
 export function App() {
   const route = useHashRoute();
@@ -19,6 +21,18 @@ export function App() {
   const placeholderTitle = placeholderTitles[route.pathname];
 
   if (placeholderTitle) {
+    if (route.pathname === '/home') {
+      const homeState = getHomeUiLabState(
+        `#${route.pathname}?${route.searchParams.toString()}`,
+      );
+
+      return (
+        <AppShell currentPath={route.pathname}>
+          <HomePage key={homeState} state={homeState} />
+        </AppShell>
+      );
+    }
+
     return (
       <AppShell currentPath={route.pathname}>
         <PlaceholderPage title={placeholderTitle} />
