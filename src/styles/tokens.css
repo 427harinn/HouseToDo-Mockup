@@ -1,0 +1,31 @@
+:root {
+  --color-bg: #fcfbf7;
+  --color-surface: #ffffff;
+  --color-primary: #8fd3b6;
+  --color-primary-strong: #4e9f7d;
+  --color-text: #303531;
+  --color-text-secondary: #717772;
+  --color-border: #e5e7e2;
+  --color-disabled: #c8ccc7;
+  --color-yellow-beige: #e8ddbe;
+  --color-marigold: #f2c968;
+  --color-primary-soft: #e7f5ef;
+
+  --color-task-date: #78afc7;
+  --color-task-week: #8fd3b6;
+  --color-task-month: #e2be73;
+  --color-task-no-deadline: #aeb5af;
+  --color-task-overdue: #d96b63;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --radius-input: 8px;
+  --radius-action: 10px;
+  --radius-sheet: 16px;
+}
