@@ -115,7 +115,10 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
   };
 
   const toggleWeekday = (weekday: string) => {
-    update('weekdays', form.weekdays.includes(weekday) ? form.weekdays.filter((item) => item !== weekday) : [...form.weekdays, weekday]);
+    setForm((current) => ({
+      ...current,
+      weekdays: current.weekdays.includes(weekday) ? current.weekdays.filter((item) => item !== weekday) : [...current.weekdays, weekday],
+    }));
   };
 
   const selectReuse = (item: (typeof TASK_REUSE_ITEMS)[number]) => {
