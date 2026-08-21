@@ -7,11 +7,14 @@
   },
   "calendar": {
     "normal": { "name": "Normal" }, "dense": { "name": "Dense" },
-    "date-open": { "name": "Date sheet open" }, "completed-hidden": { "name": "Completed hidden" },
+    "date-open": { "name": "Date sheet open" }, "shopping": { "name": "Shopping count" },
+    "date-open-shopping": { "name": "Date sheet with shopping" }, "shopping-none": { "name": "No planned shopping" },
+    "completed-hidden": { "name": "Completed hidden" },
     "long-text": { "name": "Long text" }
   },
   "shopping": {
-    "normal": { "name": "Normal" }, "expanded": { "name": "Expanded item" },
+    "normal": { "name": "Normal" }, "planned-date": { "name": "Planned date" },
+    "no-planned-date": { "name": "No planned date" }, "expanded": { "name": "Expanded item" },
     "purchased-open": { "name": "Purchased open" }, "photo": { "name": "Photo item" },
     "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
     "empty": { "name": "Empty" }

@@ -1,10 +1,11 @@
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   calendarFixtures,
   type CalendarTask,
   type CalendarUiLabState,
 } from '../fixtures/calendar';
+import type { ShoppingItem } from '../fixtures/shopping';
 import { getCalendarUiLabState } from '../mock/calendarState';
 
 const TODAY = '2026-08-20';
@@ -41,6 +42,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     () => tasks.filter((task) => !task.completed && !task.passed),
     [tasks],
   );
+  const shoppingItems = fixture.shoppingItems;
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
   const maxCellTasks = getMaxCellTasks();
 
@@ -141,6 +143,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         <div className="calendar-grid-body">
           {monthDays.map((day) => {
             const dayTasks = visibleTasks.filter((task) => task.date === day.date);
+            const dayShopping = getScheduledShopping(shoppingItems, day.date);
             const displayedTasks = dayTasks.slice(0, maxCellTasks);
             const moreCount = dayTasks.length - displayedTasks.length;
 
@@ -152,7 +155,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                 data-uilab-id={day.date}
                 role="button"
                 tabIndex={0}
-                aria-label={`${formatDateLabel(day.date)}${dayTasks.length ? `、タスク${dayTasks.length}件` : ''}`}
+                aria-label={`${formatDateLabel(day.date)}${dayTasks.length ? `、タスク${dayTasks.length}件` : ''}${dayShopping.length ? `、買い物${dayShopping.length}件` : ''}`}
                 onClick={() => openDate(day.date)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {
@@ -199,6 +202,22 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                       +{moreCount}
                     </button>
                   ) : null}
+                  {dayShopping.length > 0 ? (
+                    <button
+                      type="button"
+                      className="calendar-day-shopping"
+                      aria-label={`買い物${dayShopping.length}件`}
+                      data-uilab-component="Calendar.DayCell.ShoppingCount"
+                      data-uilab-id={`calendar-day-${day.date}-shopping`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openDate(day.date);
+                      }}
+                    >
+                      <ShoppingCart aria-hidden="true" />
+                      <span>{dayShopping.length}</span>
+                    </button>
+                  ) : null}
                 </div>
               </div>
             );
@@ -214,6 +233,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         completedCount={completedCount}
         date={selectedDate}
         tasks={visibleTasks}
+        shoppingItems={shoppingItems}
         onClose={() => setSelectedDate(null)}
         onComplete={completeTask}
         onPass={passTask}
@@ -229,6 +249,7 @@ function CalendarDateSheet({
   onClose,
   onComplete,
   onNavigate,
+  shoppingItems,
   onPass,
   tasks,
 }: {
@@ -239,6 +260,7 @@ function CalendarDateSheet({
   onNavigate: (date: string) => void;
   onPass: (task: CalendarTask) => void;
   tasks: CalendarTask[];
+  shoppingItems: ShoppingItem[];
 }) {
   const startX = useRef<number | null>(null);
   const directTasks = date ? tasks.filter((task) => task.date === date) : [];
@@ -252,6 +274,7 @@ function CalendarDateSheet({
           date <= task.periodEnd,
       )
     : [];
+  const dateShopping = date ? getScheduledShopping(shoppingItems, date) : [];
 
   if (!date) return null;
 
@@ -323,6 +346,30 @@ function CalendarDateSheet({
               <span>完了済み {completedCount}件</span>
               <ChevronRight aria-hidden="true" />
             </button>
+          </section>
+          <section className="calendar-shopping-section" data-uilab-component="Calendar.DateSheet.ShoppingSection" data-uilab-id="calendar-date-sheet-shopping">
+            <h3>買うもの</h3>
+            {dateShopping.length > 0 ? (
+              <div className="calendar-shopping-list">
+                {dateShopping.map((item) => (
+                  <button
+                    type="button"
+                    className="calendar-shopping-row"
+                    key={item.id}
+                    data-uilab-component="Calendar.DateSheet.ShoppingRow"
+                    data-uilab-id={`calendar-shopping-${item.id}`}
+                    onClick={() => {
+                      window.location.hash = `#/shopping?item=${encodeURIComponent(item.id)}`;
+                    }}
+                  >
+                    <span>{item.name}</span>
+                    <span>{item.quantity}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="calendar-date-section__empty">なし</p>
+            )}
           </section>
         </div>
       </section>
@@ -474,4 +521,8 @@ function formatMonthLabel(date: string) {
 function formatDateLabel(date: string) {
   const value = new Date(`${date}T12:00:00`);
   return `${value.getMonth() + 1}月${value.getDate()}日 ${WEEKDAYS[value.getDay()]}曜日`;
+}
+
+export function getScheduledShopping(items: ShoppingItem[], date: string) {
+  return items.filter((item) => item.plannedDate === date && !item.purchasedAt);
 }

@@ -18,6 +18,7 @@ const activeItems: ShoppingItem[] = [
     addedAt: '2026-08-18T08:10:00+09:00',
     memo: '低脂肪ではない普通の牛乳。朝食用。',
     photoSrc: pantryPhoto,
+    plannedDate: '2026-08-20',
   },
   {
     id: 'shopping-bananas',
@@ -31,6 +32,7 @@ const activeItems: ShoppingItem[] = [
     quantity: '2丁',
     addedAt: '2026-08-19T09:20:00+09:00',
     memo: '麻婆豆腐に使うので木綿を選ぶ。',
+    plannedDate: '2026-08-23',
   },
   {
     id: 'shopping-detergent',
@@ -46,6 +48,7 @@ const activeItems: ShoppingItem[] = [
     addedAt: '2026-08-20T07:05:00+09:00',
     memo: 'お弁当用。赤くて固めのもの。',
     photoSrc: pantryPhoto,
+    plannedDate: '2026-08-24',
   },
   {
     id: 'shopping-bread',
@@ -61,6 +64,7 @@ const purchasedItems: ShoppingItem[] = [
     name: '卵',
     quantity: '10個',
     addedAt: '2026-08-16T18:00:00+09:00',
+    plannedDate: '2026-08-20',
     purchasedAt: '今日 8:32',
     purchaser: haru,
     memo: '朝食と作り置き用。',
@@ -104,6 +108,11 @@ const longTextItems: ShoppingItem[] = [
 
 export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
   normal: { activeItems, purchasedItems },
+  'planned-date': { activeItems: [activeItems[0], activeItems[2], activeItems[4]], purchasedItems },
+  'no-planned-date': {
+    activeItems: activeItems.map((item) => ({ ...item, plannedDate: undefined })),
+    purchasedItems,
+  },
   expanded: {
     activeItems,
     purchasedItems,

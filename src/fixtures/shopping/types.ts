@@ -1,5 +1,7 @@
 export const shoppingUiLabStates = [
   'normal',
+  'planned-date',
+  'no-planned-date',
   'expanded',
   'purchased-open',
   'photo',
@@ -23,6 +25,7 @@ export type ShoppingItem = {
   addedAt: string;
   memo?: string;
   photoSrc?: string;
+  plannedDate?: string;
   purchasedAt?: string;
   purchaser?: ShoppingPerson;
 };
