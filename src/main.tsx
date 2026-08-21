@@ -9,6 +9,7 @@ import './pages/HomePage.css';
 import './pages/CalendarPage.css';
 import './pages/ShoppingPage.css';
 import './pages/FormPage.css';
+import './pages/OtherPage.css';
 import './styles/globals.css';
 import './styles/tokens.css';
 

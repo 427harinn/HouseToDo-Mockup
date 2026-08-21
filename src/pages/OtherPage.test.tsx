@@ -1,0 +1,117 @@
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { App } from '../app/App';
+
+function renderRoute(path: string) {
+  window.location.hash = path;
+  return render(<App />);
+}
+
+describe('M7 Other / Settings', () => {
+  it('renders the four-row Other landing and navigates to each detail route', async () => {
+    renderRoute('#/other');
+
+    expect(screen.getByRole('heading', { name: 'その他' })).toBeVisible();
+    expect(screen.getByRole('navigation', { name: 'その他の設定' })).toBeVisible();
+    expect(within(screen.getByRole('navigation', { name: 'その他の設定' })).getAllByRole('link')).toHaveLength(4);
+    expect(screen.getByRole('navigation', { name: 'メインナビゲーション' })).toBeVisible();
+
+    const routes = [
+      ['メンバー', '#/other/members', 'メンバー'],
+      ['通知', '#/other/notifications', '通知'],
+      ['家庭設定', '#/other/household', '家庭設定'],
+      ['アカウント', '#/other/account', 'アカウント'],
+    ] as const;
+
+    for (const [label, hash, heading] of routes) {
+      window.location.hash = '#/other';
+      await waitFor(() => expect(screen.getByRole('heading', { name: 'その他' })).toBeVisible());
+      fireEvent.click(screen.getByRole('link', { name: label }));
+      await waitFor(() => expect(window.location.hash).toBe(hash));
+      expect(screen.getByRole('heading', { name: heading })).toBeVisible();
+      expect(screen.queryByRole('navigation', { name: 'メインナビゲーション' })).not.toBeInTheDocument();
+    }
+  });
+
+  it('shows deterministic members and supports invite sheet open, copy feedback, and close', () => {
+    renderRoute('#/other/members?uilabState=normal');
+
+    expect(screen.getByRole('img', { name: 'アバター: ゆき' })).toBeVisible();
+    expect(screen.getByRole('img', { name: 'アバター: はる' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '招待する' }));
+    expect(screen.getByRole('dialog', { name: 'メンバーを招待' })).toBeVisible();
+    expect(screen.getByText('HOUSE-4821')).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'コードをコピー' }));
+    expect(screen.getByRole('status')).toHaveTextContent('コードをコピーしました');
+    fireEvent.click(screen.getByRole('button', { name: '閉じる' }));
+    expect(screen.queryByRole('dialog', { name: 'メンバーを招待' })).not.toBeInTheDocument();
+  });
+
+  it('opens invite sheet from the deterministic state', () => {
+    renderRoute('#/other/members?uilabState=invite-open');
+    expect(screen.getByRole('dialog', { name: 'メンバーを招待' })).toBeVisible();
+  });
+
+  it('conditionally renders notification times when toggles are enabled', () => {
+    renderRoute('#/other/notifications?uilabState=normal');
+    expect(screen.getByLabelText('朝のまとめ通知')).toBeChecked();
+    expect(screen.getByLabelText('夜のまとめ通知')).toBeChecked();
+    expect(screen.getByLabelText('朝のまとめ通知の時刻')).toHaveValue('09:00');
+    expect(screen.getByLabelText('夜のまとめ通知の時刻')).toHaveValue('21:00');
+
+    fireEvent.click(screen.getByLabelText('朝のまとめ通知'));
+    expect(screen.queryByLabelText('朝のまとめ通知の時刻')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('夜のまとめ通知の時刻')).toBeVisible();
+    fireEvent.change(screen.getByLabelText('夜のまとめ通知の時刻'), { target: { value: '22:30' } });
+    expect(screen.getByLabelText('夜のまとめ通知の時刻')).toHaveValue('22:30');
+
+    fireEvent.click(screen.getByLabelText('夜のまとめ通知'));
+    expect(screen.queryByLabelText('夜のまとめ通知の時刻')).not.toBeInTheDocument();
+  });
+
+  it('supports all-off and unknown notification states', async () => {
+    renderRoute('#/other/notifications?uilabState=all-off');
+    expect(screen.getByLabelText('朝のまとめ通知')).not.toBeChecked();
+    expect(screen.getByLabelText('夜のまとめ通知')).not.toBeChecked();
+    expect(screen.queryByLabelText('朝のまとめ通知の時刻')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('夜のまとめ通知の時刻')).not.toBeInTheDocument();
+
+    window.location.hash = '#/other/notifications?uilabState=unknown';
+    await waitFor(() => expect(screen.getByLabelText('朝のまとめ通知')).toBeChecked());
+    expect(screen.getByLabelText('夜のまとめ通知')).toBeChecked();
+  });
+
+  it('supports household editing, timezone selection, and local save feedback', () => {
+    renderRoute('#/other/household?uilabState=timezone-open');
+    expect(screen.getByRole('dialog', { name: 'タイムゾーン' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'America/Los_Angeles' }));
+    expect(screen.getByRole('button', { name: 'タイムゾーン: America/Los_Angeles' })).toBeVisible();
+    fireEvent.change(screen.getByLabelText('家庭名'), { target: { value: '長い家庭名のテスト' } });
+    expect(screen.getByLabelText('家庭名')).toHaveValue('長い家庭名のテスト');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+    expect(screen.getByRole('status')).toHaveTextContent('保存しました');
+  });
+
+  it('supports the minimal account screen and logout confirmation flow', () => {
+    renderRoute('#/other/account?uilabState=normal');
+    expect(screen.getByDisplayValue('はる')).toBeVisible();
+    expect(screen.getByDisplayValue('haru@example.com')).toHaveAttribute('readonly');
+    fireEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
+    expect(screen.getByRole('dialog', { name: 'ログアウトしますか？' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
+    expect(screen.queryByRole('dialog', { name: 'ログアウトしますか？' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
+    fireEvent.click(screen.getByRole('dialog', { name: 'ログアウトしますか？' }).querySelector('.settings-danger-action')!);
+    expect(screen.getByRole('status')).toHaveTextContent('ログアウトしました');
+  });
+
+  it('opens logout confirmation from the deterministic state and falls back unknown states', async () => {
+    renderRoute('#/other/account?uilabState=logout-confirm');
+    expect(screen.getByRole('dialog', { name: 'ログアウトしますか？' })).toBeVisible();
+
+    window.location.hash = '#/other/account?uilabState=unknown';
+    await waitFor(() => expect(screen.queryByRole('dialog', { name: 'ログアウトしますか？' })).not.toBeInTheDocument());
+    expect(screen.getByRole('heading', { name: 'アカウント' })).toBeVisible();
+  });
+});
