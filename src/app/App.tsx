@@ -10,6 +10,13 @@ import { getCalendarUiLabState } from '../mock/calendarState';
 import { getShoppingUiLabState } from '../mock/shoppingState';
 import { TaskFormPage } from '../pages/TaskFormPage';
 import { ShoppingFormPage } from '../pages/ShoppingFormPage';
+import {
+  AccountPage,
+  HouseholdPage,
+  MembersPage,
+  NotificationsPage,
+  OtherLandingPage,
+} from '../pages/OtherPage';
 
 export function App() {
   const route = useHashRoute();
@@ -42,6 +49,19 @@ export function App() {
         />
       </AppShell>
     );
+  }
+
+  if (route.pathname === '/other/members' || route.pathname === '/other/notifications' || route.pathname === '/other/household' || route.pathname === '/other/account') {
+    const state = route.searchParams.get('uilabState') ?? 'normal';
+    const page = route.pathname === '/other/members'
+      ? <MembersPage key={`${route.pathname}-${state}`} state={state} />
+      : route.pathname === '/other/notifications'
+        ? <NotificationsPage key={`${route.pathname}-${state}`} state={state} />
+        : route.pathname === '/other/household'
+          ? <HouseholdPage key={`${route.pathname}-${state}`} state={state} />
+          : <AccountPage key={`${route.pathname}-${state}`} state={state} />;
+
+    return <AppShell currentPath="" showBottomNavigation={false}>{page}</AppShell>;
   }
 
   const placeholderTitles: Record<string, string> = {
@@ -89,11 +109,11 @@ export function App() {
       );
     }
 
-    return (
-      <AppShell currentPath={route.pathname}>
-        <PlaceholderPage title={placeholderTitle} />
-      </AppShell>
-    );
+    if (route.pathname === '/other') {
+      return <AppShell currentPath={route.pathname}><OtherLandingPage /></AppShell>;
+    }
+
+    return <AppShell currentPath={route.pathname}><PlaceholderPage title={placeholderTitle} /></AppShell>;
   }
 
   return (

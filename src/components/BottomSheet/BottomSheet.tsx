@@ -5,6 +5,8 @@ type BottomSheetProps = {
   onClose: () => void;
   open: boolean;
   title: string;
+  uilabComponent?: string;
+  uilabId?: string;
 };
 
 export function BottomSheet({
@@ -12,6 +14,8 @@ export function BottomSheet({
   onClose,
   open,
   title,
+  uilabComponent = 'AppShell.AddSheet',
+  uilabId = 'app-add-sheet',
 }: BottomSheetProps) {
   useEffect(() => {
     if (!open) return undefined;
@@ -39,8 +43,8 @@ export function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-labelledby="bottom-sheet-title"
-        data-uilab-component="AppShell.AddSheet"
-        data-uilab-id="app-add-sheet"
+        data-uilab-component={uilabComponent}
+        data-uilab-id={uilabId}
       >
         <div className="bottom-sheet__handle" aria-hidden="true" />
         <div className="bottom-sheet__header">

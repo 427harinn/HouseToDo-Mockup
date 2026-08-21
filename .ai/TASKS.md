@@ -54,33 +54,33 @@ Do not begin M8 automatically after finishing M7; stop for review.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M7 branch before implementation.
-- [ ] Replace `#/other` placeholder with the real Other screen.
-- [ ] Add `#/other/members`.
-- [ ] Add `#/other/notifications`.
-- [ ] Add `#/other/household`.
-- [ ] Add `#/other/account`.
-- [ ] Implement four-row Other navigation without cards/subtitles.
-- [ ] Implement Members list with avatar/name.
-- [ ] Implement minimal local invite sheet and mock copy feedback.
-- [ ] Implement morning/evening summary notification toggles.
-- [ ] Hide each notification time control when its toggle is OFF.
-- [ ] Implement household name and timezone settings.
-- [ ] Implement timezone selection and household mock Save.
-- [ ] Implement minimal Account screen.
-- [ ] Implement separated Logout action and confirmation mock.
-- [ ] Add required deterministic `uilabState` states.
-- [ ] Keep BottomNavigation on Other landing and hide it on deeper settings routes.
-- [ ] Validate 390×844 and 320×568 responsive behavior.
-- [ ] Add/update behavior tests while keeping M1–M6 tests passing.
-- [ ] Confirm no backend/API/auth/push dependency exists.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Capture all required screenshots from final PR HEAD.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M7 completion state.
-- [ ] Commit and push the M7 branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Do not begin M8.
-- [ ] Report branch, commit, PR, files, dependencies, checks, routes/states, screenshots, behavior decisions, and deviations.
+- [x] Update to latest `main` before starting.
+- [x] Create a dedicated M7 branch before implementation.
+- [x] Replace `#/other` placeholder with the real Other screen.
+- [x] Add `#/other/members`.
+- [x] Add `#/other/notifications`.
+- [x] Add `#/other/household`.
+- [x] Add `#/other/account`.
+- [x] Implement four-row Other navigation without cards/subtitles.
+- [x] Implement Members list with avatar/name.
+- [x] Implement minimal local invite sheet and mock copy feedback.
+- [x] Implement morning/evening summary notification toggles.
+- [x] Hide each notification time control when its toggle is OFF.
+- [x] Implement household name and timezone settings.
+- [x] Implement timezone selection and household mock Save.
+- [x] Implement minimal Account screen.
+- [x] Implement separated Logout action and confirmation mock.
+- [x] Add required deterministic `uilabState` states.
+- [x] Keep BottomNavigation on Other landing and hide it on deeper settings routes.
+- [x] Validate 390×844 and 320×568 responsive behavior.
+- [x] Add/update behavior tests while keeping M1–M6 tests passing.
+- [x] Confirm no backend/API/auth/push dependency exists.
+- [x] Run lint/typecheck/test/build successfully.
+- [x] Capture all required screenshots from final PR HEAD.
+- [x] Add a clearly labeled `Screenshots` section to the PR body.
+- [x] Update this file with actual M7 completion state.
+- [x] Commit and push the M7 branch.
+- [x] Open a draft Pull Request targeting `main`.
+- [x] Do not merge the PR.
+- [x] Do not begin M8.
+- [x] Report branch, commit, PR, files, dependencies, checks, routes/states, screenshots, behavior decisions, and deviations.
