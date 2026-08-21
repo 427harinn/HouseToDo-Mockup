@@ -87,8 +87,14 @@ describe('HomePage', () => {
   it('navigates from a completed row and its edit affordance to task edit', async () => {
     renderHome('completed-open');
 
-    expect(document.querySelector('[data-uilab-component="Home.CompletedRow.Edit"]')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: '朝食の片付けの設定を編集' }));
+    const row = document.querySelector('[data-uilab-component="Home.CompletedRow"]');
+    expect(row?.tagName).toBe('DIV');
+    expect(document.querySelector('[data-uilab-component="Home.CompletedRow.Edit"]')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '朝食の片付けの操作' }));
+
+    expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'パス' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
 
     await waitFor(() => {
       expect(window.location.hash).toBe('#/tasks/edit');

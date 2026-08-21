@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Ellipsis, House, Pencil } from 'lucide-react';
+import { Check, ChevronRight, Ellipsis, House } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { homeFixtures, type CompletedTask, type HomeTask, type HomeUiLabState } from '../fixtures/home';
 import { getHomeUiLabState } from '../mock/homeState';
@@ -262,31 +262,47 @@ function TaskRow({
 }
 
 function CompletedRow({ task }: { task: CompletedTask }) {
+  const [actionsOpen, setActionsOpen] = useState(false);
+
   return (
-    <button
-      type="button"
-      className="home-completed__row"
-      aria-label={`${task.name}の設定を編集`}
+    <div
+      className={`home-completed__row${actionsOpen ? ' is-actions-open' : ''}`}
       data-uilab-component="Home.CompletedRow"
       data-uilab-id={task.id}
-      onClick={() => {
-        window.location.hash = '#/tasks/edit';
-      }}
     >
-      <span className="home-completed__details">
-        <span className="home-completed__name">{task.name}</span>
-        <span className="home-completed__time">{task.completedAt}</span>
-      </span>
-      {task.completedBy ? <Avatar person={task.completedBy} label="完了者" /> : null}
-      <span
-        className="home-completed__edit"
-        aria-hidden="true"
-        data-uilab-component="Home.CompletedRow.Edit"
-        data-uilab-id={`${task.id}-edit`}
-      >
-        <Pencil />
-      </span>
-    </button>
+      <div className="home-completed__content">
+        <span className="home-completed__details">
+          <span className="home-completed__name">{task.name}</span>
+          <span className="home-completed__time">{task.completedAt}</span>
+        </span>
+        {task.completedBy ? <Avatar person={task.completedBy} label="完了者" /> : null}
+        <button
+          type="button"
+          className="home-completed__more"
+          aria-label={`${task.name}の操作`}
+          aria-expanded={actionsOpen}
+          data-uilab-component="Home.CompletedRow.MoreButton"
+          data-uilab-id={`${task.id}-more`}
+          onClick={() => setActionsOpen((open) => !open)}
+        >
+          <Ellipsis aria-hidden="true" />
+        </button>
+      </div>
+      {actionsOpen ? (
+        <div className="home-completed__actions" aria-label={`${task.name}の操作メニュー`}>
+          <button
+            type="button"
+            data-uilab-component="Home.CompletedRow.Edit"
+            data-uilab-id={`${task.id}-edit`}
+            onClick={() => {
+              window.location.hash = '#/tasks/edit';
+            }}
+          >
+            編集
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 

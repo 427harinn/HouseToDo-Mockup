@@ -15,7 +15,8 @@
   "Home.CompletedSection": { "selector": "[data-uilab-component='Home.CompletedSection']", "instances": "single", "editable": ["width", "padding", "margin", "background", "border", "borderRadius"] },
   "Home.CompletedToggle": { "selector": "[data-uilab-component='Home.CompletedToggle']", "instances": "single", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background"] },
   "Home.CompletedRow": { "selector": "[data-uilab-component='Home.CompletedRow']", "instances": "multiple", "editable": ["position", "width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
-  "Home.CompletedRow.Edit": { "selector": "[data-uilab-component='Home.CompletedRow.Edit']", "instances": "multiple", "editable": ["width", "height", "padding", "margin", "color", "background", "borderRadius", "opacity"] },
+  "Home.CompletedRow.MoreButton": { "selector": "[data-uilab-component='Home.CompletedRow.MoreButton']", "instances": "multiple", "editable": ["width", "height", "padding", "color", "background", "borderRadius", "opacity"] },
+  "Home.CompletedRow.Edit": { "selector": "[data-uilab-component='Home.CompletedRow.Edit']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
   "Home.ShoppingSummary": { "selector": "[data-uilab-component='Home.ShoppingSummary']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
 
   "Calendar.Page": { "selector": "[data-uilab-component='Calendar.Page']", "instances": "single", "editable": ["width", "height", "padding", "background"] },
