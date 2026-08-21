@@ -84,6 +84,8 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
           >
             <ChevronRight aria-hidden="true" />
           </button>
+        </div>
+        <div className="calendar-header__today-row">
           <button type="button" className="calendar-today-button" onClick={goToToday}>
             今日
           </button>

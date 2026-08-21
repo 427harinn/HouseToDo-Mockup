@@ -40,7 +40,7 @@
 }
 
 .home-task-row.is-actions-open .home-task-row__content {
-  transform: translateX(-128px);
+  transform: translateX(-144px);
 }
 
 .home-task-row__main {
@@ -182,8 +182,9 @@
   inset: 0 0 0 auto;
   z-index: 0;
   display: grid;
-  grid-template-columns: 64px 64px;
-  width: 128px;
+  grid-template-columns: repeat(2, 64px);
+  gap: var(--space-2);
+  width: 136px;
 }
 
 .home-task-row__actions button {
@@ -247,7 +248,7 @@
 }
 
 .home-task-row--completed.is-actions-open .home-task-row__content {
-  transform: translateX(-64px);
+  transform: translateX(-72px);
 }
 
 .home-task-row--completed .home-task-row__content {
