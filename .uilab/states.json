@@ -48,6 +48,7 @@
     "saved": { "name": "Saved" }
   },
   "account": {
-    "normal": { "name": "Normal" }, "logout-confirm": { "name": "Logout confirmation" }
+    "normal": { "name": "Normal" }, "photo-selected": { "name": "Photo selected" },
+    "logout-confirm": { "name": "Logout confirmation" }
   }
 }

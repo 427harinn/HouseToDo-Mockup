@@ -84,6 +84,18 @@ describe('HomePage', () => {
     expect(screen.getByText('朝食の片付け')).toBeVisible();
   });
 
+  it('navigates from a completed row and its edit affordance to task edit', async () => {
+    renderHome('completed-open');
+
+    expect(document.querySelector('[data-uilab-component="Home.CompletedRow.Edit"]')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '朝食の片付けの設定を編集' }));
+
+    await waitFor(() => {
+      expect(window.location.hash).toBe('#/tasks/edit');
+      expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible();
+    });
+  });
+
   it('reveals edit/pass on a left swipe and pass removes without completing', () => {
     renderHome('normal');
     const row = document.querySelector('[data-uilab-id="normal-trash"]');

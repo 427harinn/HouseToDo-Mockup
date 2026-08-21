@@ -92,10 +92,16 @@ describe('M7 Other / Settings', () => {
     expect(screen.getByRole('status')).toHaveTextContent('保存しました');
   });
 
-  it('supports the minimal account screen and logout confirmation flow', () => {
-    renderRoute('#/other/account?uilabState=normal');
+  it('supports account avatar actions and logout confirmation flow', () => {
+    const { unmount } = renderRoute('#/other/account?uilabState=normal');
     expect(screen.getByDisplayValue('はる')).toBeVisible();
     expect(screen.getByDisplayValue('haru@example.com')).toHaveAttribute('readonly');
+    expect(screen.getByRole('img', { name: 'アバター: はる' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'プロフィール画像を変更' }));
+    expect(screen.getByRole('dialog', { name: 'プロフィール画像' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '写真を選択' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '閉じる' }));
+
     fireEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
     expect(screen.getByRole('dialog', { name: 'ログアウトしますか？' })).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
@@ -104,6 +110,15 @@ describe('M7 Other / Settings', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ログアウト' }));
     fireEvent.click(screen.getByRole('dialog', { name: 'ログアウトしますか？' }).querySelector('.settings-danger-action')!);
     expect(screen.getByRole('status')).toHaveTextContent('ログアウトしました');
+
+    unmount();
+    renderRoute('#/other/account?uilabState=photo-selected');
+    expect(screen.getByRole('img', { name: 'プロフィール画像' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'プロフィール画像を変更' }));
+    expect(screen.getByRole('button', { name: '初期状態に戻す' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '初期状態に戻す' }));
+    expect(screen.getByRole('img', { name: 'アバター: はる' })).toBeVisible();
+    expect(screen.queryByRole('img', { name: 'プロフィール画像' })).not.toBeInTheDocument();
   });
 
   it('opens logout confirmation from the deterministic state and falls back unknown states', async () => {

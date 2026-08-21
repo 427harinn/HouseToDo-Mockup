@@ -1,4 +1,4 @@
-import { Check, ChevronRight, Ellipsis, House } from 'lucide-react';
+import { Check, ChevronRight, Ellipsis, House, Pencil } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { homeFixtures, type CompletedTask, type HomeTask, type HomeUiLabState } from '../fixtures/home';
 import { getHomeUiLabState } from '../mock/homeState';
@@ -263,13 +263,30 @@ function TaskRow({
 
 function CompletedRow({ task }: { task: CompletedTask }) {
   return (
-    <div className="home-completed__row">
-      <div>
-        <p>{task.name}</p>
-        <span>{task.completedAt}</span>
-      </div>
+    <button
+      type="button"
+      className="home-completed__row"
+      aria-label={`${task.name}の設定を編集`}
+      data-uilab-component="Home.CompletedRow"
+      data-uilab-id={task.id}
+      onClick={() => {
+        window.location.hash = '#/tasks/edit';
+      }}
+    >
+      <span className="home-completed__details">
+        <span className="home-completed__name">{task.name}</span>
+        <span className="home-completed__time">{task.completedAt}</span>
+      </span>
       {task.completedBy ? <Avatar person={task.completedBy} label="完了者" /> : null}
-    </div>
+      <span
+        className="home-completed__edit"
+        aria-hidden="true"
+        data-uilab-component="Home.CompletedRow.Edit"
+        data-uilab-id={`${task.id}-edit`}
+      >
+        <Pencil />
+      </span>
+    </button>
   );
 }
 

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Camera, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
 
 type Member = {
@@ -8,7 +8,20 @@ type Member = {
   initials: string;
 };
 
-type Sheet = 'invite' | 'timezone' | 'logout' | null;
+type Sheet = 'invite' | 'timezone' | 'logout' | 'avatar' | null;
+
+const PROFILE_AVATAR_DATA_URL = `data:image/svg+xml,${encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+    <rect width="160" height="160" rx="80" fill="#E7F5EF"/>
+    <circle cx="80" cy="69" r="31" fill="#F2C9A5"/>
+    <path d="M49 68c2-28 17-43 33-43 22 0 37 16 37 43-8-9-17-14-29-15-15-1-27 5-41 15Z" fill="#5C463A"/>
+    <circle cx="68" cy="70" r="3" fill="#303531"/>
+    <circle cx="92" cy="70" r="3" fill="#303531"/>
+    <path d="M72 87c5 4 11 4 16 0" fill="none" stroke="#A66155" stroke-linecap="round" stroke-width="3"/>
+    <path d="M39 145c4-31 20-48 41-48s37 17 41 48" fill="#8FD3B6"/>
+    <path d="M56 110c8 8 16 12 24 12s16-4 24-12" fill="none" stroke="#4E9F7D" stroke-width="4"/>
+  </svg>
+`)}`;
 
 const MEMBERS: Member[] = [
   { id: 'yuki', name: 'ゆき', initials: 'ゆ' },
@@ -168,16 +181,67 @@ export function HouseholdPage({ state }: { state: string }) {
 }
 
 export function AccountPage({ state }: { state: string }) {
-  const safeState = normalizeState(state, ['normal', 'logout-confirm'] as const);
+  const safeState = normalizeState(state, ['normal', 'photo-selected', 'logout-confirm'] as const);
   const [displayName, setDisplayName] = useState('はる');
   const [sheet, setSheet] = useState<Sheet>(safeState === 'logout-confirm' ? 'logout' : null);
   const [statusMessage, setStatusMessage] = useState('');
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(
+    safeState === 'photo-selected' ? PROFILE_AVATAR_DATA_URL : null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleAvatarFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+      if (typeof reader.result === 'string') {
+        setAvatarDataUrl(reader.result);
+        setSheet(null);
+      }
+    });
+    reader.readAsDataURL(file);
+  };
 
   return (
     <section className="screen-content settings-page account-page" data-uilab-component="Settings.Page" data-uilab-id="account-page">
       <SettingsHeader title="アカウント" />
       <div className="account-profile" data-uilab-component="Account.Profile" data-uilab-id="account-profile">
-        <span className="other-avatar other-avatar--large" role="img" aria-label="アバター: はる">は</span>
+        <div className="account-profile__avatar">
+          <button
+            type="button"
+            className="account-avatar-button"
+            aria-label="プロフィール画像を変更"
+            data-uilab-component="Account.AvatarEdit"
+            data-uilab-id="account-avatar-edit"
+            onClick={() => setSheet('avatar')}
+          >
+            <span className="account-avatar" data-uilab-component="Account.Avatar" data-uilab-id="account-avatar">
+              {avatarDataUrl ? (
+                <img
+                  src={avatarDataUrl}
+                  alt="プロフィール画像"
+                  data-uilab-component="Account.AvatarImage"
+                  data-uilab-id="account-avatar-image"
+                />
+              ) : (
+                <span role="img" aria-label="アバター: はる">は</span>
+              )}
+            </span>
+            <span className="account-avatar__edit" aria-hidden="true">
+              <Camera />
+            </span>
+          </button>
+          <input
+            ref={fileInputRef}
+            className="account-avatar__input"
+            type="file"
+            accept="image/*"
+            aria-label="プロフィール画像を選択"
+            onChange={handleAvatarFileChange}
+          />
+        </div>
         <label className="settings-field">
           <span>表示名</span>
           <input aria-label="表示名" value={displayName} onChange={(event) => setDisplayName(event.target.value)} />
@@ -191,6 +255,22 @@ export function AccountPage({ state }: { state: string }) {
         <button type="button" className="settings-danger-action" data-uilab-component="Account.Logout" data-uilab-id="account-logout" onClick={() => setSheet('logout')}>ログアウト</button>
       </div>
       <p className="settings-status" role="status" aria-live="polite">{statusMessage}</p>
+      <BottomSheet open={sheet === 'avatar'} title="プロフィール画像" onClose={() => setSheet(null)} uilabComponent="Account.AvatarActions" uilabId="account-avatar-actions">
+        <div className="account-avatar-actions">
+          <button type="button" className="settings-secondary-action" onClick={() => fileInputRef.current?.click()}>写真を選択</button>
+          {avatarDataUrl ? (
+            <button
+              type="button"
+              className="settings-danger-action"
+              data-uilab-component="Account.AvatarRemove"
+              data-uilab-id="account-avatar-remove"
+              onClick={() => { setAvatarDataUrl(null); setSheet(null); }}
+            >
+              初期状態に戻す
+            </button>
+          ) : null}
+        </div>
+      </BottomSheet>
       <BottomSheet open={sheet === 'logout'} title="ログアウトしますか？" onClose={() => setSheet(null)} uilabComponent="Account.LogoutConfirm" uilabId="account-logout-confirm">
         <div className="logout-confirm" data-uilab-component="Account.LogoutConfirm" data-uilab-id="account-logout-confirm-content">
           <button type="button" className="settings-danger-action" onClick={() => { setSheet(null); setStatusMessage('ログアウトしました'); }}>ログアウト</button>
