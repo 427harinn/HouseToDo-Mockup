@@ -1,36 +1,77 @@
-# M8 Implementation Specification — UI Lab adapter/package
+# M8 Implementation Specification — UI Lab adapter/package update
 
 ## 1. Goal
 
-M8 is the final mockup milestone. Prepare the completed HouseToDo mockup for import into UI Lab v1.
+M8 is the final mockup milestone. **Do not rebuild the UI Lab adapter from scratch.**
 
-The source of truth is:
+PR #6 (`feat/uilab-v1-adapter`) already implemented and validated the first working HouseToDo Adapter v1 integration and was merged to `main` as commit `91abfbe92cc846945ada61fef305f0f51f6d6a69`.
 
-- `docs/UI_LAB_ADAPTER_SPEC_v1.md`
+That work already established:
+
+- `.uilab/project.json`
+- `.uilab/screens.json`
+- `.uilab/components.json`
+- `.uilab/tokens.json`
+- `.uilab/states.json`
+- single-file `dist/index.html` generation via `scripts/build-uilab-package.mjs`
+- ZIP packaging via `scripts/package-uilab.ps1`
+- semantic `data-uilab-component` / `data-uilab-id` coverage for the M3–M5 screens
+- UI Lab v1 compatibility work in routing/mount timing
+- real UI Lab validation of import, element editing, Undo/Redo, project export/import round trip, and Codex Export
+- validation evidence in `docs/UILAB_V1_HOUSETODO_VALIDATION.md`
+
+M8 therefore means:
+
+> **Preserve the proven PR #6 integration and extend/update it for the completed M6 and M7 application.**
+
+Primary sources of truth:
+
+- `docs/UILAB_V1_HOUSETODO_VALIDATION.md` — proven PR #6 behavior and compatibility findings
+- `docs/UI_LAB_ADAPTER_SPEC_v1.md` — adapter contract
 - `DESIGN.md`
 - `docs/CODEX_WORKFLOW.md`
-- the actual routes/states/components already implemented in M1–M7
+- actual routes/states/components currently implemented on `main`
 
-Do not redesign product screens in M8 unless an adapter validation issue requires a minimal correction.
-Do not implement UI Lab editor functionality inside this repository.
+Do not redesign product screens unless an adapter validation issue requires a minimal correction.
+Do not implement UI Lab editor functionality in this repository.
 
-## 2. Required deliverables
+## 2. Preserve the verified PR #6 compatibility work
 
-Add the adapter metadata directory:
+Before changing adapter/build behavior, inspect PR #6 and current `main`.
+
+Important behavior that must not be removed casually:
+
+1. `src/main.tsx` currently uses `flushSync` so React content is committed early enough for UI Lab v1 discovery.
+2. `src/app/router.tsx` contains embedded-preview route reload behavior because UI Lab v1 discovery is load-based and otherwise may stay scoped to the previous hash route.
+3. `scripts/build-uilab-package.mjs` converts the Vite build into a single-file HTML preview, inlines CSS/JS, embeds `shopping-pantry.svg`, and intentionally emits classic inline JavaScript to avoid the discovery race.
+4. Stable semantic component and instance IDs were already validated by actual UI Lab editing.
+
+These are deliberate compatibility measures documented in `docs/UILAB_V1_HOUSETODO_VALIDATION.md`. Preserve them unless testing against UI Lab proves a better solution works.
+
+Known PR #6 limitations are also documented there:
+
+- UI Lab discovery is load/timing-sensitive.
+- action-bearing task/shopping rows can be difficult to select with normal pointer clicks.
+- transparent computed-style `before` values can lose transparency semantics in Codex Export.
+
+M8 should not attempt broad UI Lab runtime fixes for those issues. Only change Mockup-side compatibility behavior if required for the current completed app.
+
+## 3. Existing adapter baseline
+
+At the start of M8, `main` already has Adapter v1 metadata for the earlier application:
+
+- 3 screens: Home / Calendar / Shopping
+- 20 fixture-backed states
+- 41 semantic component definitions
+
+The completed application now includes M6 and M7 routes, so the existing metadata is intentionally stale/incomplete and must be **updated**, not replaced blindly.
+
+## 4. Required final package shape
+
+Keep the existing Adapter v1 contract:
 
 ```text
-.uilab/
-├─ project.json
-├─ screens.json
-├─ components.json
-├─ tokens.json
-└─ states.json
-```
-
-Provide an import build that can be distributed as:
-
-```text
-HouseToDo-Mockup.zip
+HouseToDo-Mockup-uilab-v1.zip
 ├─ dist/
 │  └─ index.html
 └─ .uilab/
@@ -41,11 +82,7 @@ HouseToDo-Mockup.zip
    └─ states.json
 ```
 
-The ZIP is a generated delivery artifact. Do not commit generated ZIP/dist output if repository conventions keep generated files ignored; commit the source/config/scripts needed to reproduce it.
-
-## 3. Project metadata
-
-`.uilab/project.json` must follow adapter v1 exactly:
+`.uilab/project.json` should remain:
 
 ```json
 {
@@ -59,13 +96,13 @@ The ZIP is a generated delivery artifact. Do not commit generated ZIP/dist outpu
 }
 ```
 
-Do not add undocumented format fields unless required by an existing repository convention.
+Do not introduce a new adapter format.
 
-## 4. Screens inventory
+## 5. Screens update
 
-`screens.json` must declare every user-reviewable mockup screen that UI Lab should expose, using existing hash routes only.
+Extend the existing `.uilab/screens.json` from the currently proven 3 screens to all user-reviewable product routes.
 
-Minimum screen IDs/routes:
+Required final routes:
 
 ```text
 home                  /home
@@ -82,15 +119,18 @@ household-settings    /other/household
 account                /other/account
 ```
 
-Use readable English `name` values and `defaultState: "normal"` unless the implemented screen contract clearly uses another default.
+Do not expose Foundation/internal verification routes.
 
-Do not expose the Foundation/internal verification route as a normal UI Lab product screen.
+Use `defaultState: "normal"` unless the actual screen contract requires otherwise.
 
-## 5. States inventory
+## 6. States update
 
-`states.json` must reflect the actual deterministic `uilabState` contract already implemented. Do not invent states that do not render.
+Start from the existing `.uilab/states.json`, then inventory the current implementation and append M6/M7 states.
 
-At minimum include the states currently supported by M3–M7:
+Do not rename working PR #6 state IDs unless the current code itself changed them.
+Do not invent fixture states.
+
+Expected current groups include:
 
 ### Home
 
@@ -103,15 +143,13 @@ At minimum include the states currently supported by M3–M7:
 - `long-text`
 - `empty`
 
-If the actual Home implementation uses a slightly different exact state ID, use the code's existing ID rather than silently renaming it.
-
 ### Calendar
 
-Inventory the exact existing Calendar state IDs from the implementation and include all supported deterministic states, including normal/month-density/detail states that were created during M4.
+Use the exact existing M4 state IDs from code/current metadata.
 
 ### Shopping
 
-Inventory all exact existing M5 Shopping state IDs, including normal/expanded/purchased/memo-photo/reorder/empty/long-text variants actually supported.
+Use the exact existing M5 state IDs from code/current metadata.
 
 ### Task add
 
@@ -168,105 +206,96 @@ Inventory all exact existing M5 Shopping state IDs, including normal/expanded/pu
 - `normal`
 - `logout-confirm`
 
-Unknown states must continue to fall back to each screen's declared default state.
+Unknown states must continue to fall back to each screen's default.
 
-## 6. Component adapter inventory
+## 7. Component metadata update
 
-Create `.uilab/components.json` from the semantic adapter attributes already present in the rendered UI.
+**Extend the existing 41-component inventory.**
 
-Rules:
+Do not discard or unnecessarily rename semantic component IDs that already worked in UI Lab and in the validated Codex Export.
 
-1. Inventory the existing `data-uilab-component` values first.
-2. Reuse stable semantic names already introduced in M2–M7.
-3. Add missing adapter attributes only where a meaningful user-editable component cannot otherwise be selected.
-4. `data-uilab-component` may repeat for semantic component families.
-5. `data-uilab-id` must be unique within the currently rendered screen/state.
-6. Do not use generated hashes, array indexes, or meaningless IDs such as `element-1`.
-7. Do not annotate every wrapper. Expose meaningful visual/interactive components only.
+PR #6 verified examples such as:
 
-Important families should include, where they already exist or are meaningfully editable:
+- `Home.TaskRow`
+- `Home.TaskRow.Name`
+- `Calendar.DayCell`
+- `Shopping.ItemRow`
 
-- AppShell / BottomNavigation / Add sheet
-- Home task rows/checks/completed rows/shopping summary
-- Calendar cells/task labels/date detail sheet
-- Shopping rows/action areas/purchased section
-- Task form fields/repeat/assignee/save/delete/sheets
-- Shopping form fields/photo/save/delete/sheets
+and their stable `data-uilab-id` targeting.
+
+Audit new M6/M7 semantic attributes and add meaningful component definitions for:
+
+- Task add/edit form page and fields
+- repeat row / repeat sheet / weekday controls
+- assignee row / assignee sheet
+- reuse picker
+- Save/Delete controls
+- Shopping add/edit fields and photo controls
 - Other navigation rows
-- Members rows/invite sheet
-- Notification toggles/time fields
-- Household name/timezone/save
-- Account profile/logout confirmation
+- Members rows / Invite sheet
+- Notification toggles / conditional time controls
+- Household name / timezone / Save
+- Account profile / Logout / confirmation
 
-For each semantic component definition, expose only meaningful editable keys from adapter v1:
+Rules remain:
 
-```text
-position
-width
-height
-padding
-margin
-gap
-fontSize
-fontWeight
-lineHeight
-color
-background
-border
-borderRadius
-opacity
-```
+- preserve readable semantic names
+- repeated components use stable instance IDs
+- no generated hashes or array-index IDs
+- only expose useful Adapter v1 editable properties
+- do not annotate every wrapper
+- `data-uilab-id` must be unique within the currently rendered screen
 
-Do not expose properties that have no practical visual meaning for that component.
+## 8. Tokens update
 
-## 7. Tokens
+Start from the existing `.uilab/tokens.json`, which was previously copied from the real CSS tokens and successfully used in Codex Export.
 
-`.uilab/tokens.json` must be grounded in current `DESIGN.md` and actual CSS tokens.
+Update only where M6/M7 or current `tokens.css` introduced/changed design-system values.
 
-At minimum include stable semantic values for:
+Do not create a parallel UI Lab-only design system.
 
-- background
-- surface
-- primary
-- primaryStrong
-- primarySoft
-- text
-- textSecondary
-- border
-- disabled
-- task/calendar accent colors that are part of the current design system
-- spacing scale based on `4 / 8 / 12 / 16 / 20 / 24 / 32`
-- relevant input/action/sheet radii
+## 9. Import build — update the existing builder
 
-Do not create a parallel token system that disagrees with the app CSS.
+Reuse `scripts/build-uilab-package.mjs` as the baseline.
 
-## 8. Import build
+The existing builder already proved that UI Lab could import the app and edit it. Preserve its important behavior while updating it for current assets/routes.
 
-UI Lab v1 prefers a static single-file preview:
+Verify that all assets introduced since PR #6 are either:
+
+- already inline through Vite/CSS/JS,
+- explicitly embedded into `dist/index.html`, or
+- included in the package with correct paths.
+
+Preferred final artifact remains a true single-file:
 
 ```text
 dist/index.html
 ```
 
-The import build must:
+Requirements:
 
-- work without a dev server
-- work without backend/API/auth/database
-- use hash routing
-- not require `npm install` at import time
-- have no service worker dependency
-- have no hard-coded localhost URLs
-- avoid temporary/external runtime asset URLs
-- work in a same-origin/trusted iframe where the parent can inspect the DOM
-- preserve `data-uilab-component` and `data-uilab-id` attributes
+- no dev server
+- no backend/API/auth/database
+- no hard-coded localhost runtime URLs
+- no service worker dependency
+- no external/temporary runtime assets
+- Hash Router works
+- UI Lab parent can inspect the iframe DOM
+- existing discovery timing workaround remains functional
+- all `data-uilab-*` attributes survive the build
 
-Use an established Vite single-file/inlining approach if a dependency is necessary. Any new dependency must be justified in the PR report.
+## 10. Packaging — evolve the existing flow
 
-Small local assets should be embedded in the import build when practical. If an asset remains separate, it must be included in the generated package and resolve correctly from the imported ZIP.
+Reuse the existing packaging logic rather than creating an unrelated second package format.
 
-## 9. Reproducible scripts
+Current baseline:
 
-Add clear npm scripts for the UI Lab artifact, for example:
+- `scripts/package-uilab.ps1`
+- `artifacts/HouseToDo-Mockup-uilab-v1.zip`
+
+M8 should make the process reproducible from npm scripts and preferably cross-platform.
+
+Required npm entry points:
 
 ```text
 npm run build:uilab
@@ -274,89 +303,96 @@ npm run validate:uilab
 npm run package:uilab
 ```
 
-Exact script names may differ if there is a better repository-consistent naming, but the workflow must be reproducible and documented.
+It is acceptable to keep `package-uilab.ps1` as a convenience wrapper, but `npm run package:uilab` should not require the developer to remember manual PowerShell-only steps if a simple Node-based package implementation can preserve the proven output.
 
-`package:uilab` should produce a ZIP with `dist/` + `.uilab/` at the ZIP root layout required by the adapter spec.
+Do not change the ZIP root contract.
 
-The generated package must not contain unrelated large artifacts such as `node_modules`, test output, screenshots, `.git`, or source caches.
+## 11. Validator
 
-## 10. Adapter validator
-
-Add deterministic validation that fails with a non-zero exit code when the package contract is broken.
+PR #6 validated the integration manually/through the UI Lab integration harness, but M8 should add reproducible repository-side validation for the completed metadata/package.
 
 At minimum validate:
 
-1. `.uilab/project.json` exists and is valid JSON.
-2. `formatVersion === 1`.
-3. `project.entry === "dist/index.html"` and the entry exists after build.
-4. all five `.uilab` JSON files exist and parse.
-5. all declared screens have path/name/defaultState.
-6. every declared default state exists for that screen.
-7. screen/state routes can be constructed using `{entry}#{path}?uilabState={state}`.
-8. every selector in `components.json` is syntactically valid for the intended attribute selector format.
-9. build output contains no obvious localhost runtime URLs.
-10. package ZIP contains the required root layout.
+1. all five `.uilab` files exist and parse
+2. `formatVersion === 1`
+3. `entry === "dist/index.html"`
+4. entry exists after UI Lab build
+5. every screen has name/path/defaultState
+6. every default state exists
+7. every `states.json` screen key exists in `screens.json`
+8. exact route/state metadata agrees with current implementation
+9. component selectors use the expected semantic attribute form
+10. no obvious localhost runtime URL remains in the import HTML
+11. package root contains only the expected delivery structure
+12. semantic instance IDs are unique per rendered screen where practical to validate with existing tooling
 
-Where practical, add browser-level validation using the existing test tooling to load each declared screen/state and verify:
+Prefer iterating metadata rather than hard-coding a handful of example routes.
 
-- route renders without crashing
-- no horizontal overflow at the default 390×844 viewport
-- adapter selectors match at least one intended rendered element for states where the component is expected
-- rendered `data-uilab-id` values are unique within the current document
+## 12. Real UI Lab regression validation is required
 
-Do not introduce a large new browser-testing framework only for M8 if the repository does not already have one. Prefer existing Vitest/jsdom and/or lightweight static validation unless current project tooling already supports browser automation.
+Because PR #6 already proved a real UI Lab workflow, M8 should not stop at static JSON/ZIP validation.
 
-## 11. Route/state completeness
+After producing the updated package, run the same real UI Lab import workflow used previously, or the current equivalent integration harness, and verify at least:
 
-M8 is the point where route/state metadata and implementation must agree exactly.
+- import updated ZIP
+- screen switching across an old screen and new M6/M7 screens
+- state switching with `uilabState`
+- select/edit at least one previously validated component (for regression)
+- select/edit at least one newly added M6/M7 semantic component
+- Project Export/import round trip still restores the updated project
+- Codex Export still contains actionable semantic component/instance IDs
 
-Create a test or validator that iterates the metadata rather than manually checking only a few examples.
+Do not change UI Lab runtime code as part of this repository task unless the user explicitly starts a separate UI Lab task.
 
-Important:
+If the current UI Lab integration cannot be executed from this repository/environment, stop and report exactly what external prerequisite is missing rather than claiming the integration was validated.
 
-- `screens.json` + `states.json` must not contain stale/fictional states.
-- implemented deterministic states intended for UI Lab must not be silently omitted.
-- screen IDs used by `states.json` must match `screens.json` keys.
+## 13. Validation documentation
 
-## 12. Single-file verification
+Update `docs/UILAB_V1_HOUSETODO_VALIDATION.md` rather than creating a disconnected new validation history.
 
-After `build:uilab`, verify `dist/index.html` can be opened/imported without Vite dev server.
+Preserve the PR #6 findings and add an M8/update section containing:
 
-If the final build truly contains only `dist/index.html`, report this explicitly.
-If extra assets remain, list them and justify why they are required; the ZIP must include them.
+- final branch/commit
+- updated screen/state/component counts
+- package filename/size
+- real UI Lab regression result
+- M6/M7 edit targets validated
+- Project round trip result
+- Codex Export result
+- any new issues found
+- whether the previous P1/P2 observations remain applicable
 
-The priority is a reliable import artifact, not forcing a brittle one-file build at the cost of broken preview behavior.
+## 14. Generated artifacts
 
-## 13. Generated package verification
+PR #6 committed earlier validation artifacts under `artifacts/` and screenshots under `docs/screenshots/uilab-v1/`.
 
-Generate the final package from the final PR HEAD and report:
+For M8:
 
-- ZIP filename
-- file size
-- exact top-level ZIP contents
-- whether `dist/` is single-file
-- validator result
+- do not delete prior evidence unless obsolete/corrupt
+- update/add final evidence as appropriate
+- avoid committing temporary staging folders
+- avoid committing `node_modules`, caches, browser traces unless specifically useful
+- generated final ZIP may be committed if continuing the existing PR #6 repository convention; if not committed, explain the change in convention explicitly
 
-Do not attach or commit secrets; none should exist in this mock project.
+## 15. Screenshots
 
-## 14. Screenshots for M8 PR
+M8 is an adapter regression/update milestone, not a visual redesign.
 
-M8 is primarily adapter/build work rather than a visual redesign, so do not create dozens of duplicate screenshots.
+Capture final-HEAD evidence **from the updated UI Lab import package**, not the Vite dev server.
 
-Still provide enough final-HEAD evidence to show the import build renders the real application:
+Minimum 390×844 evidence:
 
-390×844 minimum:
+1. Home normal
+2. Calendar normal
+3. Shopping normal
+4. Task add normal
+5. Other normal
+6. one non-normal `uilabState` state
+7. at least one UI Lab-edited M6/M7 component if the real UI Lab validation harness supports evidence capture
 
-1. Home normal loaded from the UI Lab import build
-2. Calendar normal loaded from the UI Lab import build
-3. Shopping normal loaded from the UI Lab import build
-4. Task add normal loaded from the UI Lab import build
-5. Other normal loaded from the UI Lab import build
-6. one non-normal deterministic state loaded via `?uilabState=` from the import build (for example Home overdue or Task repeat-sheet)
+Reuse the established `docs/screenshots/uilab-v1/` evidence convention or create a clearly versioned M8 subdirectory without deleting the original evidence.
 
-If there is no visible difference between normal Vite build and UI Lab import build, the PR body should state that screenshots were captured from the generated import build, not the dev server.
-
-## 15. Tests / quality gates
+## 16. Quality gates
 
 Required:
 
@@ -372,35 +408,35 @@ npm run package:uilab
 
 Also inspect the generated ZIP contents.
 
-All existing M1–M7 behavior must remain passing.
+All M1–M7 behavior must stay passing.
 
-## 16. Scope limits
+## 17. Scope limits
 
-Do not implement:
+Do not implement or rewrite:
 
-- UI Lab selection UI
+- UI Lab editor UI
 - drag/resize handles
 - inspector panels
-- undo/redo
-- editor persistence
-- Project Export
-- Codex Export
+- undo/redo engine
+- UI Lab project persistence
+- Codex Export engine
 - CSS source rewriting
 - React source parsing
 - production HouseToDo integration
-- backend/API/auth/database work
 
-Those belong outside this mockup adapter milestone.
+The only UI Lab-related Mockup work in M8 is adapter metadata, preview compatibility, packaging, and validation.
 
-## 17. Git / PR workflow
+## 18. Git / PR workflow
 
 Follow `docs/CODEX_WORKFLOW.md`.
 
 - update to latest `main`
-- create a dedicated M8 branch
-- implement M8 only
+- create dedicated M8 branch
+- **start from the existing merged PR #6 adapter implementation already on `main`**
+- update/extend it for M6/M7
 - run all quality/adapter/package checks
-- capture required screenshots from final PR HEAD/import build
+- run real UI Lab regression validation where available
+- capture required final-HEAD screenshots/evidence
 - commit and push
 - open a draft PR to `main`
 - do not merge
@@ -409,10 +445,10 @@ Follow `docs/CODEX_WORKFLOW.md`.
 Suggested branch:
 
 ```text
-codex/m8-uilab-adapter
+codex/m8-uilab-adapter-update
 ```
 
-## 18. Final report
+## 19. Final report
 
 Report:
 
@@ -421,17 +457,25 @@ Report:
 - PR number/link
 - changed files
 - dependency changes and justification
-- `.uilab` files created
-- screen count / state count
-- semantic component definition count
+- which PR #6 files/compatibility behaviors were retained
+- screen count before/after
+- state count before/after
+- semantic component definition count before/after
 - quality gate results
 - `build:uilab` result
 - `validate:uilab` result
-- package ZIP filename/size/layout
-- whether `dist/` is one-file
-- screenshots captured from import build
-- any minimal adapter-attribute corrections made to existing UI
-- deviations from this spec
+- `package:uilab` result
+- ZIP filename/size/root layout
+- whether `dist/` remains one-file
+- real UI Lab import/edit regression result
+- old component regression target edited
+- new M6/M7 component target edited
+- Project Export/import round trip result
+- Codex Export result
+- screenshots/evidence
+- minimal adapter-attribute corrections
+- updates made to `docs/UILAB_V1_HOUSETODO_VALIDATION.md`
+- deviations
 - working tree clean
 
 Do not merge until reviewed.
