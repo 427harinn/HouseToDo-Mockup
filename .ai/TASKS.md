@@ -58,52 +58,20 @@
 - [x] Responsive behavior, tests, screenshots, and review complete.
 - [x] PR #8 merged to `main`.
 
-## Current milestone: M8 — UI Lab adapter/package update
+## Completed milestone: M8 — UI Lab adapter/package update
 
-M8 implementation is approved.
+M8 is complete. It extends the proven PR #6 adapter implementation already present on `main`; this is the final mockup milestone. Do not create M9 or merge automatically.
 Follow `docs/M8_IMPLEMENTATION_SPEC.md`, `docs/UILAB_V1_HOUSETODO_VALIDATION.md`, `docs/UI_LAB_ADAPTER_SPEC_v1.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
 
-**Important:** M8 is an update of the proven PR #6 adapter implementation already present on `main`, not a from-scratch adapter rewrite.
-
-This is the final mockup milestone. Stop for review after opening the PR; do not merge automatically.
-
-Mandatory workflow:
-
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M8 update branch before implementation.
-- [ ] Inspect PR #6 / `docs/UILAB_V1_HOUSETODO_VALIDATION.md` before changing adapter/runtime behavior.
-- [ ] Preserve PR #6 `flushSync`, embedded hash-route reload/discovery compatibility, and single-file classic-script build behavior unless real UI Lab regression proves a safe replacement.
-- [ ] Audit current `.uilab/project.json`; keep Adapter v1 contract stable.
-- [ ] Extend existing `.uilab/screens.json` from 3 screens to all current M1–M7 user-reviewable routes.
-- [ ] Extend existing `.uilab/states.json` from the proven baseline using exact currently implemented `uilabState` IDs.
-- [ ] Extend existing 41-component `.uilab/components.json` inventory for meaningful M6/M7 edit targets without unnecessarily renaming proven semantic IDs.
-- [ ] Audit `.uilab/tokens.json` against current CSS tokens and only update genuine design-system changes.
-- [ ] Audit `data-uilab-component` / `data-uilab-id` coverage and uniqueness; make only minimal adapter corrections where required.
-- [ ] Update existing `scripts/build-uilab-package.mjs` for any M6/M7 assets while retaining the proven import behavior.
-- [ ] Ensure UI Lab import build remains dev-server/backend/API/auth/service-worker/localhost independent.
-- [ ] Add npm scripts for `build:uilab`, `validate:uilab`, and `package:uilab`.
-- [ ] Keep/reuse existing packaging flow; prefer a reproducible cross-platform npm path while preserving the same ZIP root contract.
-- [ ] Add deterministic repository-side Adapter validation that iterates declared metadata.
-- [ ] Validate screen/defaultState/state consistency and component selector structure.
-- [ ] Validate required entry and ZIP root layout.
-- [ ] Validate rendered adapter IDs/selectors where practical using existing tooling.
-- [ ] Run a real UI Lab regression import of the updated package, using the existing/current integration harness where available.
-- [ ] Verify at least one previously proven Home/Calendar/Shopping edit target still edits correctly.
-- [ ] Verify at least one new M6/M7 semantic target edits correctly.
-- [ ] Verify screen/state switching including a new M6/M7 route.
-- [ ] Verify Project Export/import round trip still restores the updated project.
-- [ ] Verify Codex Export still contains actionable semantic component/instance IDs.
-- [ ] If real UI Lab validation cannot run, stop and report the missing prerequisite instead of claiming success.
-- [ ] Update `docs/UILAB_V1_HOUSETODO_VALIDATION.md` with final M8 regression results while preserving prior PR #6 findings.
-- [ ] Inspect generated ZIP and report filename/size/top-level layout.
-- [ ] Keep temporary staging/cache output out of Git; retain/update final validation evidence according to the established PR #6 convention.
-- [ ] Keep all M1–M7 tests passing.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Run build:uilab / validate:uilab / package:uilab successfully.
-- [ ] Capture required screenshots/evidence from the final-HEAD updated UI Lab import package, not the dev server.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M8 completion state.
-- [ ] Commit and push the M8 update branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Report branch, commit, PR, changed files, dependencies, retained PR #6 behavior, adapter counts before/after, checks, package details, real UI Lab regression/round-trip/Codex Export results, screenshots, deviations, and working tree state.
+- [x] Preserve PR #6 `flushSync`, embedded hash-route reload/discovery compatibility, and single-file classic-script import behavior.
+- [x] Extend metadata from 3 screens / 20 states / 41 components to 12 screens / 48 states / 92 components.
+- [x] Add and validate M6/M7 screen, state, component, and token coverage.
+- [x] Repair inline JavaScript embedding (`$&` replacement-token corruption, callback replacement, `</script` escaping).
+- [x] Strengthen validation with metadata, ZIP layout, no-localhost/external-runtime, adapter selector, and V8 syntax checks.
+- [x] Keep all M1–M7 tests passing and pass lint/typecheck/test/build/build:uilab/validate/package.
+- [x] Complete real UI Lab validation: 12-screen rendering, normal and non-normal states, existing Home edit, M6 component edit, Undo/Redo, Project round trip, and Codex Export.
+- [x] Copy final real UI Lab import screenshots to `docs/screenshots/m8/`.
+- [x] Update the validation document with M5/M8 counts, root cause, repair, results, ZIP SHA256, and known follow-up.
+- [x] Commit and push the M8 branch.
+- [x] Open draft PR #9 targeting `main`.
+- [x] Do not merge the PR.

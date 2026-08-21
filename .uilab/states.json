@@ -15,5 +15,39 @@
     "purchased-open": { "name": "Purchased open" }, "photo": { "name": "Photo item" },
     "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
     "empty": { "name": "Empty" }
+  },
+  "task-add": {
+    "normal": { "name": "Normal" }, "repeat-sheet": { "name": "Repeat sheet" },
+    "weekday-repeat": { "name": "Weekday repeat" }, "time-specific": { "name": "Time specific" },
+    "assignee-sheet": { "name": "Assignee sheet" }, "reuse-picker": { "name": "Reuse picker" },
+    "reuse-selected": { "name": "Reuse selected" }, "long-text": { "name": "Long text" }
+  },
+  "task-edit": {
+    "normal": { "name": "Normal" }, "delete-confirm": { "name": "Delete confirmation" }
+  },
+  "shopping-add": {
+    "normal": { "name": "Normal" }, "reuse-picker": { "name": "Reuse picker" },
+    "reuse-selected": { "name": "Reuse selected" }, "photo-selected": { "name": "Photo selected" },
+    "long-text": { "name": "Long text" }
+  },
+  "shopping-edit": {
+    "normal": { "name": "Normal" }, "delete-confirm": { "name": "Delete confirmation" }
+  },
+  "other": {
+    "normal": { "name": "Normal" }
+  },
+  "members": {
+    "normal": { "name": "Normal" }, "invite-open": { "name": "Invite sheet open" }
+  },
+  "notifications": {
+    "normal": { "name": "Normal" }, "morning-off": { "name": "Morning notification off" },
+    "all-off": { "name": "All notifications off" }
+  },
+  "household-settings": {
+    "normal": { "name": "Normal" }, "timezone-open": { "name": "Timezone sheet open" },
+    "saved": { "name": "Saved" }
+  },
+  "account": {
+    "normal": { "name": "Normal" }, "logout-confirm": { "name": "Logout confirmation" }
   }
 }

@@ -8,7 +8,12 @@
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "vite build"
+    "build": "vite build",
+    "build:uilab": "node scripts/build-uilab-package.mjs",
+    "validate": "node scripts/validate-uilab.mjs",
+    "validate:uilab": "npm run validate",
+    "package": "node scripts/package-uilab.mjs",
+    "package:uilab": "npm run package"
   },
   "dependencies": {
     "lucide-react": "^1.33.0",

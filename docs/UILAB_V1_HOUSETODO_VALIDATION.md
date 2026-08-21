@@ -137,3 +137,55 @@ For this 3-screen Mockup, the work required manifest authoring, 41 semantic defi
 3. Codex Export should preserve transparent/rgba computed-style values in `before` snapshots.
 4. Add an optional Adapter readiness signal so React/Vue previews do not need framework-specific timing workarounds.
 5. Keep the current semantic ID convention and token ownership; it was sufficient for Codex to identify all six changes without source parsing.
+
+## M8 final validation
+
+This section is appended to preserve the PR #6-era validation record above. It records the completed M8 final validation against the corrected package.
+
+### Scope and metadata growth
+
+- M5 baseline: **3 screens / 20 states / 41 components**.
+- M8 completed package: **12 screens / 48 states / 92 components**.
+- The 12 screens cover Home, Calendar, Shopping, Task add/edit, Shopping add/edit, Other, Members, Notifications, Household Settings, and Account.
+- The final imported package uses a `390 × 844` viewport and contains the five required `.uilab` files plus `dist/index.html`.
+
+### Inline JavaScript repair
+
+The first UI Lab validation failed with a blank preview because the generated inline JavaScript was corrupted during HTML embedding. The root cause was that `$&` was interpreted as the `String.replace()` replacement token when the script tag was replaced. The build adapter now uses a callback replacement, and escapes `</script` inside inline JavaScript as `<\\/script` before embedding. The validator also performs a V8 syntax check of every inline script with `node:vm` / `new Script`.
+
+After the repair, re-import of the corrected ZIP succeeded and all 12 screens rendered in the real UI Lab validation harness, including non-normal `uilabState` routes and Adapter discovery after screen/state switching.
+
+### Real UI Lab validation
+
+The final ZIP was imported into the real UI Lab. The updated validation harness completed **1 passed (6.3s)** and verified:
+
+- Home, Calendar, Shopping, Task add/edit, Shopping add/edit, Other, Members, Notifications, Household Settings, and Account rendering.
+- Existing Home `Home.TaskRow / normal-trash` selection and editing.
+- M6 component editing, including `TaskForm.Name / task-form-name` selection and editing.
+- Undo / Redo.
+- Project Export followed by `.ui-project` re-import, restoring `390 × 844`, 12 screens, 48 states, 92 components, and 2 changes.
+- Codex Export records containing `screenId`, `stateId`, `componentId`, `instanceId`, `property`, `before`, `after`, and `valueType`.
+
+Representative Codex Export changes:
+
+| screenId | stateId | componentId | instanceId | property | before | after | valueType |
+|---|---|---|---|---|---|---|---|
+| `home` | `normal` | `Home.TaskRow` | `normal-trash` | `background` | `#000000` | `#eef8f1` | `exact` |
+| `task-add` | `normal` | `TaskForm.Name` | `task-form-name` | `fontSize` | `13` | `19` | `exact` |
+
+The final package is `artifacts/HouseToDo-Mockup-uilab-v1.zip` (**330,740 bytes**) with SHA256 `D1237D048DFB03711C83B1A55DCCB78425C7EC4633A4DB5B56C9DF06FD920ADE`.
+
+Final validation screenshots from the real UI Lab import are stored in `docs/screenshots/m8/`:
+
+- Home normal
+- Task add normal
+- Other normal
+- Home overdue
+- Home component selected
+- `TaskForm.Name` selected
+
+### Known follow-up
+
+UI Lab側の既存HouseToDo E2E fixture/expectationが旧11-screen仕様のまま
+
+This is not an M8 blocking issue. The updated 12-screen temporary validation harness passed all items; UI Lab core changes remain out of scope for HouseToDo M8.
