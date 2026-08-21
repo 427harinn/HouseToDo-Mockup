@@ -34,53 +34,53 @@
 
 - [x] Task and Shopping add/edit routes complete.
 - [x] Center Add navigation complete.
-- [x] Reuse picker complete.
-- [x] Repeat picker with weekday/month-day configuration inside sheet complete.
-- [x] Start Date / Date / All-day / Time / Notification rules complete.
-- [x] Assignee selection complete.
-- [x] Local photo preview complete.
-- [x] Save/delete-confirm mock behavior complete.
-- [x] Dedicated form layout and responsive behavior complete.
-- [x] Required `uilabState` states complete.
-- [x] Tests and lint/typecheck/build gates complete.
-- [x] Final-HEAD screenshots and review corrections complete.
+- [x] Reuse/repeat/assignee selection complete.
+- [x] Responsive form behavior and deterministic states complete.
+- [x] Tests, screenshots, review corrections complete.
 - [x] PR #7 merged to `main`.
 
-## Current milestone: M7 — Other / Settings
+## Completed milestone: M7 — Other / Settings
 
-M7 implementation is approved.
-Follow `docs/M7_IMPLEMENTATION_SPEC.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
-Do not begin M8 automatically after finishing M7; stop for review.
+- [x] Other landing complete.
+- [x] Members / Notifications / Household / Account routes complete.
+- [x] Local invite / notification / timezone / logout mock interactions complete.
+- [x] Required deterministic `uilabState` states complete.
+- [x] Responsive behavior, tests, screenshots, and review complete.
+- [x] PR #8 merged to `main`.
+
+## Current milestone: M8 — UI Lab adapter/package
+
+M8 implementation is approved.
+Follow `docs/M8_IMPLEMENTATION_SPEC.md`, `docs/UI_LAB_ADAPTER_SPEC_v1.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
+This is the final mockup milestone. Stop for review after opening the PR; do not merge automatically.
 
 Mandatory workflow:
 
-- [x] Update to latest `main` before starting.
-- [x] Create a dedicated M7 branch before implementation.
-- [x] Replace `#/other` placeholder with the real Other screen.
-- [x] Add `#/other/members`.
-- [x] Add `#/other/notifications`.
-- [x] Add `#/other/household`.
-- [x] Add `#/other/account`.
-- [x] Implement four-row Other navigation without cards/subtitles.
-- [x] Implement Members list with avatar/name.
-- [x] Implement minimal local invite sheet and mock copy feedback.
-- [x] Implement morning/evening summary notification toggles.
-- [x] Hide each notification time control when its toggle is OFF.
-- [x] Implement household name and timezone settings.
-- [x] Implement timezone selection and household mock Save.
-- [x] Implement minimal Account screen.
-- [x] Implement separated Logout action and confirmation mock.
-- [x] Add required deterministic `uilabState` states.
-- [x] Keep BottomNavigation on Other landing and hide it on deeper settings routes.
-- [x] Validate 390×844 and 320×568 responsive behavior.
-- [x] Add/update behavior tests while keeping M1–M6 tests passing.
-- [x] Confirm no backend/API/auth/push dependency exists.
-- [x] Run lint/typecheck/test/build successfully.
-- [x] Capture all required screenshots from final PR HEAD.
-- [x] Add a clearly labeled `Screenshots` section to the PR body.
-- [x] Update this file with actual M7 completion state.
-- [x] Commit and push the M7 branch.
-- [x] Open a draft Pull Request targeting `main`.
-- [x] Do not merge the PR.
-- [x] Do not begin M8.
-- [x] Report branch, commit, PR, files, dependencies, checks, routes/states, screenshots, behavior decisions, and deviations.
+- [ ] Update to latest `main` before starting.
+- [ ] Create a dedicated M8 branch before implementation.
+- [ ] Add `.uilab/project.json`.
+- [ ] Add `.uilab/screens.json` covering all user-reviewable M1–M7 product screens.
+- [ ] Add `.uilab/states.json` matching the exact implemented deterministic state IDs.
+- [ ] Add `.uilab/components.json` grounded in existing semantic adapter attributes.
+- [ ] Add `.uilab/tokens.json` grounded in DESIGN/current CSS tokens.
+- [ ] Audit `data-uilab-component` / `data-uilab-id` coverage and uniqueness; make only minimal adapter corrections where required.
+- [ ] Add reproducible UI Lab import build script.
+- [ ] Prefer a single-file `dist/index.html` import artifact without breaking preview behavior.
+- [ ] Ensure import build has no backend/API/dev-server/service-worker/localhost dependency.
+- [ ] Add deterministic adapter validation.
+- [ ] Validate metadata screen/state consistency by iterating declared metadata.
+- [ ] Validate required entry and ZIP root layout.
+- [ ] Validate component selectors and rendered adapter IDs where practical with existing tooling.
+- [ ] Add reproducible UI Lab packaging script producing `dist/` + `.uilab/` ZIP.
+- [ ] Inspect generated ZIP and report filename/size/top-level layout.
+- [ ] Keep generated artifacts out of Git if repository conventions ignore build/package output.
+- [ ] Keep all M1–M7 tests passing.
+- [ ] Run lint/typecheck/test/build successfully.
+- [ ] Run build:uilab / validate:uilab / package:uilab successfully.
+- [ ] Capture required screenshots from the final-HEAD UI Lab import build, not the dev server.
+- [ ] Add a clearly labeled `Screenshots` section to the PR body.
+- [ ] Update this file with actual M8 completion state.
+- [ ] Commit and push the M8 branch.
+- [ ] Open a draft Pull Request targeting `main`.
+- [ ] Do not merge the PR.
+- [ ] Report branch, commit, PR, changed files, dependencies, adapter counts, checks, import build/package details, screenshots, deviations, and working tree state.
