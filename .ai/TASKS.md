@@ -48,39 +48,28 @@
 - [x] Responsive behavior, tests, screenshots, and review complete.
 - [x] PR #8 merged to `main`.
 
-## Current milestone: M8 — UI Lab adapter/package
+## Completed milestone: M8 — UI Lab adapter/package
 
-M8 implementation is approved.
+M8 implementation and final validation are complete. This is the final mockup milestone; do not create M9 or another milestone.
 Follow `docs/M8_IMPLEMENTATION_SPEC.md`, `docs/UI_LAB_ADAPTER_SPEC_v1.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
-This is the final mockup milestone. Stop for review after opening the PR; do not merge automatically.
+Stop for review after opening the draft PR; do not merge automatically.
 
 Mandatory workflow:
 
-- [ ] Update to latest `main` before starting.
-- [ ] Create a dedicated M8 branch before implementation.
-- [ ] Add `.uilab/project.json`.
-- [ ] Add `.uilab/screens.json` covering all user-reviewable M1–M7 product screens.
-- [ ] Add `.uilab/states.json` matching the exact implemented deterministic state IDs.
-- [ ] Add `.uilab/components.json` grounded in existing semantic adapter attributes.
-- [ ] Add `.uilab/tokens.json` grounded in DESIGN/current CSS tokens.
-- [ ] Audit `data-uilab-component` / `data-uilab-id` coverage and uniqueness; make only minimal adapter corrections where required.
-- [ ] Add reproducible UI Lab import build script.
-- [ ] Prefer a single-file `dist/index.html` import artifact without breaking preview behavior.
-- [ ] Ensure import build has no backend/API/dev-server/service-worker/localhost dependency.
-- [ ] Add deterministic adapter validation.
-- [ ] Validate metadata screen/state consistency by iterating declared metadata.
-- [ ] Validate required entry and ZIP root layout.
-- [ ] Validate component selectors and rendered adapter IDs where practical with existing tooling.
-- [ ] Add reproducible UI Lab packaging script producing `dist/` + `.uilab/` ZIP.
-- [ ] Inspect generated ZIP and report filename/size/top-level layout.
-- [ ] Keep generated artifacts out of Git if repository conventions ignore build/package output.
-- [ ] Keep all M1–M7 tests passing.
-- [ ] Run lint/typecheck/test/build successfully.
-- [ ] Run build:uilab / validate:uilab / package:uilab successfully.
-- [ ] Capture required screenshots from the final-HEAD UI Lab import build, not the dev server.
-- [ ] Add a clearly labeled `Screenshots` section to the PR body.
-- [ ] Update this file with actual M8 completion state.
-- [ ] Commit and push the M8 branch.
-- [ ] Open a draft Pull Request targeting `main`.
-- [ ] Do not merge the PR.
-- [ ] Report branch, commit, PR, changed files, dependencies, adapter counts, checks, import build/package details, screenshots, deviations, and working tree state.
+- [x] Add `.uilab/project.json`.
+- [x] Add `.uilab/screens.json` covering all 12 user-reviewable M1–M7 product screens.
+- [x] Add `.uilab/states.json` with 48 exact implemented deterministic state IDs.
+- [x] Add `.uilab/components.json` with 92 definitions grounded in existing semantic adapter attributes.
+- [x] Add `.uilab/tokens.json` grounded in DESIGN/current CSS tokens.
+- [x] Audit `data-uilab-component` / `data-uilab-id` coverage and uniqueness.
+- [x] Add reproducible single-file UI Lab import build and ZIP packaging scripts.
+- [x] Repair inline JavaScript embedding (`$&` replacement-token corruption, callback replacement, `</script` escaping).
+- [x] Strengthen validation with metadata checks, required entry/ZIP checks, no-localhost/external-runtime checks, and V8 inline-script syntax checks.
+- [x] Verify the final ZIP contains `dist/index.html` and the five `.uilab` files at the required root layout.
+- [x] Keep all M1–M7 tests passing and pass lint/typecheck/test/build/build:uilab/validate/package.
+- [x] Complete real UI Lab validation: 12-screen rendering, normal and non-normal states, existing Home component edit, M6 component edit, Undo/Redo, Project round trip, and Codex Export.
+- [x] Copy final real UI Lab import screenshots to `docs/screenshots/m8/`.
+- [x] Update the validation document with M5/M8 counts, root cause, repair, results, ZIP SHA256, and known follow-up.
+- [x] Commit and push the M8 branch.
+- [x] Open a draft Pull Request targeting `main`.
+- [x] Do not merge the PR.

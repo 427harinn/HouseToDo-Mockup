@@ -1,5 +1,14 @@
 {
   "home": { "name": "Home", "path": "/home", "defaultState": "normal" },
   "calendar": { "name": "Calendar", "path": "/calendar", "defaultState": "normal" },
-  "shopping": { "name": "Shopping", "path": "/shopping", "defaultState": "normal" }
+  "shopping": { "name": "Shopping", "path": "/shopping", "defaultState": "normal" },
+  "task-add": { "name": "Add Task", "path": "/tasks/new", "defaultState": "normal" },
+  "task-edit": { "name": "Edit Task", "path": "/tasks/edit", "defaultState": "normal" },
+  "shopping-add": { "name": "Add Shopping Item", "path": "/shopping/new", "defaultState": "normal" },
+  "shopping-edit": { "name": "Edit Shopping Item", "path": "/shopping/edit", "defaultState": "normal" },
+  "other": { "name": "Other", "path": "/other", "defaultState": "normal" },
+  "members": { "name": "Members", "path": "/other/members", "defaultState": "normal" },
+  "notifications": { "name": "Notifications", "path": "/other/notifications", "defaultState": "normal" },
+  "household-settings": { "name": "Household Settings", "path": "/other/household", "defaultState": "normal" },
+  "account": { "name": "Account", "path": "/other/account", "defaultState": "normal" }
 }

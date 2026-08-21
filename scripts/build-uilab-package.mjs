@@ -19,27 +19,26 @@ if (process.platform === 'win32') {
 
 let html = await readFile(join(distRoot, 'index.html'), 'utf8');
 
-const styleLinks = [...html.matchAll(/<link[^>]+href="([^"]+)"[^>]*>/g)];
-for (const [, href] of styleLinks) {
+const styleLinks = [...html.matchAll(/<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"[^>]*>/gi)];
+for (const [tag, href] of styleLinks) {
   const assetPath = join(distRoot, href.replace(/^\//, ''));
   const css = await readFile(assetPath, 'utf8');
-  html = html.replace(styleLinks[0][0], () => `<style>${css}</style>`);
-  styleLinks.shift();
+  html = html.replace(tag, () => `<style>${css}</style>`);
 }
 
-const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"[^>]*><\/script>/g)];
+const escapeInlineScript = (javascript) => javascript.replace(/<\/script\b/gi, '<\\/script');
+const scripts = [...html.matchAll(/<script[^>]+src="([^"]+)"[^>]*><\/script>/gi)];
 const inlineScripts = [];
-for (const [, src] of scripts) {
+for (const [tag, src] of scripts) {
   const assetPath = join(distRoot, src.replace(/^\//, ''));
   const javascript = await readFile(assetPath, 'utf8');
   // UI Lab v1 discovers Adapter elements during iframe load. A classic inline
   // script lets React mount before that load event, avoiding a post-load DOM
   // discovery race in the imported preview.
-  html = html.replace(scripts[0][0], '');
-  inlineScripts.push(`<script>${javascript}</script>`);
-  scripts.shift();
+  html = html.replace(tag, () => '');
+  inlineScripts.push(`<script>${escapeInlineScript(javascript)}</script>`);
 }
-html = html.replace('</body>', `${inlineScripts.join('')}\n</body>`);
+html = html.replace(/<\/body>/i, () => `${inlineScripts.join('')}\n</body>`);
 
 const pantrySvg = await readFile(join(repoRoot, 'public', 'shopping-pantry.svg'));
 const pantryDataUrl = `data:image/svg+xml;base64,${pantrySvg.toString('base64')}`;
