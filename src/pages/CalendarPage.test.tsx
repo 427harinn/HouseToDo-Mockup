@@ -45,6 +45,60 @@ describe('CalendarPage', () => {
     expect(screen.getByText('+3')).toBeVisible();
   });
 
+  it('moves months with a horizontal month-grid swipe without opening a date', () => {
+    renderCalendar('normal');
+    const grid = document.querySelector('.calendar-month-grid');
+
+    if (!grid) throw new Error('Expected the calendar month grid to exist');
+    fireEvent(
+      grid,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 240, clientY: 420 }),
+    );
+    fireEvent(
+      grid,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 160, clientY: 424 }),
+    );
+
+    expect(screen.getByRole('heading', { name: '2026年9月' })).toBeVisible();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent(
+      grid,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 160, clientY: 420 }),
+    );
+    fireEvent(
+      grid,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 240, clientY: 424 }),
+    );
+
+    expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible();
+  });
+
+  it('does not move months for short or vertically dominant drags', () => {
+    renderCalendar('normal');
+    const grid = document.querySelector('.calendar-month-grid');
+
+    if (!grid) throw new Error('Expected the calendar month grid to exist');
+    fireEvent(
+      grid,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 240, clientY: 420 }),
+    );
+    fireEvent(
+      grid,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 220, clientY: 424 }),
+    );
+    fireEvent(
+      grid,
+      new MouseEvent('pointerdown', { bubbles: true, clientX: 240, clientY: 420 }),
+    );
+    fireEvent(
+      grid,
+      new MouseEvent('pointerup', { bubbles: true, clientX: 220, clientY: 500 }),
+    );
+
+    expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible();
+  });
+
   it('opens date details from a cell and closes with the explicit control', () => {
     renderCalendar('normal');
 

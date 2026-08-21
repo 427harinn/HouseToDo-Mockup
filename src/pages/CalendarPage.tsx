@@ -26,6 +26,8 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     fixture.tasks.filter((task) => task.completed).length,
   );
   const [statusMessage, setStatusMessage] = useState('');
+  const monthGridStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressMonthGridClick = useRef(false);
 
   useEffect(() => {
     setMonthDate(INITIAL_MONTH);
@@ -51,6 +53,33 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     });
   };
   const goToToday = () => setMonthDate(TODAY.slice(0, 8) + '01');
+  const handleMonthGridPointerDown = (event: React.PointerEvent<HTMLElement>) => {
+    suppressMonthGridClick.current = false;
+    monthGridStart.current = { x: event.clientX, y: event.clientY };
+  };
+  const handleMonthGridPointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    if (!monthGridStart.current) return;
+
+    const deltaX = event.clientX - monthGridStart.current.x;
+    const deltaY = event.clientY - monthGridStart.current.y;
+    monthGridStart.current = null;
+
+    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      suppressMonthGridClick.current = true;
+      moveMonth(deltaX < 0 ? 1 : -1);
+    }
+  };
+  const handleMonthGridPointerCancel = () => {
+    monthGridStart.current = null;
+    suppressMonthGridClick.current = false;
+  };
+  const handleMonthGridClickCapture = (event: React.MouseEvent<HTMLElement>) => {
+    if (!suppressMonthGridClick.current) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    suppressMonthGridClick.current = false;
+  };
 
   const completeTask = (task: CalendarTask) => {
     setTasks((current) => current.filter((item) => item.id !== task.id));
@@ -97,6 +126,10 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         aria-label={`${formatMonthLabel(monthDate)}のカレンダー`}
         data-uilab-component="Calendar.MonthGrid"
         data-uilab-id="calendar-month-grid"
+        onPointerDown={handleMonthGridPointerDown}
+        onPointerUp={handleMonthGridPointerUp}
+        onPointerCancel={handleMonthGridPointerCancel}
+        onClickCapture={handleMonthGridClickCapture}
       >
         <div className="calendar-weekday-row" aria-hidden="true">
           {WEEKDAYS.map((weekday, index) => (
