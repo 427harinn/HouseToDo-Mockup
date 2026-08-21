@@ -84,7 +84,7 @@ describe('HomePage', () => {
     expect(screen.getByText('朝食の片付け')).toBeVisible();
   });
 
-  it('navigates from a completed row and its edit affordance to task edit', async () => {
+  it('uses the shared more-actions pattern for completed row editing', async () => {
     renderHome('completed-open');
 
     const row = document.querySelector('[data-uilab-component="Home.CompletedRow"]');
