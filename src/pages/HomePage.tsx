@@ -156,37 +156,14 @@ function TaskRow({
   onPass: () => void;
   task: HomeTask;
 }) {
-  const [actionsOpen, setActionsOpen] = useState(false);
-  const startX = useRef<number | null>(null);
-  const suppressClick = useRef(false);
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    startX.current = event.clientX;
-  };
-
-  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (startX.current === null) return;
-    const distance = startX.current - event.clientX;
-    startX.current = null;
-    if (distance > 48) {
-      suppressClick.current = true;
-      setActionsOpen(true);
-    }
-  };
-
-  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!suppressClick.current) return;
-    if (
-      event.target instanceof Element &&
-      event.target.closest('.home-task-row__actions')
-    ) {
-      suppressClick.current = false;
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    suppressClick.current = false;
-  };
+  const {
+    actionsOpen,
+    handleClickCapture,
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerUp,
+    setActionsOpen,
+  } = useHomeRowActions();
 
   return (
     <div
@@ -195,9 +172,7 @@ function TaskRow({
       data-uilab-id={task.id}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      onPointerCancel={() => {
-        startX.current = null;
-      }}
+      onPointerCancel={handlePointerCancel}
       onClickCapture={handleClickCapture}
     >
       <div className="home-task-row__content">
@@ -261,14 +236,105 @@ function TaskRow({
   );
 }
 
+function useHomeRowActions() {
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const startX = useRef<number | null>(null);
+  const suppressClick = useRef(false);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    startX.current = event.clientX;
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (startX.current === null) return;
+    const distance = startX.current - event.clientX;
+    startX.current = null;
+    if (distance > 48) {
+      suppressClick.current = true;
+      setActionsOpen(true);
+    }
+  };
+
+  const handlePointerCancel = () => {
+    startX.current = null;
+  };
+
+  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!suppressClick.current) return;
+    if (
+      event.target instanceof Element &&
+      event.target.closest('.home-task-row__actions')
+    ) {
+      suppressClick.current = false;
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    suppressClick.current = false;
+  };
+
+  return {
+    actionsOpen,
+    handleClickCapture,
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerUp,
+    setActionsOpen,
+  };
+}
+
 function CompletedRow({ task }: { task: CompletedTask }) {
+  const {
+    actionsOpen,
+    handleClickCapture,
+    handlePointerCancel,
+    handlePointerDown,
+    handlePointerUp,
+    setActionsOpen,
+  } = useHomeRowActions();
+
   return (
-    <div className="home-completed__row">
-      <div>
-        <p>{task.name}</p>
-        <span>{task.completedAt}</span>
+    <div
+      className={`home-task-row home-task-row--completed${actionsOpen ? ' is-actions-open' : ''}`}
+      data-uilab-component="Home.CompletedRow"
+      data-uilab-id={task.id}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onClickCapture={handleClickCapture}
+    >
+      <div className="home-task-row__content">
+        <span className="home-task-row__details">
+          <span className="home-task-row__name">{task.name}</span>
+          <span className="home-task-row__deadline">{task.completedAt}</span>
+        </span>
+        {task.completedBy ? <Avatar person={task.completedBy} label="完了者" /> : null}
+        <button
+          type="button"
+          className="home-task-row__more"
+          aria-label={`${task.name}の操作`}
+          aria-expanded={actionsOpen}
+          data-uilab-component="Home.CompletedRow.MoreButton"
+          data-uilab-id={`${task.id}-more`}
+          onClick={() => setActionsOpen((open) => !open)}
+        >
+          <Ellipsis aria-hidden="true" />
+        </button>
       </div>
-      {task.completedBy ? <Avatar person={task.completedBy} label="完了者" /> : null}
+      {actionsOpen ? (
+        <div className="home-task-row__actions" aria-label={`${task.name}の操作メニュー`}>
+          <button
+            type="button"
+            data-uilab-component="Home.CompletedRow.Edit"
+            data-uilab-id={`${task.id}-edit`}
+            onClick={() => {
+              window.location.hash = '#/tasks/edit';
+            }}
+          >
+            編集
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

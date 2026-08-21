@@ -301,6 +301,87 @@
   padding-top: var(--space-2);
 }
 
+.account-profile__avatar {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+}
+
+.account-avatar-button {
+  position: relative;
+  display: inline-flex;
+  width: 72px;
+  height: 72px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.account-avatar-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary-strong) 42%, transparent);
+  outline-offset: 4px;
+}
+
+.account-avatar {
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  overflow: hidden;
+  color: var(--color-primary-strong);
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary);
+  border-radius: 50%;
+}
+
+.account-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-avatar__edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--color-primary-strong);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+}
+
+.account-avatar__edit svg {
+  width: 15px;
+  height: 15px;
+  stroke-width: 1.9;
+}
+
+.account-avatar__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.account-avatar-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
 .account-profile .settings-field {
   grid-template-columns: minmax(0, 5rem) minmax(0, 1fr);
 }

@@ -84,6 +84,24 @@ describe('HomePage', () => {
     expect(screen.getByText('朝食の片付け')).toBeVisible();
   });
 
+  it('uses the shared more-actions pattern for completed row editing', async () => {
+    renderHome('completed-open');
+
+    const row = document.querySelector('[data-uilab-component="Home.CompletedRow"]');
+    expect(row?.tagName).toBe('DIV');
+    expect(document.querySelector('[data-uilab-component="Home.CompletedRow.Edit"]')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '朝食の片付けの操作' }));
+
+    expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'パス' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => {
+      expect(window.location.hash).toBe('#/tasks/edit');
+      expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible();
+    });
+  });
+
   it('reveals edit/pass on a left swipe and pass removes without completing', () => {
     renderHome('normal');
     const row = document.querySelector('[data-uilab-id="normal-trash"]');

@@ -14,6 +14,9 @@
   "Home.TaskRow.MoreButton": { "selector": "[data-uilab-component='Home.TaskRow.MoreButton']", "instances": "multiple", "editable": ["width", "height", "color", "background", "borderRadius", "opacity"] },
   "Home.CompletedSection": { "selector": "[data-uilab-component='Home.CompletedSection']", "instances": "single", "editable": ["width", "padding", "margin", "background", "border", "borderRadius"] },
   "Home.CompletedToggle": { "selector": "[data-uilab-component='Home.CompletedToggle']", "instances": "single", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background"] },
+  "Home.CompletedRow": { "selector": "[data-uilab-component='Home.CompletedRow']", "instances": "multiple", "editable": ["position", "width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
+  "Home.CompletedRow.MoreButton": { "selector": "[data-uilab-component='Home.CompletedRow.MoreButton']", "instances": "multiple", "editable": ["width", "height", "padding", "color", "background", "borderRadius", "opacity"] },
+  "Home.CompletedRow.Edit": { "selector": "[data-uilab-component='Home.CompletedRow.Edit']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
   "Home.ShoppingSummary": { "selector": "[data-uilab-component='Home.ShoppingSummary']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
 
   "Calendar.Page": { "selector": "[data-uilab-component='Calendar.Page']", "instances": "single", "editable": ["width", "height", "padding", "background"] },
@@ -96,6 +99,11 @@
   "Household.TimezoneSheet": { "selector": "[data-uilab-component='Household.TimezoneSheet']", "instances": "single", "editable": ["width", "height", "padding", "background", "borderRadius"] },
   "Household.TimezoneOptions": { "selector": "[data-uilab-component='Household.TimezoneOptions']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "fontSize", "color", "background", "border", "borderRadius"] },
   "Account.Profile": { "selector": "[data-uilab-component='Account.Profile']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "fontSize", "color", "background", "border", "borderRadius"] },
+  "Account.Avatar": { "selector": "[data-uilab-component='Account.Avatar']", "instances": "single", "editable": ["width", "height", "color", "background", "border", "borderRadius", "opacity"] },
+  "Account.AvatarImage": { "selector": "[data-uilab-component='Account.AvatarImage']", "instances": "single", "editable": ["width", "height", "background", "borderRadius", "opacity"] },
+  "Account.AvatarEdit": { "selector": "[data-uilab-component='Account.AvatarEdit']", "instances": "single", "editable": ["width", "height", "padding", "color", "background", "border", "borderRadius", "opacity"] },
+  "Account.AvatarRemove": { "selector": "[data-uilab-component='Account.AvatarRemove']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
+  "Account.AvatarActions": { "selector": "[data-uilab-component='Account.AvatarActions']", "instances": "single", "editable": ["width", "height", "padding", "background", "borderRadius"] },
   "Account.Logout": { "selector": "[data-uilab-component='Account.Logout']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
   "Account.LogoutConfirm": { "selector": "[data-uilab-component='Account.LogoutConfirm']", "instances": "single", "editable": ["width", "height", "padding", "margin", "gap", "fontSize", "color", "background", "border", "borderRadius"] }
 }

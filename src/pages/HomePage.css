@@ -246,33 +246,31 @@
   border-top: 1px solid var(--color-border);
 }
 
-.home-completed__row {
-  display: flex;
+.home-task-row--completed.is-actions-open .home-task-row__content {
+  transform: translateX(-64px);
+}
+
+.home-task-row--completed .home-task-row__content {
   align-items: center;
-  justify-content: space-between;
   min-height: 58px;
   gap: var(--space-3);
   padding: var(--space-2) 0;
 }
 
-.home-completed__row + .home-completed__row {
-  border-top: 1px solid var(--color-border);
-}
-
-.home-completed__row p,
-.home-completed__row span {
-  margin: 0;
-}
-
-.home-completed__row p {
+.home-task-row--completed .home-task-row__name {
   font-size: 0.9375rem;
+  font-weight: 400;
+  line-height: 1.45;
 }
 
-.home-completed__row > div > span {
-  display: block;
-  margin-top: 2px;
-  color: var(--color-text-secondary);
+.home-task-row--completed .home-task-row__deadline {
   font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.home-task-row--completed .home-task-row__actions {
+  grid-template-columns: 64px;
+  width: 64px;
 }
 
 .home-shopping-summary {
@@ -284,6 +282,10 @@
 .home-completed__toggle:hover,
 .home-task-row__more:hover {
   background: var(--color-primary-soft);
+}
+
+.home-task-row--completed .home-task-row__more:hover {
+  background: transparent;
 }
 
 .home-empty-state {
