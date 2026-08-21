@@ -15,6 +15,12 @@
   gap: var(--space-1);
 }
 
+.calendar-header__today-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0;
+}
+
 .calendar-header h1 {
   flex: 1;
   margin: 0;
@@ -58,13 +64,16 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   width: 100%;
-  height: min(58dvh, 480px);
+  height: min(66dvh, 560px);
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
   border-top: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   border-left: 1px solid var(--color-border);
   background: var(--color-surface);
+  touch-action: pan-y;
 }
 
 .calendar-weekday-row,
@@ -78,10 +87,6 @@
 
 .calendar-grid-body {
   grid-template-rows: repeat(6, minmax(0, 1fr));
-}
-
-.calendar-month-grid--5 .calendar-grid-body {
-  grid-template-rows: repeat(5, minmax(0, 1fr));
 }
 
 .calendar-weekday-row span {

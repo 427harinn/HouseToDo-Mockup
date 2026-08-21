@@ -26,6 +26,8 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     fixture.tasks.filter((task) => task.completed).length,
   );
   const [statusMessage, setStatusMessage] = useState('');
+  const monthGridStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressMonthGridClick = useRef(false);
 
   useEffect(() => {
     setMonthDate(INITIAL_MONTH);
@@ -40,7 +42,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     [tasks],
   );
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
-  const maxCellTasks = getMaxCellTasks(monthDays.length / 7);
+  const maxCellTasks = getMaxCellTasks();
 
   const openDate = (date: string) => setSelectedDate(date);
   const moveMonth = (amount: number) => {
@@ -51,6 +53,33 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     });
   };
   const goToToday = () => setMonthDate(TODAY.slice(0, 8) + '01');
+  const handleMonthGridPointerDown = (event: React.PointerEvent<HTMLElement>) => {
+    suppressMonthGridClick.current = false;
+    monthGridStart.current = { x: event.clientX, y: event.clientY };
+  };
+  const handleMonthGridPointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    if (!monthGridStart.current) return;
+
+    const deltaX = event.clientX - monthGridStart.current.x;
+    const deltaY = event.clientY - monthGridStart.current.y;
+    monthGridStart.current = null;
+
+    if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      suppressMonthGridClick.current = true;
+      moveMonth(deltaX < 0 ? 1 : -1);
+    }
+  };
+  const handleMonthGridPointerCancel = () => {
+    monthGridStart.current = null;
+    suppressMonthGridClick.current = false;
+  };
+  const handleMonthGridClickCapture = (event: React.MouseEvent<HTMLElement>) => {
+    if (!suppressMonthGridClick.current) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    suppressMonthGridClick.current = false;
+  };
 
   const completeTask = (task: CalendarTask) => {
     setTasks((current) => current.filter((item) => item.id !== task.id));
@@ -84,6 +113,8 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
           >
             <ChevronRight aria-hidden="true" />
           </button>
+        </div>
+        <div className="calendar-header__today-row">
           <button type="button" className="calendar-today-button" onClick={goToToday}>
             今日
           </button>
@@ -95,6 +126,10 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
         aria-label={`${formatMonthLabel(monthDate)}のカレンダー`}
         data-uilab-component="Calendar.MonthGrid"
         data-uilab-id="calendar-month-grid"
+        onPointerDown={handleMonthGridPointerDown}
+        onPointerUp={handleMonthGridPointerUp}
+        onPointerCancel={handleMonthGridPointerCancel}
+        onClickCapture={handleMonthGridClickCapture}
       >
         <div className="calendar-weekday-row" aria-hidden="true">
           {WEEKDAYS.map((weekday, index) => (
@@ -403,11 +438,7 @@ function getMonthDays(monthDate: string): MonthDay[] {
   const start = new Date(firstDay);
   start.setDate(firstDay.getDate() - firstDay.getDay());
 
-  const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12);
-  const weekCount = Math.max(
-    5,
-    Math.ceil((firstDay.getDay() + lastDay.getDate()) / 7),
-  );
+  const weekCount = 6;
 
   return Array.from({ length: weekCount * 7 }, (_, index) => {
     const day = new Date(start);
@@ -421,8 +452,8 @@ function getMonthDays(monthDate: string): MonthDay[] {
   });
 }
 
-function getMaxCellTasks(weekCount: number) {
-  return weekCount === 5 ? 3 : 2;
+function getMaxCellTasks() {
+  return 2;
 }
 
 function addDays(date: string, amount: number) {
