@@ -183,12 +183,15 @@ describe('CalendarPage', () => {
     expect(screen.getByText('冷蔵庫の中を確認して足りない食材を買い物メモに追加する')).toBeVisible();
   });
 
-  it('adapts the month grid between six and five week months', () => {
+  it('keeps a six-week month grid for every month', () => {
     renderCalendar('normal');
+
+    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(42);
 
     fireEvent.click(screen.getByRole('button', { name: '次の月' }));
     expect(screen.getByRole('heading', { name: '2026年9月' })).toBeVisible();
-    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(35);
+    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(42);
+    expect(screen.getByRole('button', { name: /10月10日 土曜日/ })).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: '前の月' }));
     expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible();
@@ -198,18 +201,18 @@ describe('CalendarPage', () => {
       fireEvent.click(screen.getByRole('button', { name: '前の月' }));
     }
     expect(screen.getByRole('heading', { name: '2026年2月' })).toBeVisible();
-    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(35);
+    expect(document.querySelectorAll('.calendar-day-cell')).toHaveLength(42);
   });
 
-  it('uses the extra row capacity in five-week months before showing +N', () => {
+  it('keeps the six-week task capacity in September before showing +N', () => {
     renderCalendar('normal');
 
     fireEvent.click(screen.getByRole('button', { name: '次の月' }));
 
     expect(screen.getByText('玄関を掃除する')).toBeVisible();
     expect(screen.getByText('洗濯槽を回す')).toBeVisible();
-    expect(screen.getByText('調味料を補充する')).toBeVisible();
-    expect(screen.getByText('+1')).toBeVisible();
+    expect(screen.queryByText('調味料を補充する')).not.toBeInTheDocument();
+    expect(screen.getByText('+2')).toBeVisible();
   });
 
   it('keeps BottomNavigation outside the Calendar content scroll region', () => {

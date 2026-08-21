@@ -224,6 +224,7 @@ function TaskRow({
       </div>
       {actionsOpen ? (
         <div className="home-task-row__actions" aria-label={`${task.name}の操作メニュー`}>
+          <span className="home-task-row__actions-spacer" aria-hidden="true" />
           <button type="button" onClick={onEdit}>
             編集
           </button>
@@ -323,6 +324,7 @@ function CompletedRow({ task }: { task: CompletedTask }) {
       </div>
       {actionsOpen ? (
         <div className="home-task-row__actions" aria-label={`${task.name}の操作メニュー`}>
+          <span className="home-task-row__actions-spacer" aria-hidden="true" />
           <button
             type="button"
             data-uilab-component="Home.CompletedRow.Edit"

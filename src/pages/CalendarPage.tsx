@@ -42,7 +42,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     [tasks],
   );
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
-  const maxCellTasks = getMaxCellTasks(monthDays.length / 7);
+  const maxCellTasks = getMaxCellTasks();
 
   const openDate = (date: string) => setSelectedDate(date);
   const moveMonth = (amount: number) => {
@@ -438,11 +438,7 @@ function getMonthDays(monthDate: string): MonthDay[] {
   const start = new Date(firstDay);
   start.setDate(firstDay.getDate() - firstDay.getDay());
 
-  const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0, 12);
-  const weekCount = Math.max(
-    5,
-    Math.ceil((firstDay.getDay() + lastDay.getDate()) / 7),
-  );
+  const weekCount = 6;
 
   return Array.from({ length: weekCount * 7 }, (_, index) => {
     const day = new Date(start);
@@ -456,8 +452,8 @@ function getMonthDays(monthDate: string): MonthDay[] {
   });
 }
 
-function getMaxCellTasks(weekCount: number) {
-  return weekCount === 5 ? 3 : 2;
+function getMaxCellTasks() {
+  return 2;
 }
 
 function addDays(date: string, amount: number) {

@@ -89,10 +89,6 @@
   grid-template-rows: repeat(6, minmax(0, 1fr));
 }
 
-.calendar-month-grid--5 .calendar-grid-body {
-  grid-template-rows: repeat(5, minmax(0, 1fr));
-}
-
 .calendar-weekday-row span {
   min-width: 0;
 }

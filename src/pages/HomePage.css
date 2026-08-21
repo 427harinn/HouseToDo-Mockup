@@ -163,6 +163,12 @@
   transition: width 180ms ease-out, flex-basis 180ms ease-out, opacity 180ms ease-out;
 }
 
+.home-task-row__more:hover,
+.home-task-row__more:active,
+.home-task-row__more:focus {
+  background: transparent;
+}
+
 .home-task-row__more svg {
   width: 18px;
   height: 18px;
@@ -173,9 +179,12 @@
   inset: 0 0 0 auto;
   z-index: 0;
   display: grid;
-  grid-template-columns: repeat(2, 64px);
-  gap: var(--space-2);
+  grid-template-columns: 8px 64px 64px;
   width: 136px;
+}
+
+.home-task-row__actions-spacer {
+  background: transparent;
 }
 
 .home-task-row__actions button {
@@ -239,7 +248,7 @@
 }
 
 .home-task-row--completed.is-actions-open .home-task-row__content {
-  transform: translateX(-64px);
+  transform: translateX(-72px);
 }
 
 .home-task-row--completed .home-task-row__content {
@@ -261,8 +270,8 @@
 }
 
 .home-task-row--completed .home-task-row__actions {
-  grid-template-columns: 64px;
-  width: 64px;
+  grid-template-columns: 8px 64px;
+  width: 72px;
 }
 
 .home-shopping-summary {
@@ -346,7 +355,7 @@
   }
 
   .home-task-row.is-actions-open .home-task-row__content {
-    transform: translateX(-144px);
+    transform: translateX(-136px);
   }
 
   .home-task-row--completed.is-actions-open .home-task-row__content {
@@ -360,7 +369,7 @@
   }
 
   .home-task-row--completed.is-actions-open .home-task-row__content {
-    transform: translateX(-64px);
+    transform: translateX(-72px);
   }
 
   .home-task-row__more,
@@ -389,5 +398,18 @@
       flex-basis: 40px;
       width: 40px;
     }
+  }
+}
+
+@media (max-width: 600px) {
+  .home-task-row__more,
+  .home-task-row:hover .home-task-row__more,
+  .home-task-row:focus-within .home-task-row__more,
+  .home-task-row__more:focus-visible {
+    flex-basis: 0;
+    width: 0;
+    background: transparent;
+    opacity: 0;
+    pointer-events: none;
   }
 }
