@@ -30,6 +30,16 @@
 - [x] Shopping rows, purchase/restore, swipe edit, reorder, tests, and screenshots complete.
 - [x] PR #5 merged to `main`.
 
+## Adapter baseline completed between M5 and M6
+
+- [x] PR #6 (`feat/uilab-v1-adapter`) merged to `main`.
+- [x] Adapter v1 `.uilab` metadata created for Home / Calendar / Shopping.
+- [x] 3 screens / 20 states / 41 semantic component definitions validated.
+- [x] Single-file UI Lab import build established.
+- [x] UI Lab import/edit, Undo/Redo, Project Export/import round trip, and Codex Export validated against the real package.
+- [x] UI Lab discovery timing/hash-route compatibility behavior established in Mockup runtime.
+- [x] Validation findings documented in `docs/UILAB_V1_HOUSETODO_VALIDATION.md`.
+
 ## Completed milestone: M6 — Add / Edit forms
 
 - [x] Task and Shopping add/edit routes complete.
@@ -48,28 +58,20 @@
 - [x] Responsive behavior, tests, screenshots, and review complete.
 - [x] PR #8 merged to `main`.
 
-## Completed milestone: M8 — UI Lab adapter/package
+## Completed milestone: M8 — UI Lab adapter/package update
 
-M8 implementation and final validation are complete. This is the final mockup milestone; do not create M9 or another milestone.
-Follow `docs/M8_IMPLEMENTATION_SPEC.md`, `docs/UI_LAB_ADAPTER_SPEC_v1.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
-Stop for review after opening the draft PR; do not merge automatically.
+M8 is complete. It extends the proven PR #6 adapter implementation already present on `main`; this is the final mockup milestone. Do not create M9 or merge automatically.
+Follow `docs/M8_IMPLEMENTATION_SPEC.md`, `docs/UILAB_V1_HOUSETODO_VALIDATION.md`, `docs/UI_LAB_ADAPTER_SPEC_v1.md`, `DESIGN.md`, and `docs/CODEX_WORKFLOW.md`.
 
-Mandatory workflow:
-
-- [x] Add `.uilab/project.json`.
-- [x] Add `.uilab/screens.json` covering all 12 user-reviewable M1–M7 product screens.
-- [x] Add `.uilab/states.json` with 48 exact implemented deterministic state IDs.
-- [x] Add `.uilab/components.json` with 92 definitions grounded in existing semantic adapter attributes.
-- [x] Add `.uilab/tokens.json` grounded in DESIGN/current CSS tokens.
-- [x] Audit `data-uilab-component` / `data-uilab-id` coverage and uniqueness.
-- [x] Add reproducible single-file UI Lab import build and ZIP packaging scripts.
+- [x] Preserve PR #6 `flushSync`, embedded hash-route reload/discovery compatibility, and single-file classic-script import behavior.
+- [x] Extend metadata from 3 screens / 20 states / 41 components to 12 screens / 48 states / 92 components.
+- [x] Add and validate M6/M7 screen, state, component, and token coverage.
 - [x] Repair inline JavaScript embedding (`$&` replacement-token corruption, callback replacement, `</script` escaping).
-- [x] Strengthen validation with metadata checks, required entry/ZIP checks, no-localhost/external-runtime checks, and V8 inline-script syntax checks.
-- [x] Verify the final ZIP contains `dist/index.html` and the five `.uilab` files at the required root layout.
+- [x] Strengthen validation with metadata, ZIP layout, no-localhost/external-runtime, adapter selector, and V8 syntax checks.
 - [x] Keep all M1–M7 tests passing and pass lint/typecheck/test/build/build:uilab/validate/package.
-- [x] Complete real UI Lab validation: 12-screen rendering, normal and non-normal states, existing Home component edit, M6 component edit, Undo/Redo, Project round trip, and Codex Export.
+- [x] Complete real UI Lab validation: 12-screen rendering, normal and non-normal states, existing Home edit, M6 component edit, Undo/Redo, Project round trip, and Codex Export.
 - [x] Copy final real UI Lab import screenshots to `docs/screenshots/m8/`.
 - [x] Update the validation document with M5/M8 counts, root cause, repair, results, ZIP SHA256, and known follow-up.
 - [x] Commit and push the M8 branch.
-- [x] Open a draft Pull Request targeting `main`.
+- [x] Open draft PR #9 targeting `main`.
 - [x] Do not merge the PR.
