@@ -251,6 +251,7 @@
 }
 
 .home-task-row--completed .home-task-row__content {
+  align-items: center;
   min-height: 58px;
   gap: var(--space-3);
   padding: var(--space-2) 0;
