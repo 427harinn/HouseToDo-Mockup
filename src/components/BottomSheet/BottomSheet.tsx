@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
+import { MOTION_MS } from '../../motion/constants';
 
 type BottomSheetProps = {
   children: ReactNode;
@@ -20,6 +22,20 @@ export function BottomSheet({
   const dragStartY = useRef<number | null>(null);
   const dragOffsetRef = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isDismissing, setIsDismissing] = useState(false);
+  const dismissTimer = useRef<number | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  useEffect(() => {
+    if (open) {
+      setIsDismissing(false);
+      setIsDragging(false);
+      setDragOffset(0);
+    }
+    return () => {
+      if (dismissTimer.current !== null) window.clearTimeout(dismissTimer.current);
+    };
+  }, [open]);
   useEffect(() => {
     if (!open) return undefined;
 
@@ -34,7 +50,9 @@ export function BottomSheet({
   if (!open) return null;
 
   const handleDragStart = (event: PointerEvent<HTMLDivElement>) => {
+    if (isDismissing) return;
     dragStartY.current = event.clientY;
+    setIsDragging(true);
     event.currentTarget.setPointerCapture?.(event.pointerId);
     dragOffsetRef.current = 0;
     setDragOffset(0);
@@ -51,30 +69,31 @@ export function BottomSheet({
     dragStartY.current = null;
     dragOffsetRef.current = 0;
     event.currentTarget.releasePointerCapture?.(event.pointerId);
-    setDragOffset(0);
-    if (shouldDismiss) onClose();
+    setIsDragging(false);
+    if (shouldDismiss) {
+      setIsDismissing(true);
+      dismissTimer.current = window.setTimeout(onClose, prefersReducedMotion ? 0 : MOTION_MS.sheet);
+    } else {
+      setDragOffset(0);
+    }
   };
 
   return (
     <div className="bottom-sheet-layer">
       <button
         type="button"
-        className="bottom-sheet__backdrop"
+        className={`bottom-sheet__backdrop${isDismissing ? ' is-dismissing' : ''}`}
         aria-label="背景を閉じる"
         onClick={onClose}
       />
       <section
-        className="bottom-sheet"
+        className={`bottom-sheet${isDragging ? ' is-dragging' : ''}${isDismissing ? ' is-dismissing' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-labelledby="bottom-sheet-title"
         data-uilab-component={uilabComponent}
         data-uilab-id={uilabId}
         style={{ '--sheet-drag-offset': `${dragOffset}px` } as CSSProperties}
-        onPointerDown={handleDragStart}
-        onPointerMove={handleDragMove}
-        onPointerUp={handleDragEnd}
-        onPointerCancel={handleDragEnd}
       >
         <div
           className="bottom-sheet__handle"

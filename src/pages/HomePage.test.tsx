@@ -48,6 +48,39 @@ describe('HomePage', () => {
     expect(screen.getByText('完了済み 3').closest('button')).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('does not complete a task when the gesture is a horizontal swipe', () => {
+    renderHome();
+    const row = document.querySelector('[data-uilab-id="normal-trash"]');
+    if (!row) throw new Error('Expected the task row');
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 280, clientY: 120 }));
+    fireEvent(row, new MouseEvent('pointermove', { bubbles: true, clientX: 220, clientY: 122 }));
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 150, clientY: 122 }));
+
+    expect(screen.getByText('ゴミをまとめる')).toBeVisible();
+    expect(screen.queryByText('完了済み 3')).not.toBeInTheDocument();
+  });
+
+  it('keeps the final completion state available with reduced motion', () => {
+    vi.useFakeTimers();
+    vi.spyOn(window, 'matchMedia').mockReturnValue({
+      matches: true,
+      media: '(prefers-reduced-motion: reduce)',
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    } as unknown as MediaQueryList);
+    renderHome();
+    fireEvent.click(screen.getByRole('button', { name: 'ゴミをまとめるを完了' }));
+    act(() => vi.advanceTimersByTime(0));
+
+    expect(screen.queryByText('ゴミをまとめる')).not.toBeInTheDocument();
+    expect(screen.getByText('完了済み 3')).toBeVisible();
+    vi.restoreAllMocks();
+  });
+
   it('shows the fixed completion date in edit after completing a Home task', async () => {
     vi.useFakeTimers();
     renderHome();
@@ -65,9 +98,12 @@ describe('HomePage', () => {
   });
 
   it('does not create a previous-completion date when a Home task is passed', async () => {
+    vi.useFakeTimers();
     renderHome();
     swipeRow('normal-trash');
     fireEvent.click(screen.getByRole('button', { name: 'パス' }));
+    act(() => vi.advanceTimersByTime(200));
+    vi.useRealTimers();
     fireEvent.click(screen.getByRole('button', { name: 'パス済み 2' }));
     swipeRow('passed-normal-trash');
     fireEvent.click(screen.getByRole('button', { name: '編集' }));
@@ -77,9 +113,11 @@ describe('HomePage', () => {
   });
 
   it('moves a passed task to the collapsed passed section and supports expansion', () => {
+    vi.useFakeTimers();
     renderHome();
     swipeRow('normal-trash');
     fireEvent.click(screen.getByRole('button', { name: 'パス' }));
+    act(() => vi.advanceTimersByTime(200));
 
     expect(screen.queryByText('ゴミをまとめる')).not.toBeInTheDocument();
     expect(screen.getByText('パス済み 2')).toBeVisible();

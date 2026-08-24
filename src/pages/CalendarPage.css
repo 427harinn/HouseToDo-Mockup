@@ -78,6 +78,19 @@
   touch-action: pan-y;
 }
 
+.calendar-month-grid[data-swipe-dragging="true"],
+.calendar-date-sheet.is-swipe-dragging {
+  transition: none;
+}
+
+.calendar-month-grid.is-month-transitioning-next {
+  animation: calendar-month-enter-from-right 240ms ease-out both;
+}
+
+.calendar-month-grid.is-month-transitioning-previous {
+  animation: calendar-month-enter-from-left 240ms ease-out both;
+}
+
 .calendar-weekday-row,
 .calendar-grid-body {
   display: grid;
@@ -393,6 +406,43 @@
   height: 22px;
   border: 2px solid var(--color-primary-strong);
   border-radius: 50%;
+  transition: background-color 180ms ease-out, transform 180ms ease-out;
+}
+
+.calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__header,
+.calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__content {
+  animation: calendar-date-enter-from-right 220ms ease-out both;
+}
+
+.calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__header,
+.calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__content {
+  animation: calendar-date-enter-from-left 220ms ease-out both;
+}
+
+.calendar-detail-task__check.is-completing {
+  background: var(--color-primary-strong);
+  transform: scale(1.04);
+}
+
+.calendar-detail-task__check svg {
+  width: 14px;
+  height: 14px;
+  margin: 2px;
+  color: #fff;
+  stroke-width: 3;
+  animation: calendar-task-check-enter 180ms ease-out both;
+}
+
+.calendar-detail-task.is-completing {
+  animation: calendar-task-complete-exit 180ms ease-out both;
+}
+
+.calendar-detail-task.is-passing {
+  animation: calendar-task-pass-exit 200ms ease-out both;
+}
+
+.calendar-detail-task.is-restoring {
+  animation: calendar-task-restore-enter 180ms ease-out both;
 }
 
 .calendar-detail-task__more {
@@ -527,6 +577,47 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes calendar-month-enter-from-right {
+  from { opacity: 0.72; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes calendar-month-enter-from-left {
+  from { opacity: 0.72; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes calendar-date-enter-from-right {
+  from { opacity: 0.72; transform: translateX(12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes calendar-date-enter-from-left {
+  from { opacity: 0.72; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes calendar-task-check-enter {
+  from { opacity: 0; transform: scale(0.72); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes calendar-task-complete-exit {
+  0% { opacity: 1; max-height: 64px; transform: scale(1); }
+  38% { opacity: 1; max-height: 64px; transform: scale(1); }
+  100% { opacity: 0; max-height: 0; transform: scale(0.985); }
+}
+
+@keyframes calendar-task-pass-exit {
+  from { opacity: 1; max-height: 64px; transform: translateX(0); }
+  to { opacity: 0; max-height: 0; transform: translateX(-10px); }
+}
+
+@keyframes calendar-task-restore-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 340px) {
   .calendar-day-cell {
     padding-inline: 2px;
@@ -551,6 +642,24 @@
 
 @media (prefers-reduced-motion: reduce) {
   .calendar-month-grid {
+    transition: none;
+  }
+
+  .calendar-month-grid.is-month-transitioning-next,
+  .calendar-month-grid.is-month-transitioning-previous,
+  .calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__header,
+  .calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__content,
+  .calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__header,
+  .calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__content {
+    animation: none;
+  }
+
+  .calendar-detail-task__check,
+  .calendar-detail-task__check svg,
+  .calendar-detail-task.is-completing,
+  .calendar-detail-task.is-passing,
+  .calendar-detail-task.is-restoring {
+    animation: none;
     transition: none;
   }
 

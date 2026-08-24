@@ -19,6 +19,10 @@
   animation: bottom-sheet-backdrop-enter 180ms ease-out both;
 }
 
+.bottom-sheet__backdrop.is-dismissing {
+  animation: bottom-sheet-backdrop-exit 240ms ease-out both;
+}
+
 .bottom-sheet {
   position: relative;
   width: min(100%, 40rem);
@@ -28,6 +32,19 @@
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   translate: 0 var(--sheet-drag-offset, 0px);
   animation: bottom-sheet-enter 200ms ease-out both;
+}
+
+.bottom-sheet.is-dragging {
+  animation: none;
+  transition: none;
+}
+
+.bottom-sheet:not(.is-dragging):not(.is-dismissing) {
+  transition: translate 240ms ease-out;
+}
+
+.bottom-sheet.is-dismissing {
+  animation: bottom-sheet-exit 240ms ease-out both;
 }
 
 .bottom-sheet__handle {
@@ -91,5 +108,24 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes bottom-sheet-backdrop-exit {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes bottom-sheet-exit {
+  from { opacity: 1; translate: 0 var(--sheet-drag-offset, 0px); }
+  to { opacity: 0; translate: 0 100dvh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-sheet__backdrop,
+  .bottom-sheet,
+  .bottom-sheet.is-dismissing {
+    animation-duration: 1ms;
+    transition-duration: 1ms;
   }
 }

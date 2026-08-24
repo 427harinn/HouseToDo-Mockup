@@ -16,6 +16,8 @@ import {
 } from '../fixtures/shopping';
 import { getShoppingUiLabState } from '../mock/shoppingState';
 import { MOCK_NOW, MOCK_TODAY } from '../mock/constants';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { MOTION_MS, SHOPPING_SWIPE_ACTION_WIDTH } from '../motion/constants';
 
 const PURCHASED_VISIBLE_DAYS = 7;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -43,7 +45,13 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
   const [actionsOpenId, setActionsOpenId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [removingItemIds, setRemovingItemIds] = useState<Set<string>>(() => new Set());
+  const [restoringItemIds, setRestoringItemIds] = useState<Set<string>>(() => new Set());
   const [statusMessage, setStatusMessage] = useState('');
+  const transitionTimers = useRef<number[]>([]);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => () => transitionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
 
   useEffect(() => {
     setActiveItems(fixture.activeItems);
@@ -53,6 +61,8 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
     setActionsOpenId(null);
     setDraggingId(null);
     setDragOverId(null);
+    setRemovingItemIds(new Set());
+    setRestoringItemIds(new Set());
   }, [fixture, initialItemId, state]);
 
   const persistState = (nextActiveItems: ShoppingItem[], nextPurchasedItems: ShoppingItem[], nextHistoryItems?: ShoppingItem[]) => {
@@ -72,26 +82,46 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
   };
 
   const purchaseItem = (item: ShoppingItem) => {
+    if (removingItemIds.has(item.id) || restoringItemIds.has(item.id)) return;
     const nextActiveItems = activeItems.filter((activeItem) => activeItem.id !== item.id);
     const nextPurchasedItems = [
       ...purchasedItems,
       { ...item, purchasedAt: `${MOCK_TODAY}T17:42:00+09:00`, purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
     ];
     const nextHistoryItems = [...getShoppingHistoryItems(fixture), item].filter((candidate, index, items) => items.findIndex((entry) => entry.id === candidate.id) === index);
-    persistState(nextActiveItems, nextPurchasedItems, nextHistoryItems);
-    setExpandedId(null);
+    setRemovingItemIds((current) => new Set(current).add(item.id));
     setActionsOpenId(null);
+    const timer = window.setTimeout(() => {
+      setExpandedId(null);
+      persistState(nextActiveItems, nextPurchasedItems, nextHistoryItems);
+      setRemovingItemIds((current) => {
+        const next = new Set(current);
+        next.delete(item.id);
+        return next;
+      });
+    }, prefersReducedMotion ? 0 : MOTION_MS.standard);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${item.name}」を購入済みに移しました`);
   };
 
   const restoreItem = (item: ShoppingItem) => {
+    if (removingItemIds.has(item.id) || restoringItemIds.has(item.id)) return;
     const restored: ShoppingItem = { ...item };
     delete restored.purchasedAt;
     delete restored.purchaser;
     const nextPurchasedItems = purchasedItems.filter((purchasedItem) => purchasedItem.id !== item.id);
     const nextActiveItems = [...activeItems, restored].sort((left, right) => left.addedAt.localeCompare(right.addedAt));
-    persistState(nextActiveItems, nextPurchasedItems, fixture.historyItems);
+    setRestoringItemIds((current) => new Set(current).add(item.id));
     setExpandedId(null);
+    const timer = window.setTimeout(() => {
+      persistState(nextActiveItems, nextPurchasedItems, fixture.historyItems);
+      setRestoringItemIds((current) => {
+        const next = new Set(current);
+        next.delete(item.id);
+        return next;
+      });
+    }, prefersReducedMotion ? 0 : MOTION_MS.restore);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${item.name}」を未購入に戻しました`);
   };
 
@@ -139,6 +169,8 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
               key={item.id}
           item={item}
               expanded={expandedId === item.id}
+              leaving={removingItemIds.has(item.id)}
+              entering={restoringItemIds.has(item.id)}
               actionsOpen={actionsOpenId === item.id}
               dragging={draggingId === item.id}
               dragSessionActive={draggingId !== null}
@@ -208,6 +240,8 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
                 item={item}
                 purchased
                 expanded={expandedId === item.id}
+                leaving={false}
+                entering={false}
                 actionsOpen={false}
                 dragging={false}
                 dragSessionActive={false}
@@ -267,6 +301,8 @@ function formatPurchasedAt(value: string) {
 type ShoppingItemRowProps = {
   item: ShoppingItem;
   purchased?: boolean;
+  leaving: boolean;
+  entering: boolean;
   expanded: boolean;
   actionsOpen: boolean;
   dragging: boolean;
@@ -289,6 +325,8 @@ type ShoppingItemRowProps = {
 function ShoppingItemRow({
   item,
   purchased = false,
+  leaving,
+  entering,
   expanded,
   actionsOpen,
   dragging,
@@ -313,7 +351,8 @@ function ShoppingItemRow({
   const dragStarted = useRef(false);
   const rowRef = useRef<HTMLElement | null>(null);
   const swipeStartOffset = useRef(0);
-  const [swipeOffset, setSwipeOffset] = useState(actionsOpen ? -80 : 0);
+  const [swipeOffset, setSwipeOffset] = useState(actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0);
+  const [isSwiping, setIsSwiping] = useState(false);
 
   const clearLongPress = () => {
     if (longPressTimer.current !== null) {
@@ -325,7 +364,8 @@ function ShoppingItemRow({
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     gestureStart.current = { x: event.clientX, y: event.clientY };
-    swipeStartOffset.current = actionsOpen ? -80 : 0;
+    setIsSwiping(false);
+    swipeStartOffset.current = actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0;
     setSwipeOffset(swipeStartOffset.current);
     dragStarted.current = false;
     clearLongPress();
@@ -349,7 +389,8 @@ function ShoppingItemRow({
     const distanceY = Math.abs(start.y - event.clientY);
     const deltaX = event.clientX - start.x;
     if (distanceX > distanceY && !dragStarted.current && !purchased) {
-      setSwipeOffset(Math.max(-80, Math.min(0, swipeStartOffset.current + deltaX)));
+      setIsSwiping(true);
+      setSwipeOffset(Math.max(-SHOPPING_SWIPE_ACTION_WIDTH, Math.min(0, swipeStartOffset.current + deltaX)));
     }
     if (!dragStarted.current && (distanceX > 12 || distanceY > 12)) clearLongPress();
     if (dragStarted.current && rowRef.current) {
@@ -362,6 +403,7 @@ function ShoppingItemRow({
     clearLongPress();
     const start = gestureStart.current;
     gestureStart.current = null;
+    setIsSwiping(false);
     if (!start) {
       if (!purchased && dragSessionActive && !dragging) onDragEnd();
       return;
@@ -374,14 +416,14 @@ function ShoppingItemRow({
     }
     if (!purchased && start.x - event.clientX > 48) {
       suppressClick.current = true;
-      setSwipeOffset(-80);
+      setSwipeOffset(-SHOPPING_SWIPE_ACTION_WIDTH);
       onSwipeOpen();
     } else if (!purchased && event.clientX - start.x > 24 && actionsOpen) {
       suppressClick.current = true;
       setSwipeOffset(0);
       onDismissActions();
     } else {
-      setSwipeOffset(actionsOpen ? -80 : 0);
+      setSwipeOffset(actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0);
     }
   };
 
@@ -405,7 +447,7 @@ function ShoppingItemRow({
   return (
     <article
       ref={rowRef}
-      className={`shopping-item-row${expanded ? ' is-expanded' : ''}${actionsOpen ? ' is-actions-open' : ''}${dragging ? ' is-dragging' : ''}${dragOver ? ' is-drag-over' : ''}`}
+      className={`shopping-item-row${expanded ? ' is-expanded' : ''}${actionsOpen ? ' is-actions-open' : ''}${dragging ? ' is-dragging' : ''}${dragOver ? ' is-drag-over' : ''}${isSwiping ? ' is-swipe-dragging' : ''}${leaving ? ' is-leaving' : ''}${entering ? ' is-entering' : ''}`}
       data-uilab-component={purchased ? 'Shopping.PurchasedRow' : 'Shopping.ItemRow'}
       data-uilab-id={item.id}
       onPointerDown={handlePointerDown}
@@ -416,6 +458,7 @@ function ShoppingItemRow({
         gestureStart.current = null;
         if (dragStarted.current) onDragEnd();
         dragStarted.current = false;
+        setIsSwiping(false);
       }}
       onClickCapture={handleClickCapture}
     >
@@ -485,7 +528,7 @@ function ShoppingItemRow({
                 setSwipeOffset(0);
                 onDismissActions();
               } else {
-                setSwipeOffset(-80);
+                setSwipeOffset(-SHOPPING_SWIPE_ACTION_WIDTH);
                 onSwipeOpen();
               }
             }}

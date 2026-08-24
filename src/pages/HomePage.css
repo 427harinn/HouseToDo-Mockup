@@ -40,6 +40,10 @@
   transition: transform 180ms ease-out;
 }
 
+.home-task-row.is-swipe-dragging .home-task-row__content {
+  transition: none;
+}
+
 .home-task-row.is-actions-open .home-task-row__content {
   transform: translateX(var(--swipe-offset, -136px));
 }
@@ -102,6 +106,14 @@
 
 .home-task-row.is-completing-row {
   animation: home-task-complete-exit 180ms ease-out both;
+}
+
+.home-task-row.is-passing-row {
+  animation: home-task-pass-exit 200ms ease-out both;
+}
+
+.home-history-row.is-restoring-row {
+  animation: home-history-restore-enter 180ms ease-out both;
 }
 
 .task-check svg {
@@ -386,6 +398,16 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+@keyframes home-task-pass-exit {
+  from { opacity: 1; transform: translateX(0); max-height: 72px; }
+  to { opacity: 0; transform: translateX(-12px); max-height: 0; }
+}
+
+@keyframes home-history-restore-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes home-task-complete-exit {

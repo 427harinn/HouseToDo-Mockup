@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
 
 function renderCalendar(state?: string) {
@@ -8,6 +8,7 @@ function renderCalendar(state?: string) {
 }
 
 describe('CalendarPage', () => {
+  beforeEach(() => vi.useRealTimers());
   it('renders a full seven-column month grid and weekend semantics', () => {
     renderCalendar('normal');
 
@@ -164,10 +165,13 @@ describe('CalendarPage', () => {
   });
 
   it('removes a detail task after the Home-style completion action', () => {
+    vi.useFakeTimers();
     renderCalendar('date-open');
     const taskName = 'エアコンのフィルターを掃除';
 
     fireEvent.click(screen.getByRole('dialog').querySelector('.calendar-detail-task__main')!);
+    expect(within(screen.getByRole('dialog')).getByText(taskName)).toBeVisible();
+    act(() => vi.advanceTimersByTime(180));
 
     expect(screen.queryByText(taskName)).not.toBeInTheDocument();
     expect(screen.getByText('完了済み 1')).toBeVisible();

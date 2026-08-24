@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Ellipsis, ShoppingCart, X } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Ellipsis, ShoppingCart, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   calendarFixtures,
@@ -10,6 +10,8 @@ import {
 import type { ShoppingFixture, ShoppingItem } from '../fixtures/shopping';
 import { getCalendarUiLabState } from '../mock/calendarState';
 import { MOCK_TODAY } from '../mock/constants';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { MOTION_MS } from '../motion/constants';
 
 const INITIAL_MONTH = '2026-08-01';
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
@@ -34,13 +36,25 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
   const monthGridStart = useRef<{ x: number; y: number } | null>(null);
   const suppressMonthGridClick = useRef(false);
   const [monthSwipeOffset, setMonthSwipeOffset] = useState(0);
+  const [isMonthDragging, setIsMonthDragging] = useState(false);
+  const [monthTransitionDirection, setMonthTransitionDirection] = useState<'next' | 'previous' | null>(null);
+  const [completingIds, setCompletingIds] = useState<Set<string>>(() => new Set());
+  const [passingIds, setPassingIds] = useState<Set<string>>(() => new Set());
+  const [restoringIds, setRestoringIds] = useState<Set<string>>(() => new Set());
+  const transitionTimers = useRef<number[]>([]);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
     setMonthDate(INITIAL_MONTH);
     setSelectedDate(initialSelectedDate ?? fixture.selectedDate ?? null);
     setTasks(fixture.tasks);
     setStatusMessage('');
+    setCompletingIds(new Set());
+    setPassingIds(new Set());
+    setRestoringIds(new Set());
   }, [initialSelectedDate, state]);
+
+  useEffect(() => () => transitionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
 
   const visibleTasks = useMemo(
     () => tasks.filter((task) => !task.completed && !task.passed && !task.deleted),
@@ -54,15 +68,17 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
 
   const openDate = (date: string) => setSelectedDate(date);
   const moveMonth = (amount: number) => {
-    setMonthDate((current) => {
-      const next = new Date(`${current}T12:00:00`);
-      next.setMonth(next.getMonth() + amount, 1);
-      return toDateString(next);
-    });
+    const next = new Date(`${monthDate}T12:00:00`);
+    next.setMonth(next.getMonth() + amount, 1);
+    setMonthTransitionDirection(amount > 0 ? 'next' : 'previous');
+    const timer = window.setTimeout(() => setMonthTransitionDirection(null), prefersReducedMotion ? 0 : MOTION_MS.large);
+    transitionTimers.current.push(timer);
+    setMonthDate(toDateString(next));
   };
   const goToToday = () => setMonthDate(MOCK_TODAY.slice(0, 8) + '01');
   const handleMonthGridPointerDown = (event: React.PointerEvent<HTMLElement>) => {
     suppressMonthGridClick.current = false;
+    setIsMonthDragging(true);
     monthGridStart.current = { x: event.clientX, y: event.clientY };
   };
   const handleMonthGridPointerUp = (event: React.PointerEvent<HTMLElement>) => {
@@ -71,6 +87,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
     const deltaX = event.clientX - monthGridStart.current.x;
     const deltaY = event.clientY - monthGridStart.current.y;
     monthGridStart.current = null;
+    setIsMonthDragging(false);
 
     if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
       suppressMonthGridClick.current = true;
@@ -87,6 +104,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
   };
   const handleMonthGridPointerCancel = () => {
     monthGridStart.current = null;
+    setIsMonthDragging(false);
     suppressMonthGridClick.current = false;
     setMonthSwipeOffset(0);
   };
@@ -104,6 +122,8 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
   };
 
   const completeTask = (task: CalendarTask) => {
+    if (completingIds.has(task.id)) return;
+    setCompletingIds((current) => new Set(current).add(task.id));
     const completionDate = selectedDate ?? MOCK_TODAY;
     const nextTasks = tasks.map((item) => item.id === task.id ? {
       ...item,
@@ -115,16 +135,36 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
         { date: completionDate, outcome: 'completed' as const },
       ],
     } : item);
-    commitTasks(nextTasks);
     setStatusMessage(`「${task.name}」を完了しました`);
+    const timer = window.setTimeout(() => {
+      commitTasks(nextTasks);
+      setCompletingIds((current) => {
+        const next = new Set(current);
+        next.delete(task.id);
+        return next;
+      });
+    }, prefersReducedMotion ? 0 : MOTION_MS.completion);
+    transitionTimers.current.push(timer);
   };
 
   const passTask = (task: CalendarTask) => {
-    commitTasks(tasks.map((item) => item.id === task.id ? { ...item, passed: true } : item));
+    if (passingIds.has(task.id) || completingIds.has(task.id)) return;
+    setPassingIds((current) => new Set(current).add(task.id));
+    const timer = window.setTimeout(() => {
+      commitTasks(tasks.map((item) => item.id === task.id ? { ...item, passed: true } : item));
+      setPassingIds((current) => {
+        const next = new Set(current);
+        next.delete(task.id);
+        return next;
+      });
+    }, prefersReducedMotion ? 0 : MOTION_MS.pass);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${task.name}」をパスしました`);
   };
 
   const restoreCompleted = (task: CalendarTask) => {
+    if (restoringIds.has(task.id)) return;
+    setRestoringIds((current) => new Set(current).add(task.id));
     const completionDate = selectedDate ?? MOCK_TODAY;
     commitTasks(tasks.map((item) => item.id === task.id ? {
       ...item,
@@ -134,6 +174,12 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
       completedSnapshot: undefined,
       completionHistory: item.completionHistory?.filter((entry) => !(entry.date === completionDate && entry.outcome === 'completed')),
     } : item));
+    const timer = window.setTimeout(() => setRestoringIds((current) => {
+      const next = new Set(current);
+      next.delete(task.id);
+      return next;
+    }), prefersReducedMotion ? 0 : MOTION_MS.restore);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${task.name}」を戻しました`);
   };
 
@@ -171,7 +217,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
       </header>
 
       <section
-        className={`calendar-month-grid calendar-month-grid--${monthDays.length / 7}`}
+        className={`calendar-month-grid calendar-month-grid--${monthDays.length / 7}${monthTransitionDirection ? ` is-month-transitioning-${monthTransitionDirection}` : ''}`}
         aria-label={`${formatMonthLabel(monthDate)}のカレンダー`}
         data-uilab-component="Calendar.MonthGrid"
         data-uilab-id="calendar-month-grid"
@@ -181,6 +227,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
         onPointerCancel={handleMonthGridPointerCancel}
         onClickCapture={handleMonthGridClickCapture}
         style={{ '--month-swipe-offset': `${monthSwipeOffset}px` } as CSSProperties}
+        data-swipe-dragging={isMonthDragging ? 'true' : 'false'}
       >
         <div className="calendar-weekday-row" aria-hidden="true">
           {WEEKDAYS.map((weekday, index) => (
@@ -278,6 +325,9 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
         completedOpen={fixture.completedOpen}
         initialActions={fixture.initialActions}
         tasks={tasks}
+        completingIds={completingIds}
+        passingIds={passingIds}
+        restoringIds={restoringIds}
         shoppingItems={shoppingItems}
         onClose={() => setSelectedDate(null)}
         onComplete={completeTask}
@@ -302,6 +352,9 @@ function CalendarDateSheet({
   shoppingItems,
   onPass,
   tasks,
+  completingIds,
+  passingIds,
+  restoringIds,
 }: {
   completedOpen?: boolean;
   date: string | null;
@@ -314,11 +367,21 @@ function CalendarDateSheet({
   onPass: (task: CalendarTask) => void;
   tasks: CalendarTask[];
   shoppingItems: ShoppingItem[];
+  completingIds: Set<string>;
+  passingIds: Set<string>;
+  restoringIds: Set<string>;
 }) {
   const startX = useRef<{ x: number; y: number } | null>(null);
   const [dateSwipeOffset, setDateSwipeOffset] = useState(0);
+  const [isDateDragging, setIsDateDragging] = useState(false);
+  const [dateTransitionDirection, setDateTransitionDirection] = useState<'next' | 'previous' | null>(null);
+  const dateTransitionTimer = useRef<number | null>(null);
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [completedOpen, setCompletedOpen] = useState(completedOpenInitial ?? false);
   useEffect(() => setCompletedOpen(completedOpenInitial ?? false), [completedOpenInitial, date]);
+  useEffect(() => () => {
+    if (dateTransitionTimer.current !== null) window.clearTimeout(dateTransitionTimer.current);
+  }, []);
   const directTasks = date ? tasks.filter((task) => !task.completed && !task.passed && !task.deleted && task.date === date) : [];
   const periodTasks = date
     ? tasks.filter(
@@ -340,7 +403,15 @@ function CalendarDateSheet({
 
   if (!date) return null;
 
-  const moveDate = (amount: number) => onNavigate(toDateString(addDays(date, amount)));
+  const moveDate = (amount: number) => {
+    setDateTransitionDirection(amount > 0 ? 'next' : 'previous');
+    if (dateTransitionTimer.current !== null) window.clearTimeout(dateTransitionTimer.current);
+    dateTransitionTimer.current = window.setTimeout(
+      () => setDateTransitionDirection(null),
+      prefersReducedMotion ? 0 : MOTION_MS.large,
+    );
+    onNavigate(toDateString(addDays(date, amount)));
+  };
 
   return (
     <div className="calendar-date-layer">
@@ -351,13 +422,13 @@ function CalendarDateSheet({
         onClick={onClose}
       />
       <section
-        className="calendar-date-sheet"
         role="dialog"
         aria-modal="true"
         aria-labelledby="calendar-date-sheet-title"
         data-uilab-component="Calendar.DateSheet"
         data-uilab-id="calendar-date-sheet"
         onPointerDown={(event) => {
+          setIsDateDragging(true);
           startX.current = { x: event.clientX, y: event.clientY };
         }}
         onPointerMove={(event) => {
@@ -372,13 +443,16 @@ function CalendarDateSheet({
           if (startX.current === null) return;
           const distance = startX.current.x - event.clientX;
           startX.current = null;
+          setIsDateDragging(false);
           setDateSwipeOffset(0);
           if (Math.abs(distance) > 48) moveDate(distance > 0 ? 1 : -1);
         }}
         onPointerCancel={() => {
           startX.current = null;
+          setIsDateDragging(false);
           setDateSwipeOffset(0);
         }}
+        className={`calendar-date-sheet${isDateDragging ? ' is-swipe-dragging' : ''}${dateTransitionDirection ? ` is-date-transitioning-${dateTransitionDirection}` : ''}`}
         style={{ '--date-swipe-offset': `${dateSwipeOffset}px` } as CSSProperties}
       >
         <div className="calendar-date-sheet__handle" aria-hidden="true" />
@@ -408,6 +482,9 @@ function CalendarDateSheet({
             onEdit={onEdit}
             onPass={onPass}
             date={date}
+            completingIds={completingIds}
+            passingIds={passingIds}
+            restoringIds={restoringIds}
           />
           <DateSection
             label="期間中"
@@ -417,6 +494,9 @@ function CalendarDateSheet({
             onEdit={onEdit}
             onPass={onPass}
             date={date}
+            completingIds={completingIds}
+            passingIds={passingIds}
+            restoringIds={restoringIds}
           />
           {completedTasks.length > 0 ? (
             <section className="home-completed calendar-completed-section" data-uilab-component="Calendar.DateSheet.CompletedSection" data-uilab-id="calendar-date-sheet-completed">
@@ -475,6 +555,9 @@ function DateSection({
   onPass,
   date,
   tasks,
+  completingIds,
+  passingIds,
+  restoringIds,
 }: {
   component: string;
   label: string;
@@ -483,6 +566,9 @@ function DateSection({
   onPass: (task: CalendarTask) => void;
   date: string | null;
   tasks: CalendarTask[];
+  completingIds: Set<string>;
+  passingIds: Set<string>;
+  restoringIds: Set<string>;
 }) {
   return (
     <section className="calendar-date-section" data-uilab-component={component}>
@@ -496,6 +582,9 @@ function DateSection({
               onComplete={() => onComplete(task)}
               onEdit={() => date && onEdit(task.id, date)}
               onPass={() => onPass(task)}
+              completing={completingIds.has(task.id)}
+              passing={passingIds.has(task.id)}
+              restoring={restoringIds.has(task.id)}
             />
           ))}
         </div>
@@ -510,11 +599,17 @@ function CalendarDetailTask({
   onEdit,
   onComplete,
   onPass,
+  completing,
+  passing,
+  restoring,
   task,
 }: {
   onComplete: () => void;
   onEdit: () => void;
   onPass: () => void;
+  completing: boolean;
+  passing: boolean;
+  restoring: boolean;
   task: CalendarTask;
 }) {
   const [actionsOpen, setActionsOpen] = useState(false);
@@ -523,7 +618,7 @@ function CalendarDetailTask({
 
   return (
     <div
-      className={`calendar-detail-task${actionsOpen ? ' is-actions-open' : ''}`}
+      className={`calendar-detail-task${actionsOpen ? ' is-actions-open' : ''}${completing ? ' is-completing' : ''}${passing ? ' is-passing' : ''}${restoring ? ' is-restoring' : ''}`}
       data-uilab-component="Calendar.DetailTask"
       data-uilab-id={task.id}
       onPointerDown={(event) => {
@@ -554,8 +649,8 @@ function CalendarDetailTask({
         startX.current = null;
       }}
     >
-      <button type="button" className="calendar-detail-task__main" onClick={onComplete}>
-        <span className="calendar-detail-task__check" aria-hidden="true" />
+      <button type="button" className="calendar-detail-task__main" onClick={onComplete} disabled={completing}>
+        <span className={`calendar-detail-task__check${completing ? ' is-completing' : ''}`} aria-hidden="true">{completing ? <Check /> : null}</span>
         <span>{task.name}</span>
       </button>
       <button

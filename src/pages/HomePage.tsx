@@ -14,6 +14,7 @@ import { getHomeUiLabState } from '../mock/homeState';
 import { MOCK_TODAY } from '../mock/constants';
 import { shoppingFixtures, type ShoppingFixture } from '../fixtures/shopping';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
+import { HOME_SWIPE_ACTION_WIDTH, MOTION_MS } from '../motion/constants';
 
 type HomePageProps = {
   state?: HomeUiLabState;
@@ -22,21 +23,21 @@ type HomePageProps = {
   onSessionChange?: (fixture: HomeFixture) => void;
 };
 
-const COMPLETION_DURATION_MS = 180;
-
 export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture = shoppingFixtures.normal, onSessionChange }: HomePageProps) {
   const fixture = session ?? homeFixtures[state];
   const [activeTasks, setActiveTasks] = useState<HomeTask[]>(() => fixture.activeTasks);
   const [completedTasks, setCompletedTasks] = useState<CompletedTask[]>(() => fixture.completedTasks);
   const [passedTasks, setPassedTasks] = useState<PassedTask[]>(() => fixture.passedTasks);
   const [completingIds, setCompletingIds] = useState<Set<string>>(() => new Set());
+  const [passingIds, setPassingIds] = useState<Set<string>>(() => new Set());
+  const [restoringIds, setRestoringIds] = useState<Set<string>>(() => new Set());
   const [completedOpen, setCompletedOpen] = useState(() => fixture.initialCompletedOpen ?? false);
   const [passedOpen, setPassedOpen] = useState(() => fixture.initialPassedOpen ?? false);
   const [statusMessage, setStatusMessage] = useState('');
-  const completionTimers = useRef<number[]>([]);
+  const transitionTimers = useRef<number[]>([]);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  useEffect(() => () => completionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
+  useEffect(() => () => transitionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
 
   const commit = (next: HomeFixture) => {
     setActiveTasks(next.activeTasks);
@@ -79,12 +80,14 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
         nextIds.delete(task.id);
         return nextIds;
       });
-    }, prefersReducedMotion ? 0 : COMPLETION_DURATION_MS);
+    }, prefersReducedMotion ? 0 : MOTION_MS.completion);
 
-    completionTimers.current.push(timer);
+    transitionTimers.current.push(timer);
   };
 
   const passTask = (task: HomeTask) => {
+    if (passingIds.has(task.id) || completingIds.has(task.id)) return;
+    setPassingIds((current) => new Set(current).add(task.id));
     const record: PassedTask = {
       id: `passed-${task.id}`,
       taskId: task.id,
@@ -92,32 +95,56 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
       task: { ...task },
       assignee: task.assignee,
     };
-    commit({
-      ...fixture,
-      activeTasks: activeTasks.filter((item) => item.id !== task.id),
-      completedTasks,
-      passedTasks: [record, ...passedTasks],
-    });
+    const timer = window.setTimeout(() => {
+      commit({
+        ...fixture,
+        activeTasks: activeTasks.filter((item) => item.id !== task.id),
+        completedTasks,
+        passedTasks: [record, ...passedTasks],
+      });
+      setPassingIds((current) => {
+        const next = new Set(current);
+        next.delete(task.id);
+        return next;
+      });
+    }, prefersReducedMotion ? 0 : MOTION_MS.pass);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${task.name}」をパスしました`);
   };
 
   const restoreCompleted = (record: CompletedTask) => {
+    if (restoringIds.has(record.taskId)) return;
+    setRestoringIds((current) => new Set(current).add(record.taskId));
     commit({
       ...fixture,
       activeTasks: [removeTodayCompletion(record.task), ...activeTasks],
       completedTasks: completedTasks.filter((item) => item.id !== record.id),
       passedTasks,
     });
+    const timer = window.setTimeout(() => setRestoringIds((current) => {
+      const next = new Set(current);
+      next.delete(record.taskId);
+      return next;
+    }), prefersReducedMotion ? 0 : MOTION_MS.restore);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${record.name}」を戻しました`);
   };
 
   const restorePassed = (record: PassedTask) => {
+    if (restoringIds.has(record.taskId)) return;
+    setRestoringIds((current) => new Set(current).add(record.taskId));
     commit({
       ...fixture,
       activeTasks: [record.task, ...activeTasks],
       completedTasks,
       passedTasks: passedTasks.filter((item) => item.id !== record.id),
     });
+    const timer = window.setTimeout(() => setRestoringIds((current) => {
+      const next = new Set(current);
+      next.delete(record.taskId);
+      return next;
+    }), prefersReducedMotion ? 0 : MOTION_MS.restore);
+    transitionTimers.current.push(timer);
     setStatusMessage(`「${record.name}」を戻しました`);
   };
 
@@ -141,6 +168,7 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
               key={task.id}
               task={task}
               completing={completingIds.has(task.id)}
+              passing={passingIds.has(task.id)}
               onComplete={() => completeTask(task)}
               onPass={() => passTask(task)}
               onEdit={() => navigateToEdit(task.id)}
@@ -161,7 +189,7 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
           </button>
           {completedOpen ? (
             <div className="home-history__list home-completed__list">
-              {completedTasks.map((task) => <CompletedRow key={task.id} task={task} initialOpen={initialActions?.section === 'completed' && initialActions.taskId === task.taskId} onEdit={() => navigateToEdit(task.taskId)} onRestore={() => restoreCompleted(task)} />)}
+              {completedTasks.map((task) => <CompletedRow key={task.id} task={task} restoring={restoringIds.has(task.taskId)} initialOpen={initialActions?.section === 'completed' && initialActions.taskId === task.taskId} onEdit={() => navigateToEdit(task.taskId)} onRestore={() => restoreCompleted(task)} />)}
             </div>
           ) : null}
         </section>
@@ -174,7 +202,7 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
           </button>
           {passedOpen ? (
             <div className="home-history__list home-passed__list">
-              {passedTasks.map((task) => <PassedRow key={task.id} task={task} initialOpen={initialActions?.section === 'passed' && initialActions.taskId === task.taskId} onEdit={() => navigateToEdit(task.taskId)} onRestore={() => restorePassed(task)} />)}
+              {passedTasks.map((task) => <PassedRow key={task.id} task={task} restoring={restoringIds.has(task.taskId)} initialOpen={initialActions?.section === 'passed' && initialActions.taskId === task.taskId} onEdit={() => navigateToEdit(task.taskId)} onRestore={() => restorePassed(task)} />)}
             </div>
           ) : null}
         </section>
@@ -195,10 +223,10 @@ function removeTodayCompletion(task: HomeTask): HomeTask {
   };
 }
 
-function TaskRow({ completing, onComplete, onEdit, onPass, task }: { completing: boolean; onComplete: () => void; onEdit: () => void; onPass: () => void; task: HomeTask }) {
-  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, swipeOffset, toggleActions } = useHomeRowActions();
+function TaskRow({ completing, passing, onComplete, onEdit, onPass, task }: { completing: boolean; passing: boolean; onComplete: () => void; onEdit: () => void; onPass: () => void; task: HomeTask }) {
+  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, isDragging, swipeOffset, toggleActions } = useHomeRowActions();
   return (
-    <div className={`home-task-row${actionsOpen ? ' is-actions-open' : ''}${completing ? ' is-completing-row' : ''}`} data-uilab-component="Home.TaskRow" data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
+    <div className={`home-task-row${actionsOpen ? ' is-actions-open' : ''}${completing ? ' is-completing-row' : ''}${passing ? ' is-passing-row' : ''}${isDragging ? ' is-swipe-dragging' : ''}`} data-uilab-component="Home.TaskRow" data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
       <div className="home-task-row__content" style={{ '--swipe-offset': `${swipeOffset}px` } as CSSProperties}>
         <button type="button" className="home-task-row__main motion-pressable" onClick={onComplete} aria-label={`${task.name}を完了`} disabled={completing}>
           <span className={`task-check task-check--${task.timeScope}${task.overdue ? ' is-overdue' : ''}${completing ? ' is-completing' : ''}`} data-task-scope={task.overdue ? 'overdue' : task.timeScope} data-uilab-component="Home.TaskRow.Check" data-uilab-id={`home-task-${task.id}-check`} aria-hidden="true">{completing ? <Check /> : null}</span>
@@ -215,19 +243,19 @@ function TaskRow({ completing, onComplete, onEdit, onPass, task }: { completing:
   );
 }
 
-function CompletedRow({ initialOpen, onEdit, onRestore, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: CompletedTask }) {
-  return <HistoryRow initialOpen={initialOpen} onEdit={onEdit} onRestore={onRestore} task={task} section="completed" />;
+function CompletedRow({ initialOpen, onEdit, onRestore, restoring, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; restoring: boolean; task: CompletedTask }) {
+  return <HistoryRow initialOpen={initialOpen} onEdit={onEdit} onRestore={onRestore} restoring={restoring} task={task} section="completed" />;
 }
 
-function PassedRow({ initialOpen, onEdit, onRestore, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: PassedTask }) {
-  return <HistoryRow initialOpen={initialOpen} onEdit={onEdit} onRestore={onRestore} task={task} section="passed" />;
+function PassedRow({ initialOpen, onEdit, onRestore, restoring, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; restoring: boolean; task: PassedTask }) {
+  return <HistoryRow initialOpen={initialOpen} onEdit={onEdit} onRestore={onRestore} restoring={restoring} task={task} section="passed" />;
 }
 
-function HistoryRow({ initialOpen, onEdit, onRestore, task, section }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: CompletedTask | PassedTask; section: 'completed' | 'passed' }) {
-  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, swipeOffset, toggleActions } = useHomeRowActions(initialOpen);
+function HistoryRow({ initialOpen, onEdit, onRestore, restoring, task, section }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; restoring: boolean; task: CompletedTask | PassedTask; section: 'completed' | 'passed' }) {
+  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, isDragging, swipeOffset, toggleActions } = useHomeRowActions(initialOpen);
   const isDeleted = task.deleted === true;
   return (
-    <div className={`home-task-row home-history-row home-task-row--${section}${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}`} data-uilab-component={section === 'completed' ? 'Home.CompletedRow' : 'Home.PassedRow'} data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
+    <div className={`home-task-row home-history-row home-task-row--${section}${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}${restoring ? ' is-restoring-row' : ''}${isDragging ? ' is-swipe-dragging' : ''}`} data-uilab-component={section === 'completed' ? 'Home.CompletedRow' : 'Home.PassedRow'} data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
       <div className="home-task-row__content" style={{ '--swipe-offset': `${swipeOffset}px` } as CSSProperties}>
         <div className="home-history-row__main">
           <span className="home-task-row__details"><span className="home-task-row__name">{task.name}</span></span>
@@ -246,10 +274,12 @@ function useHomeRowActions(initialOpen = false) {
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(initialOpen ? -136 : 0);
+  const [isDragging, setIsDragging] = useState(false);
   const suppressClick = useRef(false);
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     startX.current = event.clientX;
     startY.current = event.clientY;
+    setIsDragging(true);
     suppressClick.current = false;
   };
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -270,15 +300,16 @@ function useHomeRowActions(initialOpen = false) {
       setSwipeOffset(actionsOpen ? -136 : 0);
       return;
     }
-    if (distance > 48) { suppressClick.current = true; setActionsOpen(true); setSwipeOffset(-136); }
+    setIsDragging(false);
+    if (distance > 48) { suppressClick.current = true; setActionsOpen(true); setSwipeOffset(-HOME_SWIPE_ACTION_WIDTH); }
     else if (distance < -24 && actionsOpen) { suppressClick.current = true; setActionsOpen(false); setSwipeOffset(0); }
     else setSwipeOffset(actionsOpen ? -136 : 0);
   };
-  const handlePointerCancel = () => { startX.current = null; startY.current = null; setSwipeOffset(actionsOpen ? -136 : 0); };
+  const handlePointerCancel = () => { startX.current = null; startY.current = null; setIsDragging(false); setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0); };
   const toggleActions = () => {
     setActionsOpen((open) => {
       const nextOpen = !open;
-      setSwipeOffset(nextOpen ? -136 : 0);
+      setSwipeOffset(nextOpen ? -HOME_SWIPE_ACTION_WIDTH : 0);
       return nextOpen;
     });
   };
@@ -289,7 +320,7 @@ function useHomeRowActions(initialOpen = false) {
     event.stopPropagation();
     suppressClick.current = false;
   };
-  return { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, setActionsOpen, swipeOffset, toggleActions };
+  return { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, isDragging, setActionsOpen, swipeOffset, toggleActions };
 }
 
 function Avatar({ person, label }: { person: HomePerson | undefined; label: string }) {
