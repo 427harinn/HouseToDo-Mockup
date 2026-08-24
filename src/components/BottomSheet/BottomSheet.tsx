@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 
 type BottomSheetProps = {
   children: ReactNode;
@@ -17,6 +17,9 @@ export function BottomSheet({
   uilabComponent = 'AppShell.AddSheet',
   uilabId = 'app-add-sheet',
 }: BottomSheetProps) {
+  const dragStartY = useRef<number | null>(null);
+  const dragOffsetRef = useRef(0);
+  const [dragOffset, setDragOffset] = useState(0);
   useEffect(() => {
     if (!open) return undefined;
 
@@ -29,6 +32,28 @@ export function BottomSheet({
   }, [onClose, open]);
 
   if (!open) return null;
+
+  const handleDragStart = (event: PointerEvent<HTMLDivElement>) => {
+    dragStartY.current = event.clientY;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    dragOffsetRef.current = 0;
+    setDragOffset(0);
+  };
+  const handleDragMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragStartY.current === null) return;
+    const nextOffset = Math.max(0, Math.min(180, event.clientY - dragStartY.current));
+    dragOffsetRef.current = nextOffset;
+    setDragOffset(nextOffset);
+  };
+  const handleDragEnd = (event: PointerEvent<HTMLDivElement>) => {
+    if (dragStartY.current === null) return;
+    const shouldDismiss = dragOffsetRef.current > 64;
+    dragStartY.current = null;
+    dragOffsetRef.current = 0;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    setDragOffset(0);
+    if (shouldDismiss) onClose();
+  };
 
   return (
     <div className="bottom-sheet-layer">
@@ -45,8 +70,20 @@ export function BottomSheet({
         aria-labelledby="bottom-sheet-title"
         data-uilab-component={uilabComponent}
         data-uilab-id={uilabId}
+        style={{ '--sheet-drag-offset': `${dragOffset}px` } as CSSProperties}
+        onPointerDown={handleDragStart}
+        onPointerMove={handleDragMove}
+        onPointerUp={handleDragEnd}
+        onPointerCancel={handleDragEnd}
       >
-        <div className="bottom-sheet__handle" aria-hidden="true" />
+        <div
+          className="bottom-sheet__handle"
+          aria-hidden="true"
+          onPointerDown={handleDragStart}
+          onPointerMove={handleDragMove}
+          onPointerUp={handleDragEnd}
+          onPointerCancel={handleDragEnd}
+        />
         <div className="bottom-sheet__header">
           <h2 id="bottom-sheet-title">{title}</h2>
           <button type="button" className="bottom-sheet__close" onClick={onClose}>

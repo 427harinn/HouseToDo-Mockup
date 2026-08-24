@@ -6,7 +6,7 @@ import {
   ShoppingCart,
   Undo2,
 } from 'lucide-react';
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import {
   getShoppingHistoryItems,
   shoppingFixtures,
@@ -312,6 +312,8 @@ function ShoppingItemRow({
   const suppressClick = useRef(false);
   const dragStarted = useRef(false);
   const rowRef = useRef<HTMLElement | null>(null);
+  const swipeStartOffset = useRef(0);
+  const [swipeOffset, setSwipeOffset] = useState(actionsOpen ? -80 : 0);
 
   const clearLongPress = () => {
     if (longPressTimer.current !== null) {
@@ -323,6 +325,8 @@ function ShoppingItemRow({
   const handlePointerDown = (event: ReactPointerEvent<HTMLElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     gestureStart.current = { x: event.clientX, y: event.clientY };
+    swipeStartOffset.current = actionsOpen ? -80 : 0;
+    setSwipeOffset(swipeStartOffset.current);
     dragStarted.current = false;
     clearLongPress();
     if (!purchased) {
@@ -343,6 +347,10 @@ function ShoppingItemRow({
     if (!start) return;
     const distanceX = Math.abs(start.x - event.clientX);
     const distanceY = Math.abs(start.y - event.clientY);
+    const deltaX = event.clientX - start.x;
+    if (distanceX > distanceY && !dragStarted.current && !purchased) {
+      setSwipeOffset(Math.max(-80, Math.min(0, swipeStartOffset.current + deltaX)));
+    }
     if (!dragStarted.current && (distanceX > 12 || distanceY > 12)) clearLongPress();
     if (dragStarted.current && rowRef.current) {
       const bounds = rowRef.current.getBoundingClientRect();
@@ -366,7 +374,14 @@ function ShoppingItemRow({
     }
     if (!purchased && start.x - event.clientX > 48) {
       suppressClick.current = true;
+      setSwipeOffset(-80);
       onSwipeOpen();
+    } else if (!purchased && event.clientX - start.x > 24 && actionsOpen) {
+      suppressClick.current = true;
+      setSwipeOffset(0);
+      onDismissActions();
+    } else {
+      setSwipeOffset(actionsOpen ? -80 : 0);
     }
   };
 
@@ -404,7 +419,7 @@ function ShoppingItemRow({
       }}
       onClickCapture={handleClickCapture}
     >
-      <div className="shopping-item-row__content">
+      <div className="shopping-item-row__content" style={{ '--swipe-offset': `${swipeOffset}px` } as CSSProperties}>
         <button
           type="button"
           className="shopping-item-row__main"
@@ -466,8 +481,13 @@ function ShoppingItemRow({
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => {
               event.currentTarget.blur();
-              if (actionsOpen) onDismissActions();
-              else onSwipeOpen();
+              if (actionsOpen) {
+                setSwipeOffset(0);
+                onDismissActions();
+              } else {
+                setSwipeOffset(-80);
+                onSwipeOpen();
+              }
             }}
           >
             <Ellipsis aria-hidden="true" />
@@ -487,7 +507,7 @@ function ShoppingItemRow({
         <div className="shopping-item-row__expanded" data-uilab-component="Shopping.ItemExpanded" data-uilab-id={`shopping-item-${item.id}-expanded`}>
           <button
             type="button"
-            className="shopping-item-row__primary-action"
+            className="shopping-item-row__primary-action motion-pressable"
             onClick={purchased ? onRestore : onPurchase}
             data-uilab-component={purchased ? 'Shopping.PurchasedRestoreButton' : 'Shopping.ItemPurchaseButton'}
             data-uilab-id={`shopping-item-${item.id}-primary-action`}

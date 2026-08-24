@@ -1,5 +1,5 @@
 import { Check, ChevronRight, Ellipsis, House } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   homeFixtures,
   haru,
@@ -13,6 +13,7 @@ import {
 import { getHomeUiLabState } from '../mock/homeState';
 import { MOCK_TODAY } from '../mock/constants';
 import { shoppingFixtures, type ShoppingFixture } from '../fixtures/shopping';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 type HomePageProps = {
   state?: HomeUiLabState;
@@ -33,6 +34,7 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
   const [passedOpen, setPassedOpen] = useState(() => fixture.initialPassedOpen ?? false);
   const [statusMessage, setStatusMessage] = useState('');
   const completionTimers = useRef<number[]>([]);
+  const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => () => completionTimers.current.forEach((timer) => window.clearTimeout(timer)), []);
 
@@ -77,7 +79,7 @@ export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture
         nextIds.delete(task.id);
         return nextIds;
       });
-    }, COMPLETION_DURATION_MS);
+    }, prefersReducedMotion ? 0 : COMPLETION_DURATION_MS);
 
     completionTimers.current.push(timer);
   };
@@ -194,11 +196,11 @@ function removeTodayCompletion(task: HomeTask): HomeTask {
 }
 
 function TaskRow({ completing, onComplete, onEdit, onPass, task }: { completing: boolean; onComplete: () => void; onEdit: () => void; onPass: () => void; task: HomeTask }) {
-  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen } = useHomeRowActions();
+  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, swipeOffset, toggleActions } = useHomeRowActions();
   return (
-    <div className={`home-task-row${actionsOpen ? ' is-actions-open' : ''}`} data-uilab-component="Home.TaskRow" data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
-      <div className="home-task-row__content">
-        <button type="button" className="home-task-row__main" onClick={onComplete} aria-label={`${task.name}を完了`} disabled={completing}>
+    <div className={`home-task-row${actionsOpen ? ' is-actions-open' : ''}${completing ? ' is-completing-row' : ''}`} data-uilab-component="Home.TaskRow" data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
+      <div className="home-task-row__content" style={{ '--swipe-offset': `${swipeOffset}px` } as CSSProperties}>
+        <button type="button" className="home-task-row__main motion-pressable" onClick={onComplete} aria-label={`${task.name}を完了`} disabled={completing}>
           <span className={`task-check task-check--${task.timeScope}${task.overdue ? ' is-overdue' : ''}${completing ? ' is-completing' : ''}`} data-task-scope={task.overdue ? 'overdue' : task.timeScope} data-uilab-component="Home.TaskRow.Check" data-uilab-id={`home-task-${task.id}-check`} aria-hidden="true">{completing ? <Check /> : null}</span>
           <span className="home-task-row__details">
             <span className="home-task-row__name" data-uilab-component="Home.TaskRow.Name" data-uilab-id={`home-task-${task.id}-name`}>{task.name}</span>
@@ -206,7 +208,7 @@ function TaskRow({ completing, onComplete, onEdit, onPass, task }: { completing:
           </span>
           {task.assignee ? <Avatar person={task.assignee} label="担当" /> : null}
         </button>
-        <button type="button" className="home-task-row__more" aria-label={`${task.name}の操作`} aria-expanded={actionsOpen} data-uilab-component="Home.TaskRow.MoreButton" data-uilab-id={`home-task-${task.id}-more`} onClick={() => setActionsOpen((open) => !open)}><Ellipsis aria-hidden="true" /></button>
+        <button type="button" className="home-task-row__more" aria-label={`${task.name}の操作`} aria-expanded={actionsOpen} data-uilab-component="Home.TaskRow.MoreButton" data-uilab-id={`home-task-${task.id}-more`} onClick={toggleActions}><Ellipsis aria-hidden="true" /></button>
       </div>
       {actionsOpen ? <div className="home-task-row__actions" aria-label={`${task.name}の操作メニュー`}><span className="home-task-row__actions-spacer" aria-hidden="true" /><button type="button" onClick={onEdit}>編集</button><button type="button" className="is-pass" onClick={onPass}>パス</button></div> : null}
     </div>
@@ -222,17 +224,17 @@ function PassedRow({ initialOpen, onEdit, onRestore, task }: { initialOpen: bool
 }
 
 function HistoryRow({ initialOpen, onEdit, onRestore, task, section }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: CompletedTask | PassedTask; section: 'completed' | 'passed' }) {
-  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen } = useHomeRowActions(initialOpen);
+  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, swipeOffset, toggleActions } = useHomeRowActions(initialOpen);
   const isDeleted = task.deleted === true;
   return (
-    <div className={`home-task-row home-history-row home-task-row--${section}${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}`} data-uilab-component={section === 'completed' ? 'Home.CompletedRow' : 'Home.PassedRow'} data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
-      <div className="home-task-row__content">
+    <div className={`home-task-row home-history-row home-task-row--${section}${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}`} data-uilab-component={section === 'completed' ? 'Home.CompletedRow' : 'Home.PassedRow'} data-uilab-id={task.id} onPointerDown={handlePointerDown} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} onClickCapture={handleClickCapture}>
+      <div className="home-task-row__content" style={{ '--swipe-offset': `${swipeOffset}px` } as CSSProperties}>
         <div className="home-history-row__main">
           <span className="home-task-row__details"><span className="home-task-row__name">{task.name}</span></span>
           {section === 'completed' && (task as CompletedTask).completedBy ? <Avatar person={(task as CompletedTask).completedBy} label="完了者" /> : null}
           {section === 'passed' && (task as PassedTask).assignee ? <Avatar person={(task as PassedTask).assignee} label="担当" /> : null}
         </div>
-        <button type="button" className="home-task-row__more" aria-label={`${task.name}の操作`} aria-expanded={actionsOpen} data-uilab-component={section === 'completed' ? 'Home.CompletedRow.MoreButton' : 'Home.PassedRow.MoreButton'} data-uilab-id={`${task.id}-more`} onClick={() => setActionsOpen((open) => !open)}><Ellipsis aria-hidden="true" /></button>
+        <button type="button" className="home-task-row__more" aria-label={`${task.name}の操作`} aria-expanded={actionsOpen} data-uilab-component={section === 'completed' ? 'Home.CompletedRow.MoreButton' : 'Home.PassedRow.MoreButton'} data-uilab-id={`${task.id}-more`} onClick={toggleActions}><Ellipsis aria-hidden="true" /></button>
       </div>
       {actionsOpen ? <div className={`home-task-row__actions${isDeleted ? ' home-task-row__actions--restore-only' : ''}`} aria-label={`${task.name}の操作メニュー`}><span className="home-task-row__actions-spacer" aria-hidden="true" />{!isDeleted ? <button type="button" data-uilab-component={section === 'completed' ? 'Home.CompletedRow.Edit' : 'Home.PassedRow.Edit'} data-uilab-id={`${task.id}-edit`} onClick={onEdit}>編集</button> : null}<button type="button" className="is-restore" data-uilab-component={section === 'completed' ? 'Home.CompletedRow.Restore' : 'Home.PassedRow.Restore'} data-uilab-id={`${task.id}-restore`} onClick={onRestore}>戻す</button></div> : null}
     </div>
@@ -242,15 +244,44 @@ function HistoryRow({ initialOpen, onEdit, onRestore, task, section }: { initial
 function useHomeRowActions(initialOpen = false) {
   const [actionsOpen, setActionsOpen] = useState(initialOpen);
   const startX = useRef<number | null>(null);
+  const startY = useRef<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(initialOpen ? -136 : 0);
   const suppressClick = useRef(false);
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => { startX.current = event.clientX; };
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    startX.current = event.clientX;
+    startY.current = event.clientY;
+    suppressClick.current = false;
+  };
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (startX.current === null || startY.current === null) return;
+    const deltaX = event.clientX - startX.current;
+    const deltaY = event.clientY - startY.current;
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) return;
+    const base = actionsOpen ? -136 : 0;
+    setSwipeOffset(Math.max(-136, Math.min(0, base + deltaX)));
+  };
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     if (startX.current === null) return;
     const distance = startX.current - event.clientX;
+    const startYValue = startY.current;
     startX.current = null;
-    if (distance > 48) { suppressClick.current = true; setActionsOpen(true); }
+    startY.current = null;
+    if (startYValue !== null && Math.abs(event.clientY - startYValue) > Math.abs(distance)) {
+      setSwipeOffset(actionsOpen ? -136 : 0);
+      return;
+    }
+    if (distance > 48) { suppressClick.current = true; setActionsOpen(true); setSwipeOffset(-136); }
+    else if (distance < -24 && actionsOpen) { suppressClick.current = true; setActionsOpen(false); setSwipeOffset(0); }
+    else setSwipeOffset(actionsOpen ? -136 : 0);
   };
-  const handlePointerCancel = () => { startX.current = null; };
+  const handlePointerCancel = () => { startX.current = null; startY.current = null; setSwipeOffset(actionsOpen ? -136 : 0); };
+  const toggleActions = () => {
+    setActionsOpen((open) => {
+      const nextOpen = !open;
+      setSwipeOffset(nextOpen ? -136 : 0);
+      return nextOpen;
+    });
+  };
   const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!suppressClick.current) return;
     if (event.target instanceof Element && event.target.closest('.home-task-row__actions')) { suppressClick.current = false; return; }
@@ -258,7 +289,7 @@ function useHomeRowActions(initialOpen = false) {
     event.stopPropagation();
     suppressClick.current = false;
   };
-  return { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen };
+  return { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerMove, handlePointerUp, setActionsOpen, swipeOffset, toggleActions };
 }
 
 function Avatar({ person, label }: { person: HomePerson | undefined; label: string }) {

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, Ellipsis, ShoppingCart, X } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
   calendarFixtures,
   type CalendarFixture,
@@ -33,6 +33,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
   const [statusMessage, setStatusMessage] = useState('');
   const monthGridStart = useRef<{ x: number; y: number } | null>(null);
   const suppressMonthGridClick = useRef(false);
+  const [monthSwipeOffset, setMonthSwipeOffset] = useState(0);
 
   useEffect(() => {
     setMonthDate(INITIAL_MONTH);
@@ -73,12 +74,21 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
 
     if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
       suppressMonthGridClick.current = true;
+      setMonthSwipeOffset(0);
       moveMonth(deltaX < 0 ? 1 : -1);
-    }
+    } else setMonthSwipeOffset(0);
+  };
+  const handleMonthGridPointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (!monthGridStart.current) return;
+    const deltaX = event.clientX - monthGridStart.current.x;
+    const deltaY = event.clientY - monthGridStart.current.y;
+    if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
+    setMonthSwipeOffset(Math.max(-96, Math.min(96, deltaX)));
   };
   const handleMonthGridPointerCancel = () => {
     monthGridStart.current = null;
     suppressMonthGridClick.current = false;
+    setMonthSwipeOffset(0);
   };
   const handleMonthGridClickCapture = (event: React.MouseEvent<HTMLElement>) => {
     if (!suppressMonthGridClick.current) return;
@@ -166,9 +176,11 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
         data-uilab-component="Calendar.MonthGrid"
         data-uilab-id="calendar-month-grid"
         onPointerDown={handleMonthGridPointerDown}
+        onPointerMove={handleMonthGridPointerMove}
         onPointerUp={handleMonthGridPointerUp}
         onPointerCancel={handleMonthGridPointerCancel}
         onClickCapture={handleMonthGridClickCapture}
+        style={{ '--month-swipe-offset': `${monthSwipeOffset}px` } as CSSProperties}
       >
         <div className="calendar-weekday-row" aria-hidden="true">
           {WEEKDAYS.map((weekday, index) => (
@@ -303,7 +315,8 @@ function CalendarDateSheet({
   tasks: CalendarTask[];
   shoppingItems: ShoppingItem[];
 }) {
-  const startX = useRef<number | null>(null);
+  const startX = useRef<{ x: number; y: number } | null>(null);
+  const [dateSwipeOffset, setDateSwipeOffset] = useState(0);
   const [completedOpen, setCompletedOpen] = useState(completedOpenInitial ?? false);
   useEffect(() => setCompletedOpen(completedOpenInitial ?? false), [completedOpenInitial, date]);
   const directTasks = date ? tasks.filter((task) => !task.completed && !task.passed && !task.deleted && task.date === date) : [];
@@ -345,17 +358,28 @@ function CalendarDateSheet({
         data-uilab-component="Calendar.DateSheet"
         data-uilab-id="calendar-date-sheet"
         onPointerDown={(event) => {
-          startX.current = event.clientX;
+          startX.current = { x: event.clientX, y: event.clientY };
+        }}
+        onPointerMove={(event) => {
+          if (startX.current === null) return;
+          const deltaX = event.clientX - startX.current.x;
+          const deltaY = Math.abs(event.clientY - startX.current.y);
+          if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > deltaY) {
+            setDateSwipeOffset(Math.max(-88, Math.min(88, deltaX)));
+          }
         }}
         onPointerUp={(event) => {
           if (startX.current === null) return;
-          const distance = startX.current - event.clientX;
+          const distance = startX.current.x - event.clientX;
           startX.current = null;
+          setDateSwipeOffset(0);
           if (Math.abs(distance) > 48) moveDate(distance > 0 ? 1 : -1);
         }}
         onPointerCancel={() => {
           startX.current = null;
+          setDateSwipeOffset(0);
         }}
+        style={{ '--date-swipe-offset': `${dateSwipeOffset}px` } as CSSProperties}
       >
         <div className="calendar-date-sheet__handle" aria-hidden="true" />
         <header className="calendar-date-sheet__header">

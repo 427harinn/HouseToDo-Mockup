@@ -68,6 +68,8 @@
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
+  transform: translateX(var(--month-swipe-offset, 0px));
+  transition: transform 220ms ease-out;
   border-top: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
@@ -276,6 +278,7 @@
   max-height: calc(100dvh - 32px);
   padding: var(--space-2) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
   overflow: hidden;
+  translate: var(--date-swipe-offset, 0px) 0;
   background: var(--color-surface);
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   animation: calendar-sheet-enter 220ms ease-out both;
@@ -543,5 +546,15 @@
     min-height: calc(100dvh - 20px);
     max-height: calc(100dvh - 20px);
     padding-inline: var(--space-3);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calendar-month-grid {
+    transition: none;
+  }
+
+  .calendar-date-sheet {
+    translate: none;
   }
 }
