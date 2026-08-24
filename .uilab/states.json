@@ -21,8 +21,7 @@
     "no-planned-date": { "name": "No planned date" }, "expanded": { "name": "Expanded item" },
     "purchased-open": { "name": "Purchased open" }, "photo": { "name": "Photo item" },
     "quantity-empty": { "name": "Quantity omitted" }, "deleted": { "name": "Unpurchased item deleted" },
-    "purchased-organize-before": { "name": "Purchased items before organize" },
-    "purchased-organize-after": { "name": "Purchased items after organize" },
+    "purchased-auto-filtered": { "name": "Purchased items filtered by age" },
     "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
     "empty": { "name": "Empty" }
   },

@@ -57,7 +57,6 @@
   "Shopping.ItemMemo": { "selector": "[data-uilab-component='Shopping.ItemMemo']", "instances": "multiple", "editable": ["width", "padding", "margin", "gap", "fontSize", "lineHeight", "color", "background"] },
   "Shopping.ItemPhoto": { "selector": "[data-uilab-component='Shopping.ItemPhoto']", "instances": "multiple", "editable": ["width", "height", "margin", "background", "borderRadius", "opacity"] },
   "Shopping.PurchasedSection": { "selector": "[data-uilab-component='Shopping.PurchasedSection']", "instances": "single", "editable": ["width", "padding", "margin", "background", "border", "borderRadius"] },
-  "Shopping.PurchasedOrganize": { "selector": "[data-uilab-component='Shopping.PurchasedOrganize']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
   "Shopping.EmptyState": { "selector": "[data-uilab-component='Shopping.EmptyState']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "color", "background"] },
 
   "Home.TaskRow.Avatar": { "selector": "[data-uilab-component='Home.TaskRow.Avatar']", "instances": "multiple", "editable": ["width", "height", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },

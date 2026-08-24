@@ -16,6 +16,10 @@ import {
 } from '../fixtures/shopping';
 import { getShoppingUiLabState } from '../mock/shoppingState';
 
+const SHOPPING_TODAY = '2026-08-24';
+const PURCHASED_VISIBLE_DAYS = 7;
+const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+
 type ShoppingPageProps = {
   state?: ShoppingUiLabState;
   initialItemId?: string | null;
@@ -29,6 +33,7 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
   const [purchasedItems, setPurchasedItems] = useState<ShoppingItem[]>(
     fixture.purchasedItems,
   );
+  const visiblePurchasedItems = getVisiblePurchasedItems(purchasedItems);
   const [expandedId, setExpandedId] = useState<string | null>(
     initialItemId ?? fixture.initialExpandedId ?? null,
   );
@@ -70,7 +75,7 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
     const nextActiveItems = activeItems.filter((activeItem) => activeItem.id !== item.id);
     const nextPurchasedItems = [
       ...purchasedItems,
-      { ...item, purchasedAt: '今日 17:42', purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
+      { ...item, purchasedAt: `${SHOPPING_TODAY}T17:42:00+09:00`, purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
     ];
     const nextHistoryItems = [...getShoppingHistoryItems(fixture), item].filter((candidate, index, items) => items.findIndex((entry) => entry.id === candidate.id) === index);
     persistState(nextActiveItems, nextPurchasedItems, nextHistoryItems);
@@ -191,54 +196,37 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
             aria-expanded={purchasedOpen}
             onClick={() => setPurchasedOpen((open) => !open)}
           >
-            <span>購入済み {purchasedItems.length}件</span>
+            <span>購入済み {visiblePurchasedItems.length}件</span>
             <ChevronRight aria-hidden="true" className={purchasedOpen ? 'is-open' : ''} />
           </button>
         </div>
-        {purchasedOpen && purchasedItems.length > 0 ? (
-          <>
-            <div className="shopping-purchased__list">
-              {purchasedItems.map((item) => (
-                <ShoppingItemRow
-                  key={item.id}
-                  item={item}
-                  purchased
-                  expanded={expandedId === item.id}
-                  actionsOpen={false}
-                  dragging={false}
-                  dragSessionActive={false}
-                  dragOver={false}
-                  onToggle={() => toggleExpanded(item.id)}
-                  onPurchase={() => purchaseItem(item)}
-                  onRestore={() => restoreItem(item)}
-                  onEdit={() => undefined}
-                  onSwipeOpen={() => undefined}
-                  onDismissActions={() => undefined}
-                  onDragStart={() => undefined}
-                  onDragOver={() => undefined}
-                  onDragEnd={() => undefined}
-                  canMoveUp={false}
-                  canMoveDown={false}
-                  onMove={() => undefined}
-                />
-              ))}
-            </div>
-            <div className="shopping-purchased__organize-row">
-              <button
-                type="button"
-                className="shopping-purchased__organize"
-                data-uilab-component="Shopping.PurchasedOrganize"
-                data-uilab-id="shopping-purchased-organize"
-                onClick={() => {
-                  persistState(activeItems, [], fixture.historyItems ?? getShoppingHistoryItems(fixture));
-                  setExpandedId(null);
-                  setStatusMessage('購入済みを整理しました');
-                }}
-              >
-                購入済みを整理
-              </button>
-            </div>
-          </>
+        {purchasedOpen && visiblePurchasedItems.length > 0 ? (
+          <div className="shopping-purchased__list">
+            {visiblePurchasedItems.map((item) => (
+              <ShoppingItemRow
+                key={item.id}
+                item={item}
+                purchased
+                expanded={expandedId === item.id}
+                actionsOpen={false}
+                dragging={false}
+                dragSessionActive={false}
+                dragOver={false}
+                onToggle={() => toggleExpanded(item.id)}
+                onPurchase={() => purchaseItem(item)}
+                onRestore={() => restoreItem(item)}
+                onEdit={() => undefined}
+                onSwipeOpen={() => undefined}
+                onDismissActions={() => undefined}
+                onDragStart={() => undefined}
+                onDragOver={() => undefined}
+                onDragEnd={() => undefined}
+                canMoveUp={false}
+                canMoveDown={false}
+                onMove={() => undefined}
+              />
+            ))}
+          </div>
         ) : null}
       </section>
 
@@ -247,6 +235,33 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
       </p>
     </div>
   );
+}
+
+function getVisiblePurchasedItems(items: ShoppingItem[]) {
+  const now = Date.parse(`${SHOPPING_TODAY}T18:00:00+09:00`);
+  const visibleUntil = PURCHASED_VISIBLE_DAYS * DAY_IN_MILLISECONDS;
+  return items.filter((item) => {
+    if (!item.purchasedAt) return false;
+    const purchasedAt = Date.parse(item.purchasedAt);
+    const age = now - purchasedAt;
+    return age >= 0 && age < visibleUntil;
+  });
+}
+
+function formatPurchasedAt(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!match) return value;
+  const [, year, month, day, hour, minute] = match;
+  const date = `${year}-${month}-${day}`;
+  const previousDate = new Date(`${SHOPPING_TODAY}T18:00:00+09:00`);
+  previousDate.setDate(previousDate.getDate() - 1);
+  const yesterday = `${previousDate.getFullYear()}-${String(previousDate.getMonth() + 1).padStart(2, '0')}-${String(previousDate.getDate()).padStart(2, '0')}`;
+  const label = date === SHOPPING_TODAY
+    ? '今日'
+    : date === yesterday
+      ? '昨日'
+      : `${Number(month)}/${Number(day)}`;
+  return `${label} ${Number(hour)}:${minute}`;
 }
 
 type ShoppingItemRowProps = {
@@ -402,7 +417,7 @@ function ShoppingItemRow({
             {item.name}
           </span>
               <span className="shopping-item-row__meta">
-                {item.purchasedAt ?? '購入済み'}
+                {item.purchasedAt ? formatPurchasedAt(item.purchasedAt) : '購入済み'}
               </span>
             </span>
           ) : (

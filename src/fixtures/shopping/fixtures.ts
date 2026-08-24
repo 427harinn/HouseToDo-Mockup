@@ -72,7 +72,7 @@ const purchasedItems: ShoppingItem[] = [
     quantity: '10個',
     addedAt: '2026-08-16T18:00:00+09:00',
     plannedDate: '2026-08-20',
-    purchasedAt: '今日 8:32',
+    purchasedAt: '2026-08-24T08:32:00+09:00',
     purchaser: haru,
     memo: '朝食と作り置き用。',
   },
@@ -81,9 +81,18 @@ const purchasedItems: ShoppingItem[] = [
     name: '玉ねぎ',
     quantity: '3個',
     addedAt: '2026-08-17T10:15:00+09:00',
-    purchasedAt: '昨日 17:20',
+    purchasedAt: '2026-08-23T17:20:00+09:00',
     purchaser: yuki,
     photoSrc: pantryPhoto,
+  },
+];
+
+const autoFilteredPurchasedItems: ShoppingItem[] = [
+  purchasedItems[0],
+  {
+    ...purchasedItems[1],
+    id: 'purchased-expired-onion',
+    purchasedAt: '2026-08-17T17:20:00+09:00',
   },
 ];
 
@@ -141,8 +150,12 @@ export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
     purchasedItems,
     historyItems: activeItems.filter((item) => item.id !== 'shopping-milk').concat(purchasedItems),
   },
-  'purchased-organize-before': { activeItems: [activeItems[1]], purchasedItems, initialPurchasedOpen: true },
-  'purchased-organize-after': { activeItems: [activeItems[1]], purchasedItems: [], historyItems: purchasedItems },
+  'purchased-auto-filtered': {
+    activeItems: [activeItems[1]],
+    purchasedItems: autoFilteredPurchasedItems,
+    historyItems: [activeItems[1], ...autoFilteredPurchasedItems],
+    initialPurchasedOpen: true,
+  },
   many: { activeItems: manyItems, purchasedItems },
   'long-text': {
     activeItems: longTextItems,

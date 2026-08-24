@@ -260,23 +260,28 @@ describe('ShoppingPage', () => {
     expect(screen.getAllByText('ヨーグルト')).toHaveLength(4);
   });
 
-  it('shows the purchased organize action only when the section is expanded', () => {
-    renderShopping('normal');
-    expect(screen.queryByRole('button', { name: '購入済みを整理' })).not.toBeInTheDocument();
+  it('automatically hides purchased items that are at least seven days old while keeping them in history', async () => {
+    renderShopping('purchased-auto-filtered');
+    expect(screen.getByText('購入済み 1件')).toBeVisible();
+    expect(screen.getByText('卵')).toBeVisible();
+    expect(screen.queryByText('玉ねぎ')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /購入済み \d+件/ }));
-    expect(screen.getByRole('button', { name: '購入済みを整理' })).toBeVisible();
-  });
-
-  it('organizes purchased items immediately while keeping them available for reuse', async () => {
-    renderShopping('purchased-organize-before');
-    fireEvent.click(screen.getByRole('button', { name: '購入済みを整理' }));
-    expect(screen.getByText('購入済み 0件')).toBeVisible();
-    expect(screen.getByText('購入済みを整理しました')).toBeVisible();
-
-    window.location.hash = '#/shopping/new?shoppingState=purchased-organize-before&uilabState=reuse-picker';
+    window.location.hash = '#/shopping/new?shoppingState=purchased-auto-filtered&uilabState=reuse-picker';
     await waitFor(() => expect(screen.getByRole('dialog', { name: '以前の項目から選ぶ' })).toBeVisible());
     expect(screen.getByRole('button', { name: /卵/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: /玉ねぎ/ })).toBeVisible();
+  });
+
+  it('restores a visible purchased item without changing its planned date', () => {
+    renderShopping('purchased-auto-filtered');
+    const eggsRow = document.querySelector('[data-uilab-id="purchased-eggs"]');
+    if (!eggsRow) throw new Error('Expected visible purchased eggs row');
+    fireEvent.click(eggsRow.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+
+    expect(screen.getByText('購入済み 0件')).toBeVisible();
+    expect(screen.getByRole('button', { name: /卵.*10個/ })).toBeVisible();
+    expect(screen.getByText('8/20予定')).toBeVisible();
   });
 
   it('deletes an unpurchased item from the list and reuse candidates after confirmation', async () => {
