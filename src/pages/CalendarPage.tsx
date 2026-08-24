@@ -11,7 +11,7 @@ import type { ShoppingFixture, ShoppingItem } from '../fixtures/shopping';
 import { getCalendarUiLabState } from '../mock/calendarState';
 import { MOCK_TODAY } from '../mock/constants';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-import { MOTION_MS } from '../motion/constants';
+import { MOTION_MS, runWithViewTransition } from '../motion/constants';
 
 const INITIAL_MONTH = '2026-08-01';
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
@@ -73,7 +73,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
     setMonthTransitionDirection(amount > 0 ? 'next' : 'previous');
     const timer = window.setTimeout(() => setMonthTransitionDirection(null), prefersReducedMotion ? 0 : MOTION_MS.large);
     transitionTimers.current.push(timer);
-    setMonthDate(toDateString(next));
+    runWithViewTransition(() => setMonthDate(toDateString(next)), prefersReducedMotion, amount > 0 ? 'next' : 'previous');
   };
   const goToToday = () => setMonthDate(MOCK_TODAY.slice(0, 8) + '01');
   const handleMonthGridPointerDown = (event: React.PointerEvent<HTMLElement>) => {
@@ -410,7 +410,7 @@ function CalendarDateSheet({
       () => setDateTransitionDirection(null),
       prefersReducedMotion ? 0 : MOTION_MS.large,
     );
-    onNavigate(toDateString(addDays(date, amount)));
+    runWithViewTransition(() => onNavigate(toDateString(addDays(date, amount))), prefersReducedMotion, amount > 0 ? 'next' : 'previous');
   };
 
   return (

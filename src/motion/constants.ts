@@ -12,3 +12,20 @@ export const MOTION_EASE_OUT = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
 export const HOME_SWIPE_ACTION_WIDTH = 136;
 export const SHOPPING_SWIPE_ACTION_WIDTH = 80;
+
+type ViewTransitionDocument = Document & {
+  startViewTransition?: (update: () => void) => unknown;
+};
+
+export function runWithViewTransition(update: () => void, prefersReducedMotion: boolean, direction?: 'next' | 'previous') {
+  const viewTransitionDocument = document as ViewTransitionDocument;
+  if (!prefersReducedMotion && typeof viewTransitionDocument.startViewTransition === 'function') {
+    if (direction) document.documentElement.dataset.motionDirection = direction;
+    const transition = viewTransitionDocument.startViewTransition(update) as { finished?: Promise<unknown> } | undefined;
+    transition?.finished?.finally(() => {
+      delete document.documentElement.dataset.motionDirection;
+    });
+    return;
+  }
+  update();
+}
