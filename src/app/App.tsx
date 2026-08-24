@@ -19,10 +19,12 @@ import {
   OtherLandingPage,
 } from '../pages/OtherPage';
 import { homeFixtures, homeUiLabStates, type HomeFixture, type HomeTask, type HomeUiLabState } from '../fixtures/home';
+import { getShoppingHistoryItems, shoppingFixtures, shoppingUiLabStates, type ShoppingFixture, type ShoppingItem, type ShoppingUiLabState } from '../fixtures/shopping';
 
 export function App() {
   const route = useHashRoute();
   const [homeSessions, setHomeSessions] = useState<Partial<Record<HomeUiLabState, HomeFixture>>>({});
+  const [shoppingSessions, setShoppingSessions] = useState<Partial<Record<ShoppingUiLabState, ShoppingFixture>>>({});
 
   const readHomeState = (value: string | null): HomeUiLabState => (
     value && homeUiLabStates.includes(value as HomeUiLabState) ? value as HomeUiLabState : 'normal'
@@ -31,6 +33,17 @@ export function App() {
   const updateHomeSession = (state: HomeUiLabState, update: (fixture: HomeFixture) => HomeFixture) => {
     setHomeSessions((current) => {
       const base = current[state] ?? homeFixtures[state];
+      return { ...current, [state]: update(base) };
+    });
+  };
+
+  const readShoppingState = (value: string | null): ShoppingUiLabState => (
+    value && shoppingUiLabStates.includes(value as ShoppingUiLabState) ? value as ShoppingUiLabState : 'normal'
+  );
+
+  const updateShoppingSession = (state: ShoppingUiLabState, update: (fixture: ShoppingFixture) => ShoppingFixture) => {
+    setShoppingSessions((current) => {
+      const base = current[state] ?? shoppingFixtures[state];
       return { ...current, [state]: update(base) };
     });
   };
@@ -62,12 +75,24 @@ export function App() {
 
   if (route.pathname === '/shopping/new' || route.pathname === '/shopping/edit') {
     const isEdit = route.pathname === '/shopping/edit';
+    const shoppingState = readShoppingState(route.searchParams.get('shoppingState'));
+    const shoppingSession = shoppingSessions[shoppingState] ?? shoppingFixtures[shoppingState];
+    const requestedItemId = route.searchParams.get('item');
+    const editItem = isEdit && requestedItemId
+      ? findShoppingItem(shoppingSession, requestedItemId)
+      : undefined;
     return (
       <AppShell currentPath="" showBottomNavigation={false}>
         <ShoppingFormPage
-          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`}
+          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}-${editItem?.id ?? ''}`}
           isEdit={isEdit}
           state={route.searchParams.get('uilabState') ?? 'normal'}
+          initialItem={editItem}
+          reuseItems={getShoppingHistoryItems(shoppingSession)}
+          onDelete={isEdit && editItem ? () => {
+            updateShoppingSession(shoppingState, (fixture) => removeShoppingItem(fixture, editItem.id));
+            window.location.hash = `#/shopping?uilabState=${encodeURIComponent(shoppingState)}`;
+          } : undefined}
         />
       </AppShell>
     );
@@ -135,6 +160,8 @@ export function App() {
             key={`${shoppingState}-${route.searchParams.get('item') ?? ''}`}
             state={shoppingState}
             initialItemId={route.searchParams.get('item')}
+            fixtureOverride={shoppingSessions[shoppingState]}
+            onSessionChange={(fixture) => setShoppingSessions((current) => ({ ...current, [shoppingState]: fixture }))}
           />
         </AppShell>
       );
@@ -177,5 +204,20 @@ function deleteTaskInFixture(fixture: HomeFixture, taskId: string): HomeFixture 
     activeTasks: fixture.activeTasks.filter((task) => task.id !== taskId),
     completedTasks: fixture.completedTasks.map((task) => task.taskId === taskId ? { ...task, deleted: true } : task),
     passedTasks: fixture.passedTasks.map((task) => task.taskId === taskId ? { ...task, deleted: true } : task),
+  };
+}
+
+function findShoppingItem(fixture: ShoppingFixture, itemId: string | null): ShoppingItem | undefined {
+  if (!itemId) return undefined;
+  return fixture.activeItems.find((item) => item.id === itemId)
+    ?? fixture.purchasedItems.find((item) => item.id === itemId);
+}
+
+function removeShoppingItem(fixture: ShoppingFixture, itemId: string): ShoppingFixture {
+  return {
+    ...fixture,
+    activeItems: fixture.activeItems.filter((item) => item.id !== itemId),
+    purchasedItems: fixture.purchasedItems.filter((item) => item.id !== itemId),
+    historyItems: getShoppingHistoryItems(fixture).filter((item) => item.id !== itemId),
   };
 }

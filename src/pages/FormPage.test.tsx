@@ -148,4 +148,39 @@ describe('M6 add and edit forms', () => {
     window.location.hash = '#/shopping/edit?uilabState=normal';
     await waitFor(() => expect(screen.getByLabelText('購入予定日')).toHaveValue('2026-08-24'));
   });
+
+  it('shows only the latest completed date in task edit history context', async () => {
+    renderRoute('#/tasks/edit?uilabState=previous-completed');
+    expect(screen.getByText('前回：8/20')).toBeVisible();
+
+    window.location.hash = '#/tasks/edit?uilabState=previous-none';
+    await waitFor(() => expect(screen.queryByText(/^前回：/)).not.toBeInTheDocument());
+
+    window.location.hash = '#/tasks/edit?uilabState=previous-passed-only';
+    await waitFor(() => expect(screen.queryByText(/^前回：/)).not.toBeInTheDocument());
+  });
+
+  it('reuses task settings but rebases absolute dates to the mock today', () => {
+    renderRoute('#/tasks/new?uilabState=reuse-selected');
+    expect(screen.getByDisplayValue('ゴミ出し')).toBeVisible();
+    expect(screen.getByRole('button', { name: '繰り返し: 火・金' })).toBeVisible();
+    expect(screen.getByLabelText('開始日')).toHaveValue('2026-08-20');
+    expect(screen.getByLabelText('日付')).toHaveValue('2026-08-20');
+    expect(screen.getByLabelText('終日')).not.toBeChecked();
+    expect(screen.getByLabelText('時刻')).toHaveValue('08:00');
+    expect(screen.getByLabelText('通知')).toHaveValue('10分前');
+    expect(screen.getByRole('img', { name: '担当: ゆき' })).toBeVisible();
+    expect(screen.getByDisplayValue('収集日の朝に玄関前へ出す。')).toBeVisible();
+  });
+
+  it('restores shopping photos only when the reused history item still has one', async () => {
+    renderRoute('#/shopping/new?uilabState=reuse-selected');
+    expect(screen.getByDisplayValue('牛乳')).toBeVisible();
+    expect(screen.getByRole('img', { name: '選択した写真のプレビュー' })).toBeVisible();
+    expect(screen.getByLabelText('購入予定日')).toHaveValue('');
+
+    window.location.hash = '#/shopping/new?uilabState=reuse-no-photo-selected';
+    await waitFor(() => expect(screen.getByDisplayValue('バナナ')).toBeVisible());
+    expect(screen.queryByRole('img', { name: '選択した写真のプレビュー' })).not.toBeInTheDocument();
+  });
 });

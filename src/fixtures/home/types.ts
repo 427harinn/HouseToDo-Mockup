@@ -20,6 +20,19 @@ export type HomeUiLabState = (typeof homeUiLabStates)[number];
 
 export type HomeTaskTimeScope = 'date' | 'week' | 'month' | 'none';
 
+export type HomeTaskRepeat =
+  | '今回だけ'
+  | '毎日'
+  | '曜日を決める'
+  | '毎月○日'
+  | '今週のどこか'
+  | '今月のどこか';
+
+export type TaskHistoryEntry = {
+  date: string;
+  outcome: 'completed' | 'passed';
+};
+
 export type HomePerson = {
   id: string;
   name: string;
@@ -33,6 +46,16 @@ export type HomeTask = {
   timeScope: HomeTaskTimeScope;
   overdue?: boolean;
   assignee?: HomePerson;
+  repeat?: HomeTaskRepeat;
+  weekdays?: string[];
+  monthDay?: string;
+  startDate?: string;
+  allDay?: boolean;
+  date?: string;
+  time?: string;
+  notification?: string;
+  memo?: string;
+  completionHistory?: TaskHistoryEntry[];
 };
 
 export type CompletedTask = {

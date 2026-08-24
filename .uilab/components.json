@@ -57,6 +57,7 @@
   "Shopping.ItemMemo": { "selector": "[data-uilab-component='Shopping.ItemMemo']", "instances": "multiple", "editable": ["width", "padding", "margin", "gap", "fontSize", "lineHeight", "color", "background"] },
   "Shopping.ItemPhoto": { "selector": "[data-uilab-component='Shopping.ItemPhoto']", "instances": "multiple", "editable": ["width", "height", "margin", "background", "borderRadius", "opacity"] },
   "Shopping.PurchasedSection": { "selector": "[data-uilab-component='Shopping.PurchasedSection']", "instances": "single", "editable": ["width", "padding", "margin", "background", "border", "borderRadius"] },
+  "Shopping.PurchasedOrganize": { "selector": "[data-uilab-component='Shopping.PurchasedOrganize']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
   "Shopping.EmptyState": { "selector": "[data-uilab-component='Shopping.EmptyState']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "color", "background"] },
 
   "Home.TaskRow.Avatar": { "selector": "[data-uilab-component='Home.TaskRow.Avatar']", "instances": "multiple", "editable": ["width", "height", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
@@ -72,6 +73,7 @@
   "TaskForm.Notification": { "selector": "[data-uilab-component='TaskForm.Notification']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "color", "background", "border", "borderRadius"] },
   "TaskForm.Assignee": { "selector": "[data-uilab-component='TaskForm.Assignee']", "instances": "single", "editable": ["width", "height", "padding", "margin", "gap", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
   "TaskForm.Memo": { "selector": "[data-uilab-component='TaskForm.Memo']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "fontSize", "lineHeight", "color", "background", "border", "borderRadius"] },
+  "TaskForm.LastCompleted": { "selector": "[data-uilab-component='TaskForm.LastCompleted']", "instances": "single", "editable": ["width", "margin", "fontSize", "lineHeight", "color"] },
   "TaskForm.Save": { "selector": "[data-uilab-component='TaskForm.Save']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
   "TaskForm.Delete": { "selector": "[data-uilab-component='TaskForm.Delete']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
   "TaskForm.RepeatSheet": { "selector": "[data-uilab-component='TaskForm.RepeatSheet']", "instances": "single", "editable": ["width", "height", "padding", "background", "border", "borderRadius"] },

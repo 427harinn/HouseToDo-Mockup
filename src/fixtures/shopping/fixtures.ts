@@ -58,6 +58,13 @@ const activeItems: ShoppingItem[] = [
   },
 ];
 
+const noQuantityItem: ShoppingItem = {
+  id: 'shopping-no-quantity',
+  name: 'レモン',
+  addedAt: '2026-08-20T09:00:00+09:00',
+  memo: '炭酸水に使う。',
+};
+
 const purchasedItems: ShoppingItem[] = [
   {
     id: 'purchased-eggs',
@@ -128,6 +135,14 @@ export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
     purchasedItems: [],
     initialExpandedId: 'shopping-detergent',
   },
+  'quantity-empty': { activeItems: [noQuantityItem, activeItems[1]], purchasedItems: [] },
+  deleted: {
+    activeItems: activeItems.filter((item) => item.id !== 'shopping-milk'),
+    purchasedItems,
+    historyItems: activeItems.filter((item) => item.id !== 'shopping-milk').concat(purchasedItems),
+  },
+  'purchased-organize-before': { activeItems: [activeItems[1]], purchasedItems, initialPurchasedOpen: true },
+  'purchased-organize-after': { activeItems: [activeItems[1]], purchasedItems: [], historyItems: purchasedItems },
   many: { activeItems: manyItems, purchasedItems },
   'long-text': {
     activeItems: longTextItems,
@@ -136,3 +151,8 @@ export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
   },
   empty: { activeItems: [], purchasedItems: [] },
 };
+
+export function getShoppingHistoryItems(fixture: ShoppingFixture): ShoppingItem[] {
+  const candidates = fixture.historyItems ?? [...fixture.activeItems, ...fixture.purchasedItems];
+  return [...new Map(candidates.map((item) => [item.id, item])).values()];
+}

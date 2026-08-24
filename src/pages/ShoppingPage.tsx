@@ -8,7 +8,9 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import {
+  getShoppingHistoryItems,
   shoppingFixtures,
+  type ShoppingFixture,
   type ShoppingItem,
   type ShoppingUiLabState,
 } from '../fixtures/shopping';
@@ -17,10 +19,12 @@ import { getShoppingUiLabState } from '../mock/shoppingState';
 type ShoppingPageProps = {
   state?: ShoppingUiLabState;
   initialItemId?: string | null;
+  fixtureOverride?: ShoppingFixture;
+  onSessionChange?: (fixture: ShoppingFixture) => void;
 };
 
-export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = null }: ShoppingPageProps) {
-  const fixture = shoppingFixtures[state];
+export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = null, fixtureOverride, onSessionChange }: ShoppingPageProps) {
+  const fixture = fixtureOverride ?? shoppingFixtures[state];
   const [activeItems, setActiveItems] = useState<ShoppingItem[]>(fixture.activeItems);
   const [purchasedItems, setPurchasedItems] = useState<ShoppingItem[]>(
     fixture.purchasedItems,
@@ -44,8 +48,18 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
     setActionsOpenId(null);
     setDraggingId(null);
     setDragOverId(null);
-    setStatusMessage('');
   }, [fixture, initialItemId, state]);
+
+  const persistState = (nextActiveItems: ShoppingItem[], nextPurchasedItems: ShoppingItem[], nextHistoryItems?: ShoppingItem[]) => {
+    setActiveItems(nextActiveItems);
+    setPurchasedItems(nextPurchasedItems);
+    onSessionChange?.({
+      ...fixture,
+      activeItems: nextActiveItems,
+      purchasedItems: nextPurchasedItems,
+      historyItems: nextHistoryItems ?? fixture.historyItems,
+    });
+  };
 
   const toggleExpanded = (itemId: string) => {
     setExpandedId((current) => (current === itemId ? null : itemId));
@@ -53,11 +67,13 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
   };
 
   const purchaseItem = (item: ShoppingItem) => {
-    setActiveItems((current) => current.filter((activeItem) => activeItem.id !== item.id));
-    setPurchasedItems((current) => [
-      ...current,
+    const nextActiveItems = activeItems.filter((activeItem) => activeItem.id !== item.id);
+    const nextPurchasedItems = [
+      ...purchasedItems,
       { ...item, purchasedAt: '今日 17:42', purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
-    ]);
+    ];
+    const nextHistoryItems = [...getShoppingHistoryItems(fixture), item].filter((candidate, index, items) => items.findIndex((entry) => entry.id === candidate.id) === index);
+    persistState(nextActiveItems, nextPurchasedItems, nextHistoryItems);
     setExpandedId(null);
     setActionsOpenId(null);
     setStatusMessage(`「${item.name}」を購入済みに移しました`);
@@ -67,10 +83,9 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
     const restored: ShoppingItem = { ...item };
     delete restored.purchasedAt;
     delete restored.purchaser;
-    setPurchasedItems((current) => current.filter((purchasedItem) => purchasedItem.id !== item.id));
-    setActiveItems((current) =>
-      [...current, restored].sort((left, right) => left.addedAt.localeCompare(right.addedAt)),
-    );
+    const nextPurchasedItems = purchasedItems.filter((purchasedItem) => purchasedItem.id !== item.id);
+    const nextActiveItems = [...activeItems, restored].sort((left, right) => left.addedAt.localeCompare(right.addedAt));
+    persistState(nextActiveItems, nextPurchasedItems, fixture.historyItems);
     setExpandedId(null);
     setStatusMessage(`「${item.name}」を未購入に戻しました`);
   };
@@ -126,7 +141,7 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
               onToggle={() => toggleExpanded(item.id)}
               onPurchase={() => purchaseItem(item)}
               onRestore={() => restoreItem(item)}
-              onEdit={() => { window.location.hash = '#/shopping/edit'; }}
+              onEdit={() => { window.location.hash = `#/shopping/edit?item=${encodeURIComponent(item.id)}&shoppingState=${encodeURIComponent(state)}`; }}
               onSwipeOpen={() => {
                 setActionsOpenId(item.id);
                 setExpandedId(null);
@@ -169,15 +184,32 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
       )}
 
       <section className="shopping-purchased" data-uilab-component="Shopping.PurchasedSection" data-uilab-id="shopping-purchased-section">
-        <button
-          type="button"
-          className="shopping-purchased__toggle"
-          aria-expanded={purchasedOpen}
-          onClick={() => setPurchasedOpen((open) => !open)}
-        >
-          <span>購入済み {purchasedItems.length}件</span>
-          <ChevronRight aria-hidden="true" className={purchasedOpen ? 'is-open' : ''} />
-        </button>
+        <div className="shopping-purchased__header">
+          <button
+            type="button"
+            className="shopping-purchased__toggle"
+            aria-expanded={purchasedOpen}
+            onClick={() => setPurchasedOpen((open) => !open)}
+          >
+            <span>購入済み {purchasedItems.length}件</span>
+            <ChevronRight aria-hidden="true" className={purchasedOpen ? 'is-open' : ''} />
+          </button>
+          {purchasedItems.length > 0 ? (
+            <button
+              type="button"
+              className="shopping-purchased__organize"
+              data-uilab-component="Shopping.PurchasedOrganize"
+              data-uilab-id="shopping-purchased-organize"
+              onClick={() => {
+                persistState(activeItems, [], fixture.historyItems ?? getShoppingHistoryItems(fixture));
+                setExpandedId(null);
+                setStatusMessage('購入済みを整理しました');
+              }}
+            >
+              購入済みを整理
+            </button>
+          ) : null}
+        </div>
         {purchasedOpen && purchasedItems.length > 0 ? (
           <div className="shopping-purchased__list">
             {purchasedItems.map((item) => (
@@ -393,13 +425,15 @@ function ShoppingItemRow({
               <ImageIcon aria-hidden="true" />
             </span>
           ) : null}
-          <span
-            className="shopping-item-row__quantity"
-            data-uilab-component="Shopping.ItemRow.Quantity"
-            data-uilab-id={`shopping-item-${item.id}-quantity`}
-          >
-            {item.quantity}
-          </span>
+          {item.quantity ? (
+            <span
+              className="shopping-item-row__quantity"
+              data-uilab-component="Shopping.ItemRow.Quantity"
+              data-uilab-id={`shopping-item-${item.id}-quantity`}
+            >
+              {item.quantity}
+            </span>
+          ) : null}
           {purchased && item.purchaser ? <Avatar person={item.purchaser} /> : null}
         </button>
         {!purchased ? (

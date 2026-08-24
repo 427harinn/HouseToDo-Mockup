@@ -1,4 +1,4 @@
-export { shoppingFixtures } from './fixtures';
+export { getShoppingHistoryItems, shoppingFixtures } from './fixtures';
 export {
   shoppingUiLabStates,
   type ShoppingFixture,

@@ -5,6 +5,10 @@ export const shoppingUiLabStates = [
   'expanded',
   'purchased-open',
   'photo',
+  'quantity-empty',
+  'deleted',
+  'purchased-organize-before',
+  'purchased-organize-after',
   'many',
   'long-text',
   'empty',
@@ -21,7 +25,7 @@ export type ShoppingPerson = {
 export type ShoppingItem = {
   id: string;
   name: string;
-  quantity: string;
+  quantity?: string;
   addedAt: string;
   memo?: string;
   photoSrc?: string;
@@ -33,6 +37,7 @@ export type ShoppingItem = {
 export type ShoppingFixture = {
   activeItems: ShoppingItem[];
   purchasedItems: ShoppingItem[];
+  historyItems?: ShoppingItem[];
   initialExpandedId?: string;
   initialPurchasedOpen?: boolean;
 };

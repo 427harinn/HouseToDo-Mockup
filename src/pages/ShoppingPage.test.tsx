@@ -1,6 +1,7 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
+import { shoppingFixtures } from '../fixtures/shopping';
 
 function renderShopping(state?: string) {
   window.location.hash = state ? `#/shopping?uilabState=${state}` : '#/shopping';
@@ -244,5 +245,64 @@ describe('ShoppingPage', () => {
   it('supports a fixture with no planned dates without an empty label', () => {
     renderShopping('no-planned-date');
     expect(screen.queryByText(/予定$/)).not.toBeInTheDocument();
+  });
+
+  it('does not render a quantity label for an item whose quantity is empty', () => {
+    renderShopping('quantity-empty');
+    expect(activeList().getByText('レモン')).toBeVisible();
+    expect(activeList().queryByText('数量なし')).not.toBeInTheDocument();
+    expect(activeList().queryByText('未設定')).not.toBeInTheDocument();
+  });
+
+  it('keeps duplicate product names as separate shopping items', () => {
+    renderShopping('many');
+    expect(shoppingFixtures.many.activeItems.filter((item) => item.name === 'ヨーグルト')).toHaveLength(4);
+    expect(screen.getAllByText('ヨーグルト')).toHaveLength(4);
+  });
+
+  it('organizes purchased items immediately while keeping them available for reuse', async () => {
+    renderShopping('purchased-organize-before');
+    fireEvent.click(screen.getByRole('button', { name: '購入済みを整理' }));
+    expect(screen.getByText('購入済み 0件')).toBeVisible();
+    expect(screen.getByText('購入済みを整理しました')).toBeVisible();
+
+    window.location.hash = '#/shopping/new?shoppingState=purchased-organize-before&uilabState=reuse-picker';
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '以前の項目から選ぶ' })).toBeVisible());
+    expect(screen.getByRole('button', { name: /卵/ })).toBeVisible();
+  });
+
+  it('deletes an unpurchased item from the list and reuse candidates after confirmation', async () => {
+    renderShopping('normal');
+    const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!milkRow) throw new Error('Expected the milk row');
+    fireEvent.click(within(milkRow as HTMLElement).getByRole('button', { name: '牛乳の操作' }));
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: '買い物を編集' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: '削除' }));
+    expect(screen.getByRole('dialog', { name: '買い物を削除しますか？' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '削除する' }));
+    await waitFor(() => expect(window.location.hash).toBe('#/shopping?uilabState=normal'));
+    expect(screen.queryByText('牛乳')).not.toBeInTheDocument();
+
+    window.location.hash = '#/shopping/new?shoppingState=normal&uilabState=reuse-picker';
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '以前の項目から選ぶ' })).toBeVisible());
+    expect(screen.queryByRole('button', { name: /牛乳/ })).not.toBeInTheDocument();
+  });
+
+  it('hides purchased planned dates, shows purchase metadata, and restores the original date', () => {
+    renderShopping('purchased-open');
+    expect(screen.getByText('今日 8:32')).toBeVisible();
+    expect(screen.getByRole('img', { name: '購入者: はる' })).toBeVisible();
+    const purchasedSection = document.querySelector('[data-uilab-component="Shopping.PurchasedSection"]');
+    if (!purchasedSection) throw new Error('Expected purchased section');
+    expect(within(purchasedSection as HTMLElement).queryByText('8/20予定')).not.toBeInTheDocument();
+
+    const eggsRow = document.querySelector('[data-uilab-id="purchased-eggs"]');
+    if (!eggsRow) throw new Error('Expected purchased eggs row');
+    fireEvent.click(eggsRow.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    const restoredRow = document.querySelector('[data-uilab-component="Shopping.ItemRow"][data-uilab-id="purchased-eggs"]');
+    if (!restoredRow) throw new Error('Expected restored eggs row');
+    expect(within(restoredRow as HTMLElement).getByText('8/20予定')).toBeVisible();
   });
 });

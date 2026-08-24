@@ -1,15 +1,10 @@
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
-import type { HomeTask } from '../fixtures/home';
+import type { HomeTask, HomeTaskRepeat } from '../fixtures/home';
+import { formatTaskHistoryDate, getLastCompletedDate } from '../mock/taskHistory';
 
-type RepeatOption =
-  | '今回だけ'
-  | '毎日'
-  | '曜日を決める'
-  | '毎月○日'
-  | '今週のどこか'
-  | '今月のどこか';
+type RepeatOption = HomeTaskRepeat;
 
 type Sheet = 'repeat' | 'assignee' | 'reuse' | 'delete' | null;
 
@@ -49,12 +44,54 @@ const TASK_REUSE_ITEMS: Array<{
   name: string;
   repeat: RepeatOption;
   weekdays?: string[];
+  monthDay?: string;
+  allDay: boolean;
+  time: string;
+  notification: string;
+  assignee: Member | null;
   memo: string;
 }> = [
-  { id: 'bird', name: 'インコの餌交換', repeat: '毎日', memo: '朝の餌と水を取り替える。' },
-  { id: 'trash', name: 'ゴミ出し', repeat: '曜日を決める', weekdays: ['火', '金'], memo: '' },
-  { id: 'toilet', name: 'トイレ掃除', repeat: '今週のどこか', memo: '床と便座を拭く。' },
+  { id: 'bird', name: 'インコの餌交換', repeat: '毎日', allDay: true, time: '08:00', notification: 'なし', assignee: null, memo: '朝の餌と水を取り替える。' },
+  { id: 'trash', name: 'ゴミ出し', repeat: '曜日を決める', weekdays: ['火', '金'], allDay: false, time: '08:00', notification: '10分前', assignee: MEMBERS[0], memo: '収集日の朝に玄関前へ出す。' },
+  { id: 'toilet', name: 'トイレ掃除', repeat: '今週のどこか', allDay: true, time: '19:00', notification: 'なし', assignee: null, memo: '床と便座を拭く。' },
 ];
+
+const taskEditFixtures: Record<string, HomeTask> = {
+  'previous-completed': {
+    id: 'task-edit-previous-completed',
+    name: 'キッチンの拭き掃除',
+    deadlineText: '今週のどこか',
+    timeScope: 'week',
+    repeat: '今週のどこか',
+    startDate: '2026-07-10',
+    allDay: true,
+    date: '2026-08-20',
+    memo: '汚れが気になる場所を中心に。',
+    completionHistory: [
+      { date: '2026-08-12', outcome: 'completed' },
+      { date: '2026-08-20', outcome: 'completed' },
+    ],
+  },
+  'previous-none': {
+    id: 'task-edit-previous-none',
+    name: '季節の寝具を入れ替える',
+    deadlineText: '8/31まで',
+    timeScope: 'month',
+    repeat: '今回だけ',
+    startDate: '2026-08-20',
+    allDay: true,
+    date: '2026-08-31',
+    memo: '',
+  },
+  'previous-passed-only': {
+    id: 'task-edit-previous-passed-only',
+    name: '布団を干す',
+    deadlineText: '今日中',
+    timeScope: 'date',
+    repeat: '毎日',
+    completionHistory: [{ date: '2026-08-19', outcome: 'passed' }],
+  },
+};
 
 const stateNames = [
   'normal',
@@ -65,6 +102,9 @@ const stateNames = [
   'reuse-picker',
   'reuse-selected',
   'long-text',
+  'previous-completed',
+  'previous-none',
+  'previous-passed-only',
 ];
 
 type TaskFormPageProps = {
@@ -79,25 +119,27 @@ type TaskFormPageProps = {
 export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDelete, homeState }: TaskFormPageProps) {
   const safeState = stateNames.includes(state) ? state : 'normal';
   const editDeleteConfirm = isEdit && state === 'delete-confirm';
-  const initialReuse = safeState === 'reuse-selected' ? TASK_REUSE_ITEMS[0] : null;
+  const taskForForm = initialTask ?? (isEdit ? taskEditFixtures[safeState] : undefined);
+  const initialReuse = safeState === 'reuse-selected' ? TASK_REUSE_ITEMS.find((item) => item.id === 'trash') ?? null : null;
+  const lastCompletedDate = isEdit && taskForForm ? getLastCompletedDate(taskForForm) : undefined;
   const [form, setForm] = useState<TaskFormState>(() => ({
     name:
       safeState === 'long-text'
         ? '冷蔵庫の中を確認して足りない食材を買い物メモに追加する'
-        : initialReuse?.name ?? initialTask?.name ?? (isEdit ? 'キッチンの拭き掃除' : 'ゴミ出し'),
-    repeat: safeState === 'weekday-repeat' ? '曜日を決める' : initialReuse?.repeat ?? (isEdit ? '今週のどこか' : '毎日'),
-    weekdays: safeState === 'weekday-repeat' ? ['火', '金'] : initialReuse?.weekdays ?? [],
-    monthDay: '20',
-    startDate: TODAY,
-    allDay: safeState !== 'time-specific',
-    date: TODAY,
-    time: '19:00',
-    notification: '10分前',
-    assignee: initialTask?.assignee ?? (isEdit ? MEMBERS[1] : null),
+        : initialReuse?.name ?? taskForForm?.name ?? (isEdit ? 'キッチンの拭き掃除' : 'ゴミ出し'),
+    repeat: safeState === 'weekday-repeat' ? '曜日を決める' : initialReuse?.repeat ?? taskForForm?.repeat ?? (isEdit ? '今週のどこか' : '毎日'),
+    weekdays: safeState === 'weekday-repeat' ? ['火', '金'] : initialReuse?.weekdays ?? taskForForm?.weekdays ?? [],
+    monthDay: taskForForm?.monthDay ?? '20',
+    startDate: initialReuse ? TODAY : taskForForm?.startDate ?? TODAY,
+    allDay: initialReuse?.allDay ?? (taskForForm?.allDay ?? safeState !== 'time-specific'),
+    date: initialReuse ? TODAY : taskForForm?.date ?? TODAY,
+    time: initialReuse?.time ?? taskForForm?.time ?? '19:00',
+    notification: initialReuse?.notification ?? taskForForm?.notification ?? '10分前',
+    assignee: initialReuse?.assignee ?? taskForForm?.assignee ?? (isEdit ? MEMBERS[1] : null),
     memo:
       safeState === 'long-text'
         ? '週末に家族で確認し、足りないものを買い物リストへ追加する。終わったら冷蔵庫の棚も軽く整える。'
-        : initialReuse?.memo ?? (isEdit ? '汚れが気になる場所を中心に。' : ''),
+        : initialReuse?.memo ?? taskForForm?.memo ?? (isEdit ? '汚れが気になる場所を中心に。' : ''),
   }));
   const [sheet, setSheet] = useState<Sheet>(() => {
     if (editDeleteConfirm) return 'delete';
@@ -137,6 +179,11 @@ export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDel
       name: item.name,
       repeat: item.repeat,
       weekdays: item.weekdays ?? [],
+      monthDay: item.monthDay ?? '20',
+      allDay: item.allDay,
+      time: item.time,
+      notification: item.notification,
+      assignee: item.assignee,
       memo: item.memo,
     }));
     setSheet(null);
@@ -152,6 +199,12 @@ export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDel
         </button>
         <h1>{isEdit ? '家事を編集' : '家事を追加'}</h1>
       </header>
+
+      {lastCompletedDate ? (
+        <p className="task-form__last-completed" data-uilab-component="TaskForm.LastCompleted" data-uilab-id="task-form-last-completed">
+          前回：{formatTaskHistoryDate(lastCompletedDate)}
+        </p>
+      ) : null}
 
       {!isEdit ? (
         <button type="button" className="form-reuse-trigger" data-uilab-component="TaskForm.ReusePickerTrigger" data-uilab-id="task-form-reuse-trigger" onClick={() => setSheet('reuse')}>
