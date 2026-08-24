@@ -101,8 +101,8 @@ describe('M6 add and edit forms', () => {
   it('keeps edit forms free of reuse and separates delete confirmation', () => {
     renderRoute('#/tasks/edit?uilabState=normal');
     expect(screen.queryByText('以前の項目から選ぶ')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '削除' })).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: '削除' }));
+    expect(screen.getByRole('button', { name: 'この家事を削除' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'この家事を削除' }));
     expect(screen.getByRole('dialog', { name: '家事を削除しますか？' })).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
     expect(screen.queryByRole('dialog', { name: '家事を削除しますか？' })).not.toBeInTheDocument();

@@ -1,6 +1,7 @@
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
+import type { HomeTask } from '../fixtures/home';
 
 type RepeatOption =
   | '今回だけ'
@@ -66,7 +67,16 @@ const stateNames = [
   'long-text',
 ];
 
-export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string }) {
+type TaskFormPageProps = {
+  isEdit: boolean;
+  state: string;
+  initialTask?: HomeTask;
+  onTaskSave?: (task: { name: string; assignee?: HomeTask['assignee'] }) => void;
+  onTaskDelete?: () => void;
+  homeState?: string;
+};
+
+export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDelete, homeState }: TaskFormPageProps) {
   const safeState = stateNames.includes(state) ? state : 'normal';
   const editDeleteConfirm = isEdit && state === 'delete-confirm';
   const initialReuse = safeState === 'reuse-selected' ? TASK_REUSE_ITEMS[0] : null;
@@ -74,7 +84,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
     name:
       safeState === 'long-text'
         ? '冷蔵庫の中を確認して足りない食材を買い物メモに追加する'
-        : initialReuse?.name ?? (isEdit ? 'キッチンの拭き掃除' : 'ゴミ出し'),
+        : initialReuse?.name ?? initialTask?.name ?? (isEdit ? 'キッチンの拭き掃除' : 'ゴミ出し'),
     repeat: safeState === 'weekday-repeat' ? '曜日を決める' : initialReuse?.repeat ?? (isEdit ? '今週のどこか' : '毎日'),
     weekdays: safeState === 'weekday-repeat' ? ['火', '金'] : initialReuse?.weekdays ?? [],
     monthDay: '20',
@@ -83,7 +93,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
     date: TODAY,
     time: '19:00',
     notification: '10分前',
-    assignee: isEdit ? MEMBERS[1] : null,
+    assignee: initialTask?.assignee ?? (isEdit ? MEMBERS[1] : null),
     memo:
       safeState === 'long-text'
         ? '週末に家族で確認し、足りないものを買い物リストへ追加する。終わったら冷蔵庫の棚も軽く整える。'
@@ -136,7 +146,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
   return (
     <div className="screen-content form-page task-form-page" data-uilab-component="TaskForm.Page" data-uilab-id="task-form-page">
       <header className="form-page__header">
-        <button type="button" className="form-page__back" aria-label="戻る" onClick={() => { window.location.hash = '#/home'; }}>
+        <button type="button" className="form-page__back" aria-label="戻る" onClick={() => { window.location.hash = homeState ? `#/home?uilabState=${encodeURIComponent(homeState)}` : '#/home'; }}>
           <ChevronLeft aria-hidden="true" />
           <span>戻る</span>
         </button>
@@ -149,7 +159,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
         </button>
       ) : null}
 
-      <form className="form-layout" onSubmit={(event) => { event.preventDefault(); setStatusMessage('保存しました'); }}>
+      <form className="form-layout" onSubmit={(event) => { event.preventDefault(); onTaskSave?.({ name: form.name, assignee: form.assignee ?? undefined }); setStatusMessage('保存しました'); }}>
         <label className="form-control" data-uilab-component="TaskForm.Name" data-uilab-id="task-form-name">
           <span>家事名</span>
           <input value={form.name} onChange={(event) => update('name', event.target.value)} placeholder="家事名を入力" required />
@@ -193,7 +203,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
 
         <div className={`form-actions${isEdit ? ' form-actions--edit' : ''}`}>
           <button type="submit" className="form-save" data-uilab-component="TaskForm.Save" data-uilab-id="task-form-save">保存</button>
-          {isEdit ? <button type="button" className="form-delete" data-uilab-component="TaskForm.Delete" data-uilab-id="task-form-delete" onClick={() => setSheet('delete')}>削除</button> : null}
+          {isEdit ? <button type="button" className="form-delete" data-uilab-component="TaskForm.Delete" data-uilab-id="task-form-delete" onClick={() => setSheet('delete')}>この家事を削除</button> : null}
         </div>
       </form>
       <p className="form-status" role="status" aria-live="polite">{statusMessage}</p>
@@ -236,7 +246,7 @@ export function TaskFormPage({ isEdit, state }: { isEdit: boolean; state: string
       <BottomSheet open={sheet === 'delete'} title="家事を削除しますか？" onClose={() => setSheet(null)}>
         <div className="delete-confirm" data-uilab-component="TaskForm.DeleteConfirm" data-uilab-id="task-delete-confirm">
           <p>この家事を削除します。モック上の操作です。</p>
-          <button type="button" className="form-delete" onClick={() => { setSheet(null); setStatusMessage('削除しました'); }}>削除する</button>
+          <button type="button" className="form-delete" onClick={() => { onTaskDelete?.(); setSheet(null); setStatusMessage('削除しました'); }}>削除する</button>
           <button type="button" className="form-secondary" onClick={() => setSheet(null)}>キャンセル</button>
         </div>
       </BottomSheet>
