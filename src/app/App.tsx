@@ -8,6 +8,7 @@ import { ShoppingPage } from '../pages/ShoppingPage';
 import { PlaceholderPage } from '../pages/PlaceholderPage';
 import { getHomeUiLabState } from '../mock/homeState';
 import { getCalendarUiLabState } from '../mock/calendarState';
+import { calendarFixtures, calendarUiLabStates, type CalendarFixture, type CalendarTask, type CalendarUiLabState } from '../fixtures/calendar';
 import { getShoppingUiLabState } from '../mock/shoppingState';
 import { TaskFormPage } from '../pages/TaskFormPage';
 import { ShoppingFormPage } from '../pages/ShoppingFormPage';
@@ -27,6 +28,7 @@ export function App() {
   const route = useHashRoute();
   const [homeSessions, setHomeSessions] = useState<Partial<Record<HomeUiLabState, HomeFixture>>>({});
   const [shoppingSessions, setShoppingSessions] = useState<Partial<Record<ShoppingUiLabState, ShoppingFixture>>>({});
+  const [calendarSessions, setCalendarSessions] = useState<Partial<Record<CalendarUiLabState, CalendarFixture>>>({});
 
   const readHomeState = (value: string | null): HomeUiLabState => (
     value && homeUiLabStates.includes(value as HomeUiLabState) ? value as HomeUiLabState : 'normal'
@@ -60,6 +62,17 @@ export function App() {
     '/household/create': 'household-create',
     '/household/join': 'household-join',
   };
+
+  const readCalendarState = (value: string | null): CalendarUiLabState => (
+    value && calendarUiLabStates.includes(value as CalendarUiLabState) ? value as CalendarUiLabState : 'normal'
+  );
+
+  const updateCalendarSession = (state: CalendarUiLabState, update: (fixture: CalendarFixture) => CalendarFixture) => {
+    setCalendarSessions((current) => {
+      const base = current[state] ?? calendarFixtures[state];
+      return { ...current, [state]: update(base) };
+    });
+  };
   const entryPageKind = entryPageKinds[route.pathname];
   if (entryPageKind) {
     return (
@@ -71,20 +84,38 @@ export function App() {
 
   if (route.pathname === '/tasks/new' || route.pathname === '/tasks/edit') {
     const isEdit = route.pathname === '/tasks/edit';
+    const origin = route.searchParams.get('origin') === 'calendar' ? 'calendar' : 'home';
     const homeState = readHomeState(route.searchParams.get('homeState'));
     const taskId = route.searchParams.get('taskId') ?? undefined;
     const homeSession = homeSessions[homeState] ?? homeFixtures[homeState];
-    const editTask = isEdit && taskId ? findHomeTask(homeSession, taskId) : undefined;
+    const calendarState = readCalendarState(route.searchParams.get('calendarState'));
+    const calendarSession = calendarSessions[calendarState] ?? calendarFixtures[calendarState];
+    const calendarTask = isEdit && origin === 'calendar' && taskId ? findCalendarTask(calendarSession, taskId) : undefined;
+    const editTask = isEdit && taskId
+      ? origin === 'calendar' ? calendarTask ? calendarTaskToHomeTask(calendarTask) : undefined : findHomeTask(homeSession, taskId)
+      : undefined;
+    const returnHash = origin === 'calendar'
+      ? `#/calendar?uilabState=${encodeURIComponent(calendarState)}&selectedDate=${encodeURIComponent(route.searchParams.get('calendarDate') ?? '')}`
+      : homeState === 'normal' ? '#/home' : `#/home?uilabState=${encodeURIComponent(homeState)}`;
     return (
       <AppShell currentPath="" showBottomNavigation={false}>
         <TaskFormPage
-          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`}
+          key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}-${taskId ?? ''}-${origin}`}
           isEdit={isEdit}
           state={route.searchParams.get('uilabState') ?? 'normal'}
           initialTask={editTask}
-          onTaskSave={taskId ? (task) => updateHomeSession(homeState, (fixture) => updateTaskInFixture(fixture, taskId, task)) : undefined}
-          onTaskDelete={taskId ? () => updateHomeSession(homeState, (fixture) => deleteTaskInFixture(fixture, taskId)) : undefined}
+          onTaskSave={taskId
+            ? (task) => origin === 'calendar'
+              ? updateCalendarSession(calendarState, (fixture) => updateCalendarTaskInFixture(fixture, taskId, task))
+              : updateHomeSession(homeState, (fixture) => updateTaskInFixture(fixture, taskId, task))
+            : undefined}
+          onTaskDelete={taskId
+            ? () => origin === 'calendar'
+              ? updateCalendarSession(calendarState, (fixture) => deleteCalendarTaskInFixture(fixture, taskId))
+              : updateHomeSession(homeState, (fixture) => deleteTaskInFixture(fixture, taskId))
+            : undefined}
           homeState={route.searchParams.get('homeState') ?? undefined}
+          returnHash={returnHash}
         />
       </AppShell>
     );
@@ -150,6 +181,7 @@ export function App() {
             key={homeState}
             state={homeState}
             session={homeSessions[homeState]}
+            shoppingFixture={shoppingSessions.normal ?? undefined}
             onSessionChange={(fixture) => setHomeSessions((current) => ({ ...current, [homeState]: fixture }))}
           />
         </AppShell>
@@ -161,9 +193,18 @@ export function App() {
         `#${route.pathname}?${route.searchParams.toString()}`,
       );
 
+      const calendarFixture = calendarSessions[calendarState];
+      const sharedShoppingFixture = calendarState === 'shopping-none' ? undefined : (shoppingSessions.normal ?? undefined);
       return (
         <AppShell currentPath={route.pathname}>
-          <CalendarPage key={calendarState} state={calendarState} />
+          <CalendarPage
+            key={calendarState}
+            state={calendarState}
+            fixtureOverride={calendarFixture}
+            shoppingFixture={sharedShoppingFixture}
+            initialSelectedDate={route.searchParams.get('selectedDate')}
+            onSessionChange={(fixture) => setCalendarSessions((current) => ({ ...current, [calendarState]: fixture }))}
+          />
         </AppShell>
       );
     }
@@ -230,6 +271,36 @@ function findShoppingItem(fixture: ShoppingFixture, itemId: string | null): Shop
   if (!itemId) return undefined;
   return fixture.activeItems.find((item) => item.id === itemId)
     ?? fixture.purchasedItems.find((item) => item.id === itemId);
+}
+
+function findCalendarTask(fixture: CalendarFixture, taskId: string): CalendarTask | undefined {
+  return fixture.tasks.find((task) => task.id === taskId);
+}
+
+function calendarTaskToHomeTask(task: CalendarTask): HomeTask {
+  return {
+    id: task.id,
+    name: task.name,
+    deadlineText: task.deadline ? 'この日まで' : '今日中',
+    timeScope: 'date',
+    assignee: task.assignee,
+    date: task.date,
+    completionHistory: task.completionHistory,
+  };
+}
+
+function updateCalendarTaskInFixture(fixture: CalendarFixture, taskId: string, updates: Pick<HomeTask, 'name' | 'assignee'>): CalendarFixture {
+  return {
+    ...fixture,
+    tasks: fixture.tasks.map((task) => task.id === taskId ? { ...task, ...updates } : task),
+  };
+}
+
+function deleteCalendarTaskInFixture(fixture: CalendarFixture, taskId: string): CalendarFixture {
+  return {
+    ...fixture,
+    tasks: fixture.tasks.map((task) => task.id === taskId ? { ...task, deleted: true } : task),
+  };
 }
 
 function removeShoppingItem(fixture: ShoppingFixture, itemId: string): ShoppingFixture {

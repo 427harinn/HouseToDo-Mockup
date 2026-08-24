@@ -15,8 +15,8 @@ import {
   type ShoppingUiLabState,
 } from '../fixtures/shopping';
 import { getShoppingUiLabState } from '../mock/shoppingState';
+import { MOCK_NOW, MOCK_TODAY } from '../mock/constants';
 
-const SHOPPING_TODAY = '2026-08-24';
 const PURCHASED_VISIBLE_DAYS = 7;
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
@@ -75,7 +75,7 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
     const nextActiveItems = activeItems.filter((activeItem) => activeItem.id !== item.id);
     const nextPurchasedItems = [
       ...purchasedItems,
-      { ...item, purchasedAt: `${SHOPPING_TODAY}T17:42:00+09:00`, purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
+      { ...item, purchasedAt: `${MOCK_TODAY}T17:42:00+09:00`, purchaser: item.purchaser ?? { id: 'yuki', name: 'ゆき', initials: 'ゆ' } },
     ];
     const nextHistoryItems = [...getShoppingHistoryItems(fixture), item].filter((candidate, index, items) => items.findIndex((entry) => entry.id === candidate.id) === index);
     persistState(nextActiveItems, nextPurchasedItems, nextHistoryItems);
@@ -238,7 +238,7 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
 }
 
 function getVisiblePurchasedItems(items: ShoppingItem[]) {
-  const now = Date.parse(`${SHOPPING_TODAY}T18:00:00+09:00`);
+  const now = Date.parse(MOCK_NOW);
   const visibleUntil = PURCHASED_VISIBLE_DAYS * DAY_IN_MILLISECONDS;
   return items.filter((item) => {
     if (!item.purchasedAt) return false;
@@ -253,10 +253,10 @@ function formatPurchasedAt(value: string) {
   if (!match) return value;
   const [, year, month, day, hour, minute] = match;
   const date = `${year}-${month}-${day}`;
-  const previousDate = new Date(`${SHOPPING_TODAY}T18:00:00+09:00`);
+  const previousDate = new Date(MOCK_NOW);
   previousDate.setDate(previousDate.getDate() - 1);
   const yesterday = `${previousDate.getFullYear()}-${String(previousDate.getMonth() + 1).padStart(2, '0')}-${String(previousDate.getDate()).padStart(2, '0')}`;
-  const label = date === SHOPPING_TODAY
+  const label = date === MOCK_TODAY
     ? '今日'
     : date === yesterday
       ? '昨日'

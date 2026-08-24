@@ -1,6 +1,6 @@
 # HouseToDo DESIGN.md
 
-> Version: v1 — Director / System / major screen interaction decisions reflected as of 2026-08-19.
+> Version: v1 — Director / System / major screen interaction decisions reflected as of 2026-08-24. This specification date is independent from the deterministic Mockup `MOCK_TODAY`.
 
 ## 0. Purpose
 
@@ -231,7 +231,7 @@ Information hierarchy:
 
 1. Primary: task name, item name, date, key section label
 2. Secondary: deadline, quantity, assignee presence, count
-3. Tertiary: completion time, purchaser, history details
+3. Tertiary: purchase time where applicable, purchaser, history details
 
 Do not create hierarchy by shrinking everything into tiny gray text.
 
@@ -509,27 +509,46 @@ Animate Club checkbox examples are a visual reference, not a requirement to copy
 
 Move completed tasks to a bottom collapsed area:
 
-`完了済み N件`
+`完了済み N`
 
 Default: collapsed.
 
 Expanded rows show:
 
 - task name
-- completion time
-- completing user's avatar
+- actual completer's profile avatar
 
-Deadline is not necessary in the completed section.
+- completion time is not shown
+- normal tap does nothing
+- left swipe reveals `編集 / 戻す`
 
 Pass items do not appear here.
 
-## 13.8 In-progress state
+## 13.8 Passed tasks
+
+Move passed records to a bottom collapsed area:
+
+`パス済み N`
+
+Default: collapsed. Show today's records only.
+
+Expanded rows show:
+
+- task name
+- assignee avatar when an assignee exists
+- no passer identity, pass time, deadline, or detailed history
+- normal tap does nothing
+- left swipe reveals `編集 / 戻す`
+
+Passed records use the same row colors, spacing, action width, and restore interaction as the completed area. `戻す` immediately returns the task to today's unfinished list.
+
+## 13.9 In-progress state
 
 Do not visually emphasize “in progress” on Home.
 
 Household tasks rarely need that state visible in the primary list.
 
-## 13.9 Shopping summary
+## 13.10 Shopping summary
 
 At the bottom of Home:
 
@@ -539,7 +558,9 @@ One simple line link.
 
 Do not show product names on Home.
 
-## 13.10 Empty state
+The count is the current number of unpurchased Shopping items. It includes items with a planned date today, a past or future planned date, and no planned date. Purchased items are excluded. It must update when an item is purchased or restored.
+
+## 13.11 Empty state
 
 Use:
 
@@ -561,7 +582,7 @@ The month calendar itself should fill almost the entire screen, TimeTree-style.
 Requirements:
 
 - show full month in one screen
-- adapt cell height based on 5-week / 6-week month
+- always render six weeks / 42 cells
 - fit as many task-name rows as possible
 - one task per text line
 - truncate long names with `…`
@@ -670,11 +691,20 @@ Task interaction is the same as Home:
 
 Completed tasks appear in a collapsed area inside the date detail:
 
-`完了済み N件`
+`完了済み N`
 
 Default: collapsed.
 
-Expanded completed rows follow the same quiet presentation as Home, showing the task name, completion time, and completing user's avatar.
+The completed section is shown only when the selected date has completed records. It is collapsed by default and expands in place. It contains only tasks completed on the selected date, using the same row colors, spacing, action width, and interaction pattern as Home:
+
+- task name
+- actual completer's profile avatar when available
+- no completion time, deadline, assignee label, or detailed history
+- normal tap does nothing
+- left swipe reveals `編集 / 戻す`
+- `戻す` immediately returns the task to that day's unfinished list and updates the count; if the count reaches zero, hide the section
+
+Deleted or disabled completed records remain visible as history with `戻す` only. Restoring one also re-enables the task. Passed items are not shown in this section and there is no passed section in Calendar.
 
 Passed items do not appear in this completed area.
 
@@ -785,6 +815,10 @@ Purchased row shows:
 - purchase time
 - purchaser avatar
 
+The purchase planned date is not shown after purchase; show purchase date/time and purchaser instead.
+
+Purchased items remain in the current list only for less than seven days after purchase. After seven days they are hidden automatically, but remain available as data and reuse candidates. There is no manual `購入済みを整理` action.
+
 Tap a purchased row:
 
 - expand using same layout
@@ -819,9 +853,12 @@ Structure:
 2. `以前の項目から選ぶ`
 3. 商品名
 4. 数量
-5. メモ
-6. 写真
-7. large bottom `保存`
+5. 購入予定日（任意）
+6. メモ
+7. 写真
+8. large bottom `保存`
+
+数量と購入予定日は任意です. 購入予定日は Calendar の整理用であり、通知や期限として扱いません. `戻す` は元の購入予定日を維持します.
 
 No explanatory subtitle under title.
 
@@ -829,9 +866,7 @@ No explanatory subtitle under title.
 
 `以前の項目から選ぶ` opens a near-full-screen bottom sheet.
 
-UI does not separate Recent and Template.
-
-Search both together.
+Search previously used household products together in one picker. There is no Recent / Template split and no Shopping Template UI.
 
 Show in picker:
 
@@ -883,7 +918,7 @@ Some time fields are conditionally hidden.
 
 Near-full-screen bottom sheet.
 
-Combine Recent + Template in one search experience.
+Use one search experience over previously used household tasks. There is no Recent / Template split and no Task Template UI.
 
 Show:
 
@@ -1058,12 +1093,14 @@ Keep invitation UI minimal.
 
 ## 18.4 Notification settings
 
-Only show relevant controls.
+The current settings are:
 
-Example:
+- this device notifications ON/OFF
+- morning notification ON/OFF plus time
+- evening notification ON/OFF plus time
+- no test notifications for general users
 
-- 夜のまとめ通知 toggle
-- time appears only when enabled
+Time appears only when the corresponding schedule is enabled.
 
 Task-specific notifications remain in task editing.
 
@@ -1076,13 +1113,26 @@ Examples:
 
 Use bottom full-width save where necessary.
 
-## 18.6 Account
+## 18.6 Storage
+
+Storage is a settings screen for HouseToDo-managed image storage, showing image-storage usage and the applicable household/account limit. It does not describe this device's local disk capacity. Use the same restrained settings-list treatment; storage is not a new product feature beyond the existing settings fixture.
+
+## 18.7 Account
 
 Keep to currently supported settings only.
 
 Do not invent settings just to fill the screen.
 
 Logout stays at the bottom.
+
+## 18.8 Authentication and household entry
+
+- no Guest mode
+- no dedicated onboarding flow
+- supported entry paths are `Login`, `Register`, household creation, and invitation join
+- `Register` includes an optional invitation code
+- code present → join the household and go to Home
+- code absent → continue to household creation
 
 ---
 

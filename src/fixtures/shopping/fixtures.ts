@@ -72,7 +72,7 @@ const purchasedItems: ShoppingItem[] = [
     quantity: '10個',
     addedAt: '2026-08-16T18:00:00+09:00',
     plannedDate: '2026-08-20',
-    purchasedAt: '2026-08-24T08:32:00+09:00',
+    purchasedAt: '2026-08-20T08:32:00+09:00',
     purchaser: haru,
     memo: '朝食と作り置き用。',
   },
@@ -81,7 +81,7 @@ const purchasedItems: ShoppingItem[] = [
     name: '玉ねぎ',
     quantity: '3個',
     addedAt: '2026-08-17T10:15:00+09:00',
-    purchasedAt: '2026-08-23T17:20:00+09:00',
+    purchasedAt: '2026-08-19T17:20:00+09:00',
     purchaser: yuki,
     photoSrc: pantryPhoto,
   },
@@ -92,7 +92,7 @@ const autoFilteredPurchasedItems: ShoppingItem[] = [
   {
     ...purchasedItems[1],
     id: 'purchased-expired-onion',
-    purchasedAt: '2026-08-17T17:20:00+09:00',
+    purchasedAt: '2026-08-12T17:20:00+09:00',
   },
 ];
 

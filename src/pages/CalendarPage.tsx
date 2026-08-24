@@ -1,48 +1,53 @@
-import { ChevronLeft, ChevronRight, ShoppingCart, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Ellipsis, ShoppingCart, X } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   calendarFixtures,
+  type CalendarFixture,
+  type CalendarPerson,
   type CalendarTask,
   type CalendarUiLabState,
 } from '../fixtures/calendar';
-import type { ShoppingItem } from '../fixtures/shopping';
+import type { ShoppingFixture, ShoppingItem } from '../fixtures/shopping';
 import { getCalendarUiLabState } from '../mock/calendarState';
+import { MOCK_TODAY } from '../mock/constants';
 
-const TODAY = '2026-08-20';
 const INITIAL_MONTH = '2026-08-01';
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
+const MOCK_COMPLETER: CalendarPerson = { id: 'haru', name: 'はる', initials: 'は' };
 
 type CalendarPageProps = {
   state?: CalendarUiLabState;
+  fixtureOverride?: CalendarFixture;
+  shoppingFixture?: ShoppingFixture;
+  initialSelectedDate?: string | null;
+  onSessionChange?: (fixture: CalendarFixture) => void;
 };
 
-export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPageProps) {
-  const fixture = calendarFixtures[state];
+export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride, shoppingFixture, initialSelectedDate, onSessionChange }: CalendarPageProps) {
+  const fixture = fixtureOverride ?? calendarFixtures[state];
   const [monthDate, setMonthDate] = useState(INITIAL_MONTH);
   const [selectedDate, setSelectedDate] = useState<string | null>(
-    fixture.selectedDate ?? null,
+    initialSelectedDate ?? fixture.selectedDate ?? null,
   );
   const [tasks, setTasks] = useState<CalendarTask[]>(fixture.tasks);
-  const [completedCount, setCompletedCount] = useState(
-    fixture.tasks.filter((task) => task.completed).length,
-  );
   const [statusMessage, setStatusMessage] = useState('');
   const monthGridStart = useRef<{ x: number; y: number } | null>(null);
   const suppressMonthGridClick = useRef(false);
 
   useEffect(() => {
     setMonthDate(INITIAL_MONTH);
-    setSelectedDate(fixture.selectedDate ?? null);
+    setSelectedDate(initialSelectedDate ?? fixture.selectedDate ?? null);
     setTasks(fixture.tasks);
-    setCompletedCount(fixture.tasks.filter((task) => task.completed).length);
     setStatusMessage('');
-  }, [fixture, state]);
+  }, [initialSelectedDate, state]);
 
   const visibleTasks = useMemo(
-    () => tasks.filter((task) => !task.completed && !task.passed),
+    () => tasks.filter((task) => !task.completed && !task.passed && !task.deleted),
     [tasks],
   );
-  const shoppingItems = fixture.shoppingItems;
+  const shoppingItems = shoppingFixture
+    ? [...shoppingFixture.activeItems, ...shoppingFixture.purchasedItems]
+    : fixture.shoppingItems;
   const monthDays = useMemo(() => getMonthDays(monthDate), [monthDate]);
   const maxCellTasks = getMaxCellTasks();
 
@@ -54,7 +59,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
       return toDateString(next);
     });
   };
-  const goToToday = () => setMonthDate(TODAY.slice(0, 8) + '01');
+  const goToToday = () => setMonthDate(MOCK_TODAY.slice(0, 8) + '01');
   const handleMonthGridPointerDown = (event: React.PointerEvent<HTMLElement>) => {
     suppressMonthGridClick.current = false;
     monthGridStart.current = { x: event.clientX, y: event.clientY };
@@ -83,15 +88,47 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
     suppressMonthGridClick.current = false;
   };
 
+  const commitTasks = (nextTasks: CalendarTask[]) => {
+    setTasks(nextTasks);
+    onSessionChange?.({ ...fixture, tasks: nextTasks });
+  };
+
   const completeTask = (task: CalendarTask) => {
-    setTasks((current) => current.filter((item) => item.id !== task.id));
-    setCompletedCount((count) => count + 1);
+    const completionDate = selectedDate ?? MOCK_TODAY;
+    const nextTasks = tasks.map((item) => item.id === task.id ? {
+      ...item,
+      completed: true,
+      completedBy: MOCK_COMPLETER,
+      completedSnapshot: { name: item.name, completedBy: MOCK_COMPLETER },
+      completionHistory: [
+        ...(item.completionHistory ?? []).filter((entry) => !(entry.date === completionDate && entry.outcome === 'completed')),
+        { date: completionDate, outcome: 'completed' as const },
+      ],
+    } : item);
+    commitTasks(nextTasks);
     setStatusMessage(`「${task.name}」を完了しました`);
   };
 
   const passTask = (task: CalendarTask) => {
-    setTasks((current) => current.filter((item) => item.id !== task.id));
+    commitTasks(tasks.map((item) => item.id === task.id ? { ...item, passed: true } : item));
     setStatusMessage(`「${task.name}」をパスしました`);
+  };
+
+  const restoreCompleted = (task: CalendarTask) => {
+    const completionDate = selectedDate ?? MOCK_TODAY;
+    commitTasks(tasks.map((item) => item.id === task.id ? {
+      ...item,
+      completed: false,
+      deleted: false,
+      completedBy: undefined,
+      completedSnapshot: undefined,
+      completionHistory: item.completionHistory?.filter((entry) => !(entry.date === completionDate && entry.outcome === 'completed')),
+    } : item));
+    setStatusMessage(`「${task.name}」を戻しました`);
+  };
+
+  const navigateToEdit = (taskId: string, date: string) => {
+    window.location.hash = `#/tasks/edit?origin=calendar&calendarState=${encodeURIComponent(state)}&calendarDate=${encodeURIComponent(date)}&taskId=${encodeURIComponent(taskId)}`;
   };
 
   return (
@@ -165,7 +202,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                 }}
               >
                 <span
-                  className={`calendar-day-number calendar-day-number--${day.weekday}${day.date === TODAY ? ' is-today' : ''}`}
+                    className={`calendar-day-number calendar-day-number--${day.weekday}${day.date === MOCK_TODAY ? ' is-today' : ''}`}
                   data-uilab-component="Calendar.DayCell.Date"
                   data-uilab-id={`calendar-day-${day.date}-date`}
                 >
@@ -225,13 +262,16 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
       </p>
 
       <CalendarDateSheet
-        completedCount={completedCount}
         date={selectedDate}
-        tasks={visibleTasks}
+        completedOpen={fixture.completedOpen}
+        initialActions={fixture.initialActions}
+        tasks={tasks}
         shoppingItems={shoppingItems}
         onClose={() => setSelectedDate(null)}
         onComplete={completeTask}
         onPass={passTask}
+        onRestore={restoreCompleted}
+        onEdit={navigateToEdit}
         onNavigate={openDate}
       />
     </div>
@@ -239,35 +279,49 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
 }
 
 function CalendarDateSheet({
-  completedCount,
+  completedOpen: completedOpenInitial,
   date,
+  initialActions,
   onClose,
   onComplete,
+  onEdit,
   onNavigate,
+  onRestore,
   shoppingItems,
   onPass,
   tasks,
 }: {
-  completedCount: number;
+  completedOpen?: boolean;
   date: string | null;
+  initialActions?: { taskId: string };
   onClose: () => void;
   onComplete: (task: CalendarTask) => void;
+  onEdit: (taskId: string, date: string) => void;
   onNavigate: (date: string) => void;
+  onRestore: (task: CalendarTask) => void;
   onPass: (task: CalendarTask) => void;
   tasks: CalendarTask[];
   shoppingItems: ShoppingItem[];
 }) {
   const startX = useRef<number | null>(null);
-  const directTasks = date ? tasks.filter((task) => task.date === date) : [];
+  const [completedOpen, setCompletedOpen] = useState(completedOpenInitial ?? false);
+  useEffect(() => setCompletedOpen(completedOpenInitial ?? false), [completedOpenInitial, date]);
+  const directTasks = date ? tasks.filter((task) => !task.completed && !task.passed && !task.deleted && task.date === date) : [];
   const periodTasks = date
     ? tasks.filter(
         (task) =>
+          !task.completed &&
+          !task.passed &&
+          !task.deleted &&
           task.date !== date &&
           task.periodStart &&
           task.periodEnd &&
           task.periodStart <= date &&
           date <= task.periodEnd,
       )
+    : [];
+  const completedTasks = date
+    ? tasks.filter((task) => task.completed && task.completionHistory?.some((entry) => entry.date === date && entry.outcome === 'completed'))
     : [];
   const dateShopping = date ? getScheduledShopping(shoppingItems, date) : [];
 
@@ -327,21 +381,40 @@ function CalendarDateSheet({
             tasks={directTasks}
             component="Calendar.DateSheet.TodaySection"
             onComplete={onComplete}
+            onEdit={onEdit}
             onPass={onPass}
+            date={date}
           />
           <DateSection
             label="期間中"
             tasks={periodTasks}
             component="Calendar.DateSheet.PeriodSection"
             onComplete={onComplete}
+            onEdit={onEdit}
             onPass={onPass}
+            date={date}
           />
-          <section className="calendar-completed-section" data-uilab-component="Calendar.DateSheet.CompletedSection" data-uilab-id="calendar-date-sheet-completed">
-            <button type="button" className="calendar-completed-section__toggle" aria-expanded="false">
-              <span>完了済み {completedCount}件</span>
-              <ChevronRight aria-hidden="true" />
-            </button>
-          </section>
+          {completedTasks.length > 0 ? (
+            <section className="home-completed calendar-completed-section" data-uilab-component="Calendar.DateSheet.CompletedSection" data-uilab-id="calendar-date-sheet-completed">
+              <button type="button" className="home-completed__toggle" aria-expanded={completedOpen} onClick={() => setCompletedOpen((open) => !open)}>
+                <span>完了済み {completedTasks.length}</span>
+                <ChevronRight aria-hidden="true" className={completedOpen ? 'is-open' : ''} />
+              </button>
+              {completedOpen ? (
+                <div className="home-history__list home-completed__list calendar-completed-list">
+                  {completedTasks.map((task) => (
+                    <CalendarHistoryRow
+                      key={task.id}
+                      task={task}
+                      initialOpen={initialActions?.taskId === task.id}
+                      onEdit={() => onEdit(task.id, date)}
+                      onRestore={() => onRestore(task)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
           {dateShopping.length > 0 ? (
             <section className="calendar-shopping-section" data-uilab-component="Calendar.DateSheet.ShoppingSection" data-uilab-id="calendar-date-sheet-shopping">
               <h3>買うもの</h3>
@@ -374,13 +447,17 @@ function DateSection({
   component,
   label,
   onComplete,
+  onEdit,
   onPass,
+  date,
   tasks,
 }: {
   component: string;
   label: string;
   onComplete: (task: CalendarTask) => void;
+  onEdit: (taskId: string, date: string) => void;
   onPass: (task: CalendarTask) => void;
+  date: string | null;
   tasks: CalendarTask[];
 }) {
   return (
@@ -393,6 +470,7 @@ function DateSection({
               key={task.id}
               task={task}
               onComplete={() => onComplete(task)}
+              onEdit={() => date && onEdit(task.id, date)}
               onPass={() => onPass(task)}
             />
           ))}
@@ -405,16 +483,19 @@ function DateSection({
 }
 
 function CalendarDetailTask({
+  onEdit,
   onComplete,
   onPass,
   task,
 }: {
   onComplete: () => void;
+  onEdit: () => void;
   onPass: () => void;
   task: CalendarTask;
 }) {
   const [actionsOpen, setActionsOpen] = useState(false);
   const startX = useRef<number | null>(null);
+  const suppressClick = useRef(false);
 
   return (
     <div
@@ -423,14 +504,26 @@ function CalendarDetailTask({
       data-uilab-id={task.id}
       onPointerDown={(event) => {
         event.stopPropagation();
+        suppressClick.current = false;
         startX.current = event.clientX;
       }}
       onPointerUp={(event) => {
         event.stopPropagation();
         if (startX.current !== null && startX.current - event.clientX > 48) {
+          suppressClick.current = true;
           setActionsOpen(true);
         }
         startX.current = null;
+      }}
+      onClickCapture={(event) => {
+        if (!suppressClick.current) return;
+        if (event.target instanceof Element && event.target.closest('.calendar-detail-task__actions')) {
+          suppressClick.current = false;
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        suppressClick.current = false;
       }}
       onPointerCancel={(event) => {
         event.stopPropagation();
@@ -453,7 +546,7 @@ function CalendarDetailTask({
       </button>
       {actionsOpen ? (
         <div className="calendar-detail-task__actions" aria-label={`${task.name}の操作メニュー`}>
-          <button type="button" onClick={() => { window.location.hash = '#/tasks/edit'; }}>
+          <button type="button" onClick={onEdit}>
             編集
           </button>
           <button type="button" className="is-pass" onClick={onPass}>
@@ -463,6 +556,63 @@ function CalendarDetailTask({
       ) : null}
     </div>
   );
+}
+
+function CalendarHistoryRow({ initialOpen, onEdit, onRestore, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: CalendarTask }) {
+  const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen } = useHistoryRowActions(initialOpen);
+  const isDeleted = task.deleted === true;
+  const snapshot = task.completedSnapshot;
+  const displayName = snapshot?.name ?? task.name;
+  const completedBy = snapshot?.completedBy ?? task.completedBy;
+  return (
+    <div
+      className={`home-task-row home-history-row home-task-row--completed${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}`}
+      data-uilab-component="Calendar.CompletedRow"
+      data-uilab-id={task.id}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onClickCapture={handleClickCapture}
+    >
+      <div className="home-task-row__content">
+        <div className="home-history-row__main">
+          <span className="home-task-row__details"><span className="home-task-row__name">{displayName}</span></span>
+          {completedBy ? <span className="home-avatar" role="img" aria-label={`完了者: ${completedBy.name}`} data-uilab-component="Home.TaskRow.Avatar">{completedBy.initials}</span> : null}
+        </div>
+        <button type="button" className="home-task-row__more" aria-label={`${displayName}の操作`} aria-expanded={actionsOpen} onClick={() => setActionsOpen((open) => !open)}><Ellipsis aria-hidden="true" /></button>
+      </div>
+      {actionsOpen ? (
+        <div className={`home-task-row__actions${isDeleted ? ' home-task-row__actions--restore-only' : ''}`} aria-label={`${displayName}の操作メニュー`}>
+          <span className="home-task-row__actions-spacer" aria-hidden="true" />
+          {!isDeleted ? <button type="button" data-uilab-component="Calendar.CompletedRow.Edit" onClick={onEdit}>編集</button> : null}
+          <button type="button" className="is-restore" data-uilab-component="Calendar.CompletedRow.Restore" onClick={onRestore}>戻す</button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function useHistoryRowActions(initialOpen = false) {
+  const [actionsOpen, setActionsOpen] = useState(initialOpen);
+  const startX = useRef<number | null>(null);
+  const suppressClick = useRef(false);
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => { event.stopPropagation(); startX.current = event.clientX; };
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (startX.current === null) return;
+    const distance = startX.current - event.clientX;
+    startX.current = null;
+    if (distance > 48) { suppressClick.current = true; setActionsOpen(true); }
+  };
+  const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => { event.stopPropagation(); startX.current = null; };
+  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!suppressClick.current) return;
+    if (event.target instanceof Element && event.target.closest('.home-task-row__actions')) { suppressClick.current = false; return; }
+    event.preventDefault();
+    event.stopPropagation();
+    suppressClick.current = false;
+  };
+  return { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen };
 }
 
 type MonthDay = {

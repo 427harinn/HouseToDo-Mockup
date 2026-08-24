@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { App } from '../app/App';
 
@@ -36,7 +36,7 @@ describe('CalendarPage', () => {
     expect(screen.getByText('エアコンのフィルターを掃除')).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: /8月20日 木曜日/ }));
-    expect(screen.getByText('完了済み 1件')).toBeVisible();
+    expect(screen.getByText('完了済み 1')).toBeVisible();
   });
 
   it('shows overflow as +N in the dense fixture', () => {
@@ -107,7 +107,7 @@ describe('CalendarPage', () => {
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(screen.getByText('この日')).toBeVisible();
     expect(screen.getByText('期間中')).toBeVisible();
-    expect(screen.getByText(/完了済み \d+件/)).toBeVisible();
+    expect(screen.queryByText(/完了済み/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: '閉じる' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -170,7 +170,88 @@ describe('CalendarPage', () => {
     fireEvent.click(screen.getByRole('dialog').querySelector('.calendar-detail-task__main')!);
 
     expect(screen.queryByText(taskName)).not.toBeInTheDocument();
-    expect(screen.getByText('完了済み 1件')).toBeVisible();
+    expect(screen.getByText('完了済み 1')).toBeVisible();
+  });
+
+  it('keeps completed records collapsed by default and scopes them to the selected date', () => {
+    renderCalendar('completed-collapsed');
+
+    expect(screen.getByText('完了済み 1')).toBeVisible();
+    expect(screen.getByText('完了済み 1').closest('button')).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('朝食の片付け')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '完了済み 1' }));
+    expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
+    expect(screen.getByRole('img', { name: '完了者: はる' })).toBeVisible();
+    expect(screen.queryByText(/8:\d+|期限|担当/)).not.toBeInTheDocument();
+  });
+
+  it('uses Home history interactions for Calendar completed rows', () => {
+    renderCalendar('completed-swipe');
+
+    const row = document.querySelector('[data-uilab-id="calendar-completed-open"]');
+    if (!row) throw new Error('Expected a completed Calendar row');
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 240 }));
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 160 }));
+
+    expect(screen.getByRole('button', { name: '編集' })).toBeVisible();
+    expect(screen.getByRole('button', { name: '戻す' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    expect(screen.getByText('完了済み 1')).toBeVisible();
+    expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
+  });
+
+  it('represents the restored completed state as unfinished with no completed section', () => {
+    renderCalendar('completed-restore');
+
+    expect(screen.queryByText(/完了済み/)).not.toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
+    expect(within(screen.getByRole('dialog')).getByText('窓を少し開ける')).toBeVisible();
+  });
+
+  it('keeps the Calendar completion snapshot when the task definition is edited', async () => {
+    renderCalendar('completed-swipe');
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
+    fireEvent.change(screen.getByLabelText('家事名'), { target: { value: '朝食の片付け（更新後）' } });
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+    fireEvent.click(screen.getByRole('button', { name: '戻る' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '8月20日 木曜日' })).toBeVisible());
+    expect(screen.getByText('朝食の片付け')).toBeVisible();
+    expect(screen.queryByText('朝食の片付け（更新後）')).not.toBeInTheDocument();
+  });
+
+  it('shows restore only for a deleted completed Calendar record and re-enables it', () => {
+    renderCalendar('deleted-completed-swipe');
+
+    expect(screen.getByText('朝食の片付け')).toBeVisible();
+    const row = document.querySelector('[data-uilab-id="calendar-deleted-completed"]');
+    if (!row) throw new Error('Expected deleted completed Calendar row');
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 240 }));
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 160 }));
+    expect(screen.queryByRole('button', { name: '編集' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    expect(screen.queryByText('完了済み 1')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
+  });
+
+  it('keeps the Calendar task id and selected date when editing and returning', async () => {
+    renderCalendar('date-open');
+    const task = screen.getByRole('dialog').querySelector('[data-uilab-id="calendar-aug-20"]');
+    if (!task) throw new Error('Expected a Calendar task row');
+    fireEvent(task, new MouseEvent('pointerdown', { bubbles: true, clientX: 240 }));
+    fireEvent(task, new MouseEvent('pointerup', { bubbles: true, clientX: 160 }));
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
+    expect(window.location.hash).toContain('origin=calendar');
+    expect(window.location.hash).toContain('calendarDate=2026-08-20');
+    expect(window.location.hash).toContain('taskId=calendar-aug-20');
+
+    fireEvent.click(screen.getByRole('button', { name: '戻る' }));
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '8月20日 木曜日' })).toBeVisible());
   });
 
   it('falls back to normal and preserves the grid for long text', () => {

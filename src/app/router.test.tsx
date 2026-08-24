@@ -53,6 +53,62 @@ describe('hash routing', () => {
     );
   });
 
+  it('shares Shopping purchase and restore with the Home count', async () => {
+    window.location.hash = '#/shopping?uilabState=normal';
+    render(<App />);
+
+    const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!milkRow) throw new Error('Expected the milk row');
+    fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: /^購入$/ }));
+
+    fireEvent.click(screen.getByRole('link', { name: 'ホーム' }));
+    await waitFor(() => expect(screen.getByRole('link', { name: '買い物 5件' })).toBeVisible());
+
+    fireEvent.click(screen.getByRole('link', { name: '買い物' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: '買い物' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: '購入済み 3件' }));
+    const purchasedMilk = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!purchasedMilk) throw new Error('Expected purchased milk');
+    fireEvent.click(purchasedMilk.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+
+    fireEvent.click(screen.getByRole('link', { name: 'ホーム' }));
+    await waitFor(() => expect(screen.getByRole('link', { name: '買い物 6件' })).toBeVisible());
+  });
+
+  it('removes a purchased Shopping item from Calendar and restores its planned date', async () => {
+    window.location.hash = '#/shopping?uilabState=normal';
+    render(<App />);
+
+    const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!milkRow) throw new Error('Expected the milk row');
+    fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: /^購入$/ }));
+
+    fireEvent.click(screen.getByRole('link', { name: 'カレンダー' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: /8月20日 木曜日/ }));
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '8月20日 木曜日' })).toBeVisible());
+    expect(screen.queryByText('買うもの')).not.toBeInTheDocument();
+    expect(screen.queryByText('牛乳')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('link', { name: '買い物' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: '買い物' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: '購入済み 3件' }));
+    const purchasedMilk = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!purchasedMilk) throw new Error('Expected purchased milk');
+    fireEvent.click(purchasedMilk.querySelector('.shopping-item-row__main') as HTMLElement);
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+
+    fireEvent.click(screen.getByRole('link', { name: 'カレンダー' }));
+    await waitFor(() => expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible());
+    fireEvent.click(screen.getByRole('button', { name: /8月20日 木曜日/ }));
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '8月20日 木曜日' })).toBeVisible());
+    expect(screen.getByRole('heading', { name: '買うもの' })).toBeVisible();
+    expect(screen.getByText('牛乳')).toBeVisible();
+  });
+
   it('opens and closes the two-choice Add action sheet without changing route', () => {
     window.location.hash = '#/home?uilabState=normal';
     render(<App />);

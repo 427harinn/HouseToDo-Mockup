@@ -14,6 +14,11 @@
     "date-open": { "name": "Date sheet open" }, "shopping": { "name": "Shopping count" },
     "date-open-shopping": { "name": "Date sheet with shopping" }, "shopping-none": { "name": "No planned shopping" },
     "completed-hidden": { "name": "Completed hidden" },
+    "completed-collapsed": { "name": "Completed collapsed" },
+    "completed-open": { "name": "Completed open" },
+    "completed-swipe": { "name": "Completed swipe actions" },
+    "completed-restore": { "name": "Completed restore" },
+    "deleted-completed-swipe": { "name": "Deleted completed restore only" },
     "long-text": { "name": "Long text" }
   },
   "shopping": {

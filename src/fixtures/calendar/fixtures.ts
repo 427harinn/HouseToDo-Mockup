@@ -142,12 +142,66 @@ const completedHiddenTasks: CalendarTask[] = [
     name: '朝食の片付け',
     date: '2026-08-20',
     completed: true,
+    completedBy: haru,
+    completedSnapshot: { name: '朝食の片付け', completedBy: haru },
+    completionHistory: [{ date: '2026-08-20', outcome: 'completed' }],
   },
   {
     id: 'calendar-passed',
     name: '窓を少し開ける',
     date: '2026-08-20',
     passed: true,
+  },
+];
+
+const completedOpenTasks: CalendarTask[] = [
+  ...baseTasks,
+  {
+    id: 'calendar-completed-open',
+    name: '朝食の片付け',
+    date: '2026-08-20',
+    completed: true,
+    completedBy: haru,
+    completedSnapshot: { name: '朝食の片付け', completedBy: haru },
+    completionHistory: [{ date: '2026-08-20', outcome: 'completed' }],
+  },
+  {
+    id: 'calendar-completed-open-window',
+    name: '窓を少し開ける',
+    date: '2026-08-20',
+    completed: true,
+    completedBy: yuki,
+    completedSnapshot: { name: '窓を少し開ける', completedBy: yuki },
+    completionHistory: [{ date: '2026-08-20', outcome: 'completed' }],
+  },
+];
+
+const deletedCompletedTasks: CalendarTask[] = [
+  ...baseTasks,
+  {
+    id: 'calendar-deleted-completed',
+    name: '朝食の片付け',
+    date: '2026-08-20',
+    completed: true,
+    deleted: true,
+    completedBy: haru,
+    completedSnapshot: { name: '朝食の片付け', completedBy: haru },
+    completionHistory: [{ date: '2026-08-20', outcome: 'completed' }],
+  },
+];
+
+const completedRestoreTasks: CalendarTask[] = [
+  ...baseTasks,
+  {
+    id: 'calendar-restored',
+    name: '朝食の片付け',
+    date: '2026-08-20',
+    completionHistory: [{ date: '2026-08-18', outcome: 'completed' }],
+  },
+  {
+    id: 'calendar-restored-window',
+    name: '窓を少し開ける',
+    date: '2026-08-20',
   },
 ];
 
@@ -159,5 +213,10 @@ export const calendarFixtures: Record<CalendarUiLabState, CalendarFixture> = {
   'date-open-shopping': { tasks: baseTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20' },
   'shopping-none': { tasks: baseTasks, shoppingItems: shoppingFixtures['no-planned-date'].activeItems.concat(shoppingFixtures.normal.purchasedItems) },
   'completed-hidden': { tasks: completedHiddenTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems) },
+  'completed-collapsed': { tasks: completedHiddenTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20' },
+  'completed-open': { tasks: completedOpenTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20', completedOpen: true },
+  'completed-swipe': { tasks: completedOpenTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20', completedOpen: true, initialActions: { taskId: 'calendar-completed-open' } },
+  'completed-restore': { tasks: completedRestoreTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20' },
+  'deleted-completed-swipe': { tasks: deletedCompletedTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20', completedOpen: true, initialActions: { taskId: 'calendar-deleted-completed' } },
   'long-text': { tasks: longTextTasks, shoppingItems: shoppingFixtures.normal.activeItems },
 };

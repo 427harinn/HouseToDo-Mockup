@@ -146,7 +146,7 @@ describe('M6 add and edit forms', () => {
     expect(screen.getByLabelText('購入予定日')).toHaveValue('');
 
     window.location.hash = '#/shopping/edit?uilabState=normal';
-    await waitFor(() => expect(screen.getByLabelText('購入予定日')).toHaveValue('2026-08-24'));
+    await waitFor(() => expect(screen.getByLabelText('購入予定日')).toHaveValue('2026-08-20'));
   });
 
   it('shows only the latest completed date in task edit history context', async () => {
