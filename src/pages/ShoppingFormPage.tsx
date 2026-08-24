@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
 import { getShoppingHistoryItems, shoppingFixtures, type ShoppingItem } from '../fixtures/shopping';
+import { MOCK_TODAY } from '../mock/constants';
 
 type Sheet = 'reuse' | 'delete' | null;
 const PHOTO_SRC = '/shopping-pantry.svg';
@@ -28,7 +29,7 @@ export function ShoppingFormPage({ isEdit, state, initialItem, reuseItems, onDel
   const [name, setName] = useState(safeState === 'long-text' ? '家族みんなで食べられる甘さ控えめの季節のフルーツ' : sourceItem?.name ?? (isEdit ? '洗濯洗剤' : '牛乳'));
   const [quantity, setQuantity] = useState(safeState === 'long-text' ? '大きめ 1パック' : sourceItem?.quantity ?? (isEdit ? '詰替え 1袋' : ''));
   const [memo, setMemo] = useState(safeState === 'long-text' ? '冷蔵庫の一番上に入れられるサイズで、傷みの少ないものを選ぶ。帰宅後すぐに洗って朝食用に分けておく。' : sourceItem?.memo ?? (isEdit ? 'いつもの売り場で探す。' : ''));
-  const [plannedDate, setPlannedDate] = useState(safeState === 'reuse-selected' || safeState === 'reuse-no-photo-selected' ? '' : sourceItem?.plannedDate ?? (isEdit ? '2026-08-24' : ''));
+  const [plannedDate, setPlannedDate] = useState(safeState === 'reuse-selected' || safeState === 'reuse-no-photo-selected' ? '' : sourceItem?.plannedDate ?? (isEdit ? MOCK_TODAY : ''));
   const [photoSrc, setPhotoSrc] = useState(safeState === 'photo-selected' ? PHOTO_SRC : sourceItem?.photoSrc);
   const [sheet, setSheet] = useState<Sheet>(() => {
     if (deleteConfirm) return 'delete';

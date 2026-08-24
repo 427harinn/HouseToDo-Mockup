@@ -51,7 +51,7 @@ const makeFixture = (
   completedTasks: CompletedTask[] = [],
   passedTasks: PassedTask[] = [],
   extra: Partial<HomeFixture> = {},
-): HomeFixture => ({ activeTasks, completedTasks, passedTasks, shoppingCount: 4, ...extra });
+): HomeFixture => ({ activeTasks, completedTasks, passedTasks, ...extra });
 
 const completedOnly = makeFixture(normalTasks, normalCompleted);
 const passedOnly = makeFixture(normalTasks, [], normalPassed);

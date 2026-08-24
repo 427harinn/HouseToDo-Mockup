@@ -11,16 +11,19 @@ import {
   type PassedTask,
 } from '../fixtures/home';
 import { getHomeUiLabState } from '../mock/homeState';
+import { MOCK_TODAY } from '../mock/constants';
+import { shoppingFixtures, type ShoppingFixture } from '../fixtures/shopping';
 
 type HomePageProps = {
   state?: HomeUiLabState;
   session?: HomeFixture;
+  shoppingFixture?: ShoppingFixture;
   onSessionChange?: (fixture: HomeFixture) => void;
 };
 
 const COMPLETION_DURATION_MS = 180;
 
-export function HomePage({ state = getHomeUiLabState(), session, onSessionChange }: HomePageProps) {
+export function HomePage({ state = getHomeUiLabState(), session, shoppingFixture = shoppingFixtures.normal, onSessionChange }: HomePageProps) {
   const fixture = session ?? homeFixtures[state];
   const [activeTasks, setActiveTasks] = useState<HomeTask[]>(() => fixture.activeTasks);
   const [completedTasks, setCompletedTasks] = useState<CompletedTask[]>(() => fixture.completedTasks);
@@ -53,7 +56,13 @@ export function HomePage({ state = getHomeUiLabState(), session, onSessionChange
         id: `completed-${task.id}`,
         taskId: task.id,
         name: task.name,
-        task: { ...task },
+        task: {
+          ...task,
+          completionHistory: [
+            ...(task.completionHistory ?? []).filter((entry) => !(entry.date === MOCK_TODAY && entry.outcome === 'completed')),
+            { date: MOCK_TODAY, outcome: 'completed' },
+          ],
+        },
         completedBy: haru,
       };
       const next = {
@@ -93,7 +102,7 @@ export function HomePage({ state = getHomeUiLabState(), session, onSessionChange
   const restoreCompleted = (record: CompletedTask) => {
     commit({
       ...fixture,
-      activeTasks: [record.task, ...activeTasks],
+      activeTasks: [removeTodayCompletion(record.task), ...activeTasks],
       completedTasks: completedTasks.filter((item) => item.id !== record.id),
       passedTasks,
     });
@@ -170,11 +179,18 @@ export function HomePage({ state = getHomeUiLabState(), session, onSessionChange
       ) : null}
 
       <a className="home-shopping-summary" href="#/shopping" data-uilab-component="Home.ShoppingSummary" data-uilab-id="home-shopping-summary">
-        <span>買い物 {fixture.shoppingCount}件</span><ChevronRight aria-hidden="true" />
+        <span>買い物 {shoppingFixture.activeItems.length}件</span><ChevronRight aria-hidden="true" />
       </a>
       <p className="home-status" role="status" aria-live="polite">{statusMessage}</p>
     </div>
   );
+}
+
+function removeTodayCompletion(task: HomeTask): HomeTask {
+  return {
+    ...task,
+    completionHistory: task.completionHistory?.filter((entry) => !(entry.date === MOCK_TODAY && entry.outcome === 'completed')),
+  };
 }
 
 function TaskRow({ completing, onComplete, onEdit, onPass, task }: { completing: boolean; onComplete: () => void; onEdit: () => void; onPass: () => void; task: HomeTask }) {

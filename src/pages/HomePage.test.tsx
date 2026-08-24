@@ -24,13 +24,13 @@ describe('HomePage', () => {
     expect(screen.getByText('ゴミをまとめる')).toBeVisible();
     expect(screen.getByText('完了済み 2')).toBeVisible();
     expect(screen.getByText('パス済み 1')).toBeVisible();
-    expect(screen.getByRole('link', { name: '買い物 4件' })).toBeVisible();
+    expect(screen.getByRole('link', { name: '買い物 6件' })).toBeVisible();
     expect(screen.queryByText('朝食の片付け')).not.toBeInTheDocument();
     expect(screen.queryByText('布団を干す')).not.toBeInTheDocument();
 
     const order = [...document.querySelectorAll('.home-page > *')].map((element) => element.textContent ?? '');
     expect(order.findIndex((text) => text.includes('完了済み 2'))).toBeLessThan(order.findIndex((text) => text.includes('パス済み 1')));
-    expect(order.findIndex((text) => text.includes('パス済み 1'))).toBeLessThan(order.findIndex((text) => text.includes('買い物 4件')));
+    expect(order.findIndex((text) => text.includes('パス済み 1'))).toBeLessThan(order.findIndex((text) => text.includes('買い物 6件')));
   });
 
   it('completes a task, stores the actual completer, and updates the count without opening the section', () => {

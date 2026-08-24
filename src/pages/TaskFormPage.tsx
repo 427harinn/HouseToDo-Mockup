@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
 import type { HomeTask, HomeTaskRepeat } from '../fixtures/home';
 import { formatTaskHistoryDate, getLastCompletedDate } from '../mock/taskHistory';
+import { MOCK_TODAY } from '../mock/constants';
 
 type RepeatOption = HomeTaskRepeat;
 
@@ -24,7 +25,6 @@ type TaskFormState = {
   memo: string;
 };
 
-const TODAY = '2026-08-20';
 const MEMBERS: Member[] = [
   { id: 'yuki', name: 'ゆき', initials: 'ゆ' },
   { id: 'haru', name: 'はる', initials: 'は' },
@@ -114,9 +114,10 @@ type TaskFormPageProps = {
   onTaskSave?: (task: { name: string; assignee?: HomeTask['assignee'] }) => void;
   onTaskDelete?: () => void;
   homeState?: string;
+  returnHash?: string;
 };
 
-export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDelete, homeState }: TaskFormPageProps) {
+export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDelete, homeState, returnHash }: TaskFormPageProps) {
   const safeState = stateNames.includes(state) ? state : 'normal';
   const editDeleteConfirm = isEdit && state === 'delete-confirm';
   const taskForForm = initialTask ?? (isEdit ? taskEditFixtures[safeState] : undefined);
@@ -130,9 +131,9 @@ export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDel
     repeat: safeState === 'weekday-repeat' ? '曜日を決める' : initialReuse?.repeat ?? taskForForm?.repeat ?? (isEdit ? '今週のどこか' : '毎日'),
     weekdays: safeState === 'weekday-repeat' ? ['火', '金'] : initialReuse?.weekdays ?? taskForForm?.weekdays ?? [],
     monthDay: taskForForm?.monthDay ?? '20',
-    startDate: initialReuse ? TODAY : taskForForm?.startDate ?? TODAY,
+    startDate: initialReuse ? MOCK_TODAY : taskForForm?.startDate ?? MOCK_TODAY,
     allDay: initialReuse?.allDay ?? (taskForForm?.allDay ?? safeState !== 'time-specific'),
-    date: initialReuse ? TODAY : taskForForm?.date ?? TODAY,
+    date: initialReuse ? MOCK_TODAY : taskForForm?.date ?? MOCK_TODAY,
     time: initialReuse?.time ?? taskForForm?.time ?? '19:00',
     notification: initialReuse?.notification ?? taskForForm?.notification ?? '10分前',
     assignee: initialReuse?.assignee ?? taskForForm?.assignee ?? (isEdit ? MEMBERS[1] : null),
@@ -193,7 +194,7 @@ export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDel
   return (
     <div className="screen-content form-page task-form-page" data-uilab-component="TaskForm.Page" data-uilab-id="task-form-page">
       <header className="form-page__header">
-        <button type="button" className="form-page__back" aria-label="戻る" onClick={() => { window.location.hash = homeState ? `#/home?uilabState=${encodeURIComponent(homeState)}` : '#/home'; }}>
+        <button type="button" className="form-page__back" aria-label="戻る" onClick={() => { window.location.hash = returnHash ?? (homeState ? `#/home?uilabState=${encodeURIComponent(homeState)}` : '#/home'); }}>
           <ChevronLeft aria-hidden="true" />
           <span>戻る</span>
         </button>
