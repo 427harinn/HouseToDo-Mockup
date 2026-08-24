@@ -102,6 +102,16 @@ describe('HomePage', () => {
     expect(screen.queryByRole('button', { name: '戻す' })).not.toBeInTheDocument();
   });
 
+  it('uses the unfinished row color pair for history edit and restore actions', () => {
+    renderHome('completed-open');
+    swipeRow('normal-completed-breakfast');
+
+    const actions = document.querySelector('[data-uilab-id="normal-completed-breakfast"] .home-task-row__actions');
+    expect(actions?.querySelector('button:not(.is-restore)')).toHaveTextContent('編集');
+    expect(actions?.querySelector('.is-restore')).toHaveTextContent('戻す');
+    expect(actions?.querySelector('.is-restore')).not.toHaveClass('is-pass');
+  });
+
   it('keeps the completed snapshot when the underlying task is edited', async () => {
     renderHome('completed-open');
     swipeRow('normal-completed-breakfast');

@@ -201,6 +201,11 @@
   background: var(--color-yellow-beige);
 }
 
+.home-task-row__actions .is-restore {
+  color: var(--color-text);
+  background: var(--color-yellow-beige);
+}
+
 .home-task-row__actions button:focus-visible,
 .home-task-row__more:focus-visible,
 .home-completed__toggle:focus-visible,
@@ -217,8 +222,7 @@
 }
 
 .home-passed {
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--color-border);
+  margin-top: 0;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -307,7 +311,7 @@
 }
 
 .home-shopping-summary {
-  margin-top: var(--space-2);
+  margin-top: 0;
   border-bottom: 1px solid var(--color-border);
 }
 

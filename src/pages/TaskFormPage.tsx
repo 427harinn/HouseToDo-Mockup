@@ -245,7 +245,7 @@ export function TaskFormPage({ isEdit, state, initialTask, onTaskSave, onTaskDel
 
       <BottomSheet open={sheet === 'delete'} title="家事を削除しますか？" onClose={() => setSheet(null)}>
         <div className="delete-confirm" data-uilab-component="TaskForm.DeleteConfirm" data-uilab-id="task-delete-confirm">
-          <p>この家事を削除します。モック上の操作です。</p>
+          <p>この家事を削除します。</p>
           <button type="button" className="form-delete" onClick={() => { onTaskDelete?.(); setSheet(null); setStatusMessage('削除しました'); }}>削除する</button>
           <button type="button" className="form-secondary" onClick={() => setSheet(null)}>キャンセル</button>
         </div>

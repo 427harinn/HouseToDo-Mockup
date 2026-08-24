@@ -55,7 +55,7 @@ export function ShoppingFormPage({ isEdit, state }: { isEdit: boolean; state: st
         <div className="reuse-picker" data-uilab-component="ShoppingForm.ReuseSheet" data-uilab-id="shopping-reuse-sheet"><input aria-label="以前の買い物を検索" placeholder="検索" value={query} onChange={(event) => setQuery(event.target.value)} /><div className="selection-list">{filteredItems.map((item) => <button type="button" className="reuse-result" key={item.id} onClick={() => selectItem(item)}><span>{item.name}</span><small>{item.quantity}</small></button>)}{filteredItems.length === 0 ? <p className="reuse-empty">見つかりませんでした</p> : null}</div></div>
       </BottomSheet>
       <BottomSheet open={sheet === 'delete'} title="買い物を削除しますか？" onClose={() => setSheet(null)}>
-        <div className="delete-confirm" data-uilab-component="ShoppingForm.DeleteConfirm" data-uilab-id="shopping-delete-confirm"><p>この買い物を削除します。モック上の操作です。</p><button type="button" className="form-delete" onClick={() => { setSheet(null); setStatusMessage('削除しました'); }}>削除する</button><button type="button" className="form-secondary" onClick={() => setSheet(null)}>キャンセル</button></div>
+        <div className="delete-confirm" data-uilab-component="ShoppingForm.DeleteConfirm" data-uilab-id="shopping-delete-confirm"><p>この買い物を削除します。</p><button type="button" className="form-delete" onClick={() => { setSheet(null); setStatusMessage('削除しました'); }}>削除する</button><button type="button" className="form-secondary" onClick={() => setSheet(null)}>キャンセル</button></div>
       </BottomSheet>
     </div>
   );
