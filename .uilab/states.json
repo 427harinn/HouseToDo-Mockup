@@ -29,7 +29,8 @@
     "normal": { "name": "Normal" }, "error": { "name": "Login error" }
   },
   "register": {
-    "normal": { "name": "Normal" }, "error": { "name": "Registration error" }
+    "normal": { "name": "Normal" }, "error": { "name": "Registration error" },
+    "invite-code": { "name": "Invite code" }, "invalid-invite-code": { "name": "Invalid invite code" }
   },
   "household-create": {
     "normal": { "name": "Normal" }

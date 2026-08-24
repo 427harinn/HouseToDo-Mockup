@@ -27,22 +27,25 @@ describe('authentication and household entry screens', () => {
     expect(screen.getByRole('heading', { name: 'やること' })).toBeVisible();
   });
 
-  it('supports registration to household creation and direct invite joining', async () => {
+  it('routes registration by optional invite code and keeps the fallback join route', async () => {
     renderRoute('#/register');
 
-    fireEvent.click(screen.getByRole('link', { name: '招待から参加' }));
-    await waitFor(() => expect(window.location.hash).toBe('#/household/join'));
-    expect(screen.getByRole('heading', { name: '招待から参加' })).toBeVisible();
-
-    window.location.hash = '#/register';
-    await waitFor(() => expect(screen.getByRole('heading', { name: '新規登録' })).toBeVisible());
+    expect(screen.getByLabelText('招待コード（任意）')).toHaveValue('');
+    expect(screen.queryByRole('link', { name: '招待から参加' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '新規登録' }));
     await waitFor(() => expect(window.location.hash).toBe('#/household/create'));
     expect(screen.getByRole('heading', { name: '家庭を作る' })).toBeVisible();
 
     fireEvent.click(screen.getByRole('link', { name: '招待から参加' }));
     await waitFor(() => expect(window.location.hash).toBe('#/household/join'));
-    expect(screen.getByLabelText('招待コード')).toBeVisible();
+    expect(screen.getByRole('heading', { name: '招待から参加' })).toBeVisible();
+
+    window.location.hash = '#/register?uilabState=invite-code';
+    await waitFor(() => expect(screen.getByRole('heading', { name: '新規登録' })).toBeVisible());
+    expect(screen.getByLabelText('招待コード（任意）')).toHaveValue('HT-2026');
+    fireEvent.click(screen.getByRole('button', { name: '新規登録' }));
+    await waitFor(() => expect(window.location.hash).toBe('#/home'));
+    expect(screen.getByRole('heading', { name: 'やること' })).toBeVisible();
   });
 
   it('supports household create/join mutual navigation and both completion paths to Home', async () => {
@@ -66,6 +69,13 @@ describe('authentication and household entry screens', () => {
     window.location.hash = '#/register?uilabState=error';
     await waitFor(() => expect(screen.getByRole('heading', { name: '新規登録' })).toBeVisible());
     expect(screen.getByRole('alert')).toHaveTextContent('入力内容を確認してください');
+
+    window.location.hash = '#/register?uilabState=invalid-invite-code';
+    await waitFor(() => expect(screen.getByRole('heading', { name: '新規登録' })).toBeVisible());
+    expect(screen.getByRole('alert')).toHaveTextContent('招待コードを確認してください');
+    expect(screen.getByLabelText(/招待コード（任意）/)).toHaveAttribute('aria-invalid', 'true');
+    fireEvent.click(screen.getByRole('button', { name: '新規登録' }));
+    expect(window.location.hash).toBe('#/register?uilabState=invalid-invite-code');
 
     window.location.hash = '#/household/join?uilabState=invalid-code';
     await waitFor(() => expect(screen.getByRole('heading', { name: '招待から参加' })).toBeVisible());

@@ -51,12 +51,6 @@
   margin-top: var(--space-2);
 }
 
-.entry-links {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-6);
-}
-
 .entry-link-row {
   margin: 0;
   color: var(--color-text-secondary);

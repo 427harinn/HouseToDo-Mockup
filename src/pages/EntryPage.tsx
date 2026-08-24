@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 
 export type EntryPageKind = 'login' | 'register' | 'household-create' | 'household-join';
 
@@ -18,9 +18,21 @@ export function EntryPage({ kind, state = 'normal' }: EntryPageProps) {
   const copy = pageCopy[kind];
   const isError = state === 'error';
   const isInvalidCode = kind === 'household-join' && state === 'invalid-code';
+  const isInvalidRegisterInviteCode = kind === 'register' && state === 'invalid-invite-code';
+  const [inviteCode, setInviteCode] = useState(() => {
+    if (kind !== 'register') return '';
+    if (state === 'invite-code') return 'HT-2026';
+    if (state === 'invalid-invite-code') return 'INVALID';
+    return '';
+  });
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (kind === 'register') {
+      if (isInvalidRegisterInviteCode && inviteCode.trim()) return;
+      window.location.hash = inviteCode.trim() ? '#/home' : '#/household/create';
+      return;
+    }
     const nextPath = kind === 'login' || kind === 'household-create' || kind === 'household-join'
       ? '/home'
       : '/household/create';
@@ -51,6 +63,19 @@ export function EntryPage({ kind, state = 'normal' }: EntryPageProps) {
               autoComplete={kind === 'login' ? 'current-password' : 'new-password'}
               invalid={kind === 'login' && isError}
               errorMessage={kind === 'login' && isError ? 'メールアドレスまたはパスワードが正しくありません' : undefined}
+            />
+          ) : null}
+
+          {kind === 'register' ? (
+            <EntryField
+              id="register-invite-code"
+              label="招待コード（任意）"
+              type="text"
+              autoComplete="off"
+              value={inviteCode}
+              onValueChange={setInviteCode}
+              invalid={isInvalidRegisterInviteCode}
+              errorMessage={isInvalidRegisterInviteCode ? '招待コードを確認してください' : undefined}
             />
           ) : null}
 
@@ -86,12 +111,12 @@ export function EntryPage({ kind, state = 'normal' }: EntryPageProps) {
   );
 }
 
-function EntryField({ autoComplete, errorMessage, id, invalid = false, label, type }: { autoComplete: string; errorMessage?: string; id: string; invalid?: boolean; label: string; type: string }) {
+function EntryField({ autoComplete, errorMessage, id, invalid = false, label, onValueChange, type, value }: { autoComplete: string; errorMessage?: string; id: string; invalid?: boolean; label: string; onValueChange?: (value: string) => void; type: string; value?: string }) {
   const errorId = `${id}-error`;
   return (
     <label className="form-control entry-field" data-uilab-component="Entry.Field" data-uilab-id={id}>
       <span>{label}</span>
-      <input id={id} name={id} type={type} autoComplete={autoComplete} aria-invalid={invalid} aria-describedby={errorMessage ? errorId : undefined} />
+      <input id={id} name={id} type={type} autoComplete={autoComplete} value={value} onChange={onValueChange ? (event) => onValueChange(event.currentTarget.value) : undefined} aria-invalid={invalid} aria-describedby={errorMessage ? errorId : undefined} />
       {errorMessage ? <span id={errorId} className="entry-field__error" role="alert" data-uilab-component="Entry.FieldError" data-uilab-id={errorId}>{errorMessage}</span> : null}
     </label>
   );
@@ -103,12 +128,7 @@ function EntryLinks({ kind }: { kind: EntryPageKind }) {
   }
 
   if (kind === 'register') {
-    return (
-      <div className="entry-links">
-        <p className="entry-link-row"><span>すでにアカウントを持っている方</span> <a href="#/login" data-uilab-component="Entry.SecondaryLink" data-uilab-id="register-login-link">ログイン</a></p>
-        <p className="entry-link-row"><span>招待コードをお持ちの方は</span> <a href="#/household/join" data-uilab-component="Entry.SecondaryLink" data-uilab-id="register-join-link">招待から参加</a></p>
-      </div>
-    );
+    return <p className="entry-link-row"><span>すでにアカウントを持っている方</span> <a href="#/login" data-uilab-component="Entry.SecondaryLink" data-uilab-id="register-login-link">ログイン</a></p>;
   }
 
   if (kind === 'household-create') {
