@@ -9,6 +9,15 @@ The Calendar is a smartphone-first month view inspired by the previously agreed 
 The source of truth is `DESIGN.md`.
 The workflow requirements in `docs/CODEX_WORKFLOW.md` are mandatory.
 
+## Shopping planned dates
+
+Calendar keeps household tasks primary. When an unpurchased shopping item has
+an optional planned purchase date matching a cell, the month cell shows only a
+small cart icon and count. Date details place matching unpurchased items in a
+quiet `買うもの` section after task content and `完了済み`; tapping an item
+navigates to Shopping and expands that row in place. Missing dates, other dates,
+and purchased items are not displayed.
+
 M4 must not implement Shopping internals, Add/Edit forms, backend/API, or production persistence.
 
 ---

@@ -18,6 +18,7 @@ export function ShoppingFormPage({ isEdit, state }: { isEdit: boolean; state: st
   const [name, setName] = useState(safeState === 'long-text' ? '家族みんなで食べられる甘さ控えめの季節のフルーツ' : selectedFixture?.name ?? (isEdit ? '洗濯洗剤' : '牛乳'));
   const [quantity, setQuantity] = useState(safeState === 'long-text' ? '大きめ 1パック' : selectedFixture?.quantity ?? (isEdit ? '詰替え 1袋' : '1本'));
   const [memo, setMemo] = useState(safeState === 'long-text' ? '冷蔵庫の一番上に入れられるサイズで、傷みの少ないものを選ぶ。帰宅後すぐに洗って朝食用に分けておく。' : selectedFixture?.memo ?? (isEdit ? 'いつもの売り場で探す。' : ''));
+  const [plannedDate, setPlannedDate] = useState(isEdit ? '2026-08-24' : '');
   const [photoSelected, setPhotoSelected] = useState(safeState === 'photo-selected' || isEdit);
   const [sheet, setSheet] = useState<Sheet>(() => {
     if (deleteConfirm) return 'delete';
@@ -28,7 +29,7 @@ export function ShoppingFormPage({ isEdit, state }: { isEdit: boolean; state: st
   const filteredItems = useMemo(() => SHOPPING_ITEMS.filter((item) => `${item.name}${item.quantity}`.includes(query)), [query]);
 
   const selectItem = (item: (typeof SHOPPING_ITEMS)[number]) => {
-    setName(item.name); setQuantity(item.quantity); setMemo(item.memo); setSheet(null); setStatusMessage('以前の項目を反映しました');
+    setName(item.name); setQuantity(item.quantity); setMemo(item.memo); setPlannedDate(''); setSheet(null); setStatusMessage('以前の項目を反映しました');
   };
 
   return (
@@ -41,6 +42,7 @@ export function ShoppingFormPage({ isEdit, state }: { isEdit: boolean; state: st
       <form className="form-layout" onSubmit={(event) => { event.preventDefault(); setStatusMessage('保存しました'); }}>
         <label className="form-control" data-uilab-component="ShoppingForm.Name" data-uilab-id="shopping-form-name"><span>商品名</span><input value={name} onChange={(event) => setName(event.target.value)} placeholder="商品名を入力" required /></label>
         <label className="form-control form-control--compact-field shopping-form__quantity" data-uilab-component="ShoppingForm.Quantity" data-uilab-id="shopping-form-quantity"><span>数量</span><input value={quantity} onChange={(event) => setQuantity(event.target.value)} placeholder="例：1本" /></label>
+        <label className="form-control shopping-form__planned-date" data-uilab-component="ShoppingForm.PlannedDate" data-uilab-id="shopping-form-planned-date"><span>購入予定日</span><input type="date" value={plannedDate} onChange={(event) => setPlannedDate(event.target.value)} /></label>
         <label className="form-control" data-uilab-component="ShoppingForm.Memo" data-uilab-id="shopping-form-memo"><span>メモ</span><textarea rows={2} value={memo} onChange={(event) => setMemo(event.target.value)} placeholder="メモを入力" /></label>
         <div className="photo-control" data-uilab-component="ShoppingForm.Photo" data-uilab-id="shopping-form-photo">
           <div><span>写真</span>{photoSelected ? <span className="photo-control__state">選択済み</span> : null}</div>

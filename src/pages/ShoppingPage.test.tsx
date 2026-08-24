@@ -228,4 +228,21 @@ describe('ShoppingPage', () => {
     renderShopping('unknown');
     expect(screen.getByText('牛乳')).toBeVisible();
   });
+
+  it('shows planned dates only when set and expands a calendar-linked item', () => {
+    renderShopping('normal');
+
+    expect(screen.getByText('8/20予定')).toBeVisible();
+    expect(screen.queryByText('8/19予定')).not.toBeInTheDocument();
+
+    window.location.hash = '#/shopping?item=shopping-milk';
+    render(<App />);
+    expect(screen.getByRole('button', { name: '購入' })).toBeVisible();
+    expect(screen.getByText('購入予定日 8/20')).toBeVisible();
+  });
+
+  it('supports a fixture with no planned dates without an empty label', () => {
+    renderShopping('no-planned-date');
+    expect(screen.queryByText(/予定$/)).not.toBeInTheDocument();
+  });
 });

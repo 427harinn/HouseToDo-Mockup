@@ -1,7 +1,12 @@
+import type { ShoppingItem } from '../shopping';
+
 export const calendarUiLabStates = [
   'normal',
   'dense',
   'date-open',
+  'shopping',
+  'date-open-shopping',
+  'shopping-none',
   'completed-hidden',
   'long-text',
 ] as const;
@@ -28,5 +33,6 @@ export type CalendarTask = {
 
 export type CalendarFixture = {
   tasks: CalendarTask[];
+  shoppingItems: ShoppingItem[];
   selectedDate?: string;
 };

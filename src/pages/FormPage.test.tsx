@@ -126,4 +126,24 @@ describe('M6 add and edit forms', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: '買い物を追加' })).toBeVisible());
     expect(screen.getByDisplayValue('牛乳')).toBeVisible();
   });
+
+  it('supports optional planned date set, clear, save, and reuse reset', async () => {
+    renderRoute('#/shopping/new?uilabState=normal');
+    const plannedDate = screen.getByLabelText('購入予定日');
+    expect(plannedDate).toHaveValue('');
+    fireEvent.change(plannedDate, { target: { value: '2026-08-24' } });
+    expect(plannedDate).toHaveValue('2026-08-24');
+    fireEvent.change(plannedDate, { target: { value: '' } });
+    expect(plannedDate).toHaveValue('');
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+    expect(screen.getByText('保存しました')).toBeVisible();
+
+    fireEvent.change(plannedDate, { target: { value: '2026-08-24' } });
+    fireEvent.click(screen.getByRole('button', { name: '以前の項目から選ぶ' }));
+    fireEvent.click(screen.getByRole('button', { name: /牛乳/ }));
+    expect(screen.getByLabelText('購入予定日')).toHaveValue('');
+
+    window.location.hash = '#/shopping/edit?uilabState=normal';
+    await waitFor(() => expect(screen.getByLabelText('購入予定日')).toHaveValue('2026-08-24'));
+  });
 });

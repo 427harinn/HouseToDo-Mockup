@@ -16,16 +16,17 @@ import { getShoppingUiLabState } from '../mock/shoppingState';
 
 type ShoppingPageProps = {
   state?: ShoppingUiLabState;
+  initialItemId?: string | null;
 };
 
-export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPageProps) {
+export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = null }: ShoppingPageProps) {
   const fixture = shoppingFixtures[state];
   const [activeItems, setActiveItems] = useState<ShoppingItem[]>(fixture.activeItems);
   const [purchasedItems, setPurchasedItems] = useState<ShoppingItem[]>(
     fixture.purchasedItems,
   );
   const [expandedId, setExpandedId] = useState<string | null>(
-    fixture.initialExpandedId ?? null,
+    initialItemId ?? fixture.initialExpandedId ?? null,
   );
   const [purchasedOpen, setPurchasedOpen] = useState(
     fixture.initialPurchasedOpen ?? false,
@@ -38,13 +39,13 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
   useEffect(() => {
     setActiveItems(fixture.activeItems);
     setPurchasedItems(fixture.purchasedItems);
-    setExpandedId(fixture.initialExpandedId ?? null);
+    setExpandedId(initialItemId ?? fixture.initialExpandedId ?? null);
     setPurchasedOpen(fixture.initialPurchasedOpen ?? false);
     setActionsOpenId(null);
     setDraggingId(null);
     setDragOverId(null);
     setStatusMessage('');
-  }, [fixture, state]);
+  }, [fixture, initialItemId, state]);
 
   const toggleExpanded = (itemId: string) => {
     setExpandedId((current) => (current === itemId ? null : itemId));
@@ -116,7 +117,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
           {activeItems.map((item) => (
             <ShoppingItemRow
               key={item.id}
-              item={item}
+          item={item}
               expanded={expandedId === item.id}
               actionsOpen={actionsOpenId === item.id}
               dragging={draggingId === item.id}
@@ -182,7 +183,7 @@ export function ShoppingPage({ state = getShoppingUiLabState() }: ShoppingPagePr
             {purchasedItems.map((item) => (
               <ShoppingItemRow
                 key={item.id}
-                item={item}
+          item={item}
                 purchased
                 expanded={expandedId === item.id}
                 actionsOpen={false}
@@ -371,8 +372,15 @@ function ShoppingItemRow({
               </span>
             </span>
           ) : (
+            <span className="shopping-item-row__details">
               <span className="shopping-item-row__name" data-uilab-component="Shopping.ItemRow.Name" data-uilab-id={`shopping-item-${item.id}-name`}>
-              {item.name}
+                {item.name}
+              </span>
+              {item.plannedDate ? (
+                <span className="shopping-item-row__planned-date" data-uilab-component="Shopping.ItemRow.PlannedDate" data-uilab-id={`shopping-item-${item.id}-planned-date`}>
+                  {formatPlannedDate(item.plannedDate)}予定
+                </span>
+              ) : null}
             </span>
           )}
           {!purchased && item.memo ? (
@@ -448,6 +456,11 @@ function ShoppingItemRow({
               <img src={item.photoSrc} alt={`${item.name}の写真`} />
             </div>
           ) : null}
+          {!purchased && item.plannedDate ? (
+            <div className="shopping-item-row__planned-date-detail" data-uilab-component="Shopping.ItemExpanded.PlannedDate" data-uilab-id={`shopping-item-${item.id}-planned-date-detail`}>
+              購入予定日 {formatPlannedDate(item.plannedDate)}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -477,4 +490,9 @@ function Avatar({ person }: { person: NonNullable<ShoppingItem['purchaser']> }) 
       {person.initials}
     </span>
   );
+}
+
+function formatPlannedDate(date: string) {
+  const value = new Date(`${date}T12:00:00`);
+  return `${value.getMonth() + 1}/${value.getDate()}`;
 }

@@ -104,7 +104,11 @@ export function App() {
 
       return (
         <AppShell currentPath={route.pathname}>
-          <ShoppingPage key={shoppingState} state={shoppingState} />
+          <ShoppingPage
+            key={`${shoppingState}-${route.searchParams.get('item') ?? ''}`}
+            state={shoppingState}
+            initialItemId={route.searchParams.get('item')}
+          />
         </AppShell>
       );
     }

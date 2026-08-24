@@ -215,6 +215,46 @@ describe('CalendarPage', () => {
     expect(screen.getByText('+2')).toBeVisible();
   });
 
+  it('shows only active planned shopping counts in month cells and date details', () => {
+    renderCalendar('date-open-shopping');
+
+    const shoppingCount = document.querySelector('[data-uilab-id="calendar-day-2026-08-20-shopping"]');
+    expect(shoppingCount).toBeVisible();
+    expect(shoppingCount).toHaveTextContent('1');
+    expect(shoppingCount?.querySelector('button')).toBeNull();
+    expect(screen.getByRole('dialog')).toHaveTextContent('買うもの');
+    expect(screen.getByRole('dialog')).toHaveTextContent('牛乳');
+    expect(screen.getByRole('dialog')).not.toHaveTextContent('卵');
+
+    fireEvent.click(screen.getByRole('button', { name: '牛乳 1本' }));
+    expect(window.location.hash).toBe('#/shopping?item=shopping-milk');
+  });
+
+  it('keeps shopping counts anchored to the day cell outside the task flow', () => {
+    const { unmount } = renderCalendar('shopping');
+    const singleTaskMarker = document.querySelector('[data-uilab-id="calendar-day-2026-08-20-shopping"]');
+
+    expect(singleTaskMarker?.parentElement?.classList.contains('calendar-day-cell')).toBe(true);
+    expect(singleTaskMarker?.closest('.calendar-day-tasks')).toBeNull();
+    expect(singleTaskMarker?.parentElement?.classList.contains('has-shopping')).toBe(true);
+    unmount();
+
+    renderCalendar('dense');
+    const denseTaskMarker = document.querySelector('[data-uilab-id="calendar-day-2026-08-20-shopping"]');
+
+    expect(screen.getByRole('button', { name: /8月20日 木曜日、タスク5件、買い物1件/ })).toBeVisible();
+    expect(denseTaskMarker?.parentElement?.classList.contains('calendar-day-cell')).toBe(true);
+    expect(denseTaskMarker?.closest('.calendar-day-tasks')).toBeNull();
+  });
+
+  it('does not show shopping counts when no item has a planned date', () => {
+    renderCalendar('shopping-none');
+    expect(document.querySelectorAll('.calendar-day-shopping')).toHaveLength(0);
+
+    fireEvent.click(document.querySelector('[data-uilab-id="2026-08-20"]')!);
+    expect(screen.queryByText('買うもの')).not.toBeInTheDocument();
+  });
+
   it('keeps BottomNavigation outside the Calendar content scroll region', () => {
     renderCalendar('normal');
 

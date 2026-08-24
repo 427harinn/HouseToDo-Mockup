@@ -4,6 +4,7 @@ import type {
   CalendarTask,
   CalendarUiLabState,
 } from './types';
+import { shoppingFixtures } from '../shopping';
 
 const yuki: CalendarPerson = { id: 'yuki', name: 'ゆき', initials: 'ゆ' };
 const haru: CalendarPerson = { id: 'haru', name: 'はる', initials: 'は' };
@@ -151,9 +152,12 @@ const completedHiddenTasks: CalendarTask[] = [
 ];
 
 export const calendarFixtures: Record<CalendarUiLabState, CalendarFixture> = {
-  normal: { tasks: baseTasks },
-  dense: { tasks: denseTasks },
-  'date-open': { tasks: baseTasks, selectedDate: '2026-08-20' },
-  'completed-hidden': { tasks: completedHiddenTasks },
-  'long-text': { tasks: longTextTasks },
+  normal: { tasks: baseTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems) },
+  dense: { tasks: denseTasks, shoppingItems: shoppingFixtures.normal.activeItems },
+  'date-open': { tasks: baseTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20' },
+  shopping: { tasks: baseTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems) },
+  'date-open-shopping': { tasks: baseTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems), selectedDate: '2026-08-20' },
+  'shopping-none': { tasks: baseTasks, shoppingItems: shoppingFixtures['no-planned-date'].activeItems.concat(shoppingFixtures.normal.purchasedItems) },
+  'completed-hidden': { tasks: completedHiddenTasks, shoppingItems: shoppingFixtures.normal.activeItems.concat(shoppingFixtures.normal.purchasedItems) },
+  'long-text': { tasks: longTextTasks, shoppingItems: shoppingFixtures.normal.activeItems },
 };

@@ -19,6 +19,17 @@ M5 does **not** own Shopping add/edit forms or the reuse picker. Those belong to
 
 `DESIGN.md` is the source of truth. `docs/CODEX_WORKFLOW.md` is mandatory.
 
+## Planned purchase date (Calendar integration)
+
+Each shopping item may have an optional date-only `plannedDate` (`YYYY-MM-DD`).
+The add form starts unset, the edit form can change or clear it, and selecting a
+previous item never copies it. The collapsed list shows a quiet `M/D予定`
+label only when set; expanded rows repeat the date as supporting information.
+
+This mockup milestone also supplies the item data consumed by Calendar. Only
+active items whose planned date matches the Calendar date are shown there.
+Purchased items and items without a planned date are excluded.
+
 ---
 
 ## 0. Mandatory Git workflow
