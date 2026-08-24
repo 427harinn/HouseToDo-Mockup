@@ -78,7 +78,6 @@
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
-  view-transition-name: calendar-month-grid;
 }
 
 .calendar-month-grid[data-swipe-dragging="true"],
@@ -359,7 +358,6 @@
   transition: transform 200ms ease-out;
   user-select: none;
   -webkit-user-select: none;
-  view-transition-name: calendar-date-content;
 }
 
 .calendar-date-sheet.is-swipe-dragging .calendar-date-sheet__content {
@@ -599,68 +597,22 @@
 }
 
 @keyframes calendar-month-enter-from-right {
-  from { opacity: 0.72; transform: translateX(16px); }
+  from { opacity: 1; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes calendar-month-enter-from-left {
-  from { opacity: 0.72; transform: translateX(-16px); }
+  from { opacity: 1; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes calendar-date-enter-from-right {
-  from { opacity: 0.72; transform: translateX(12px); }
+  from { opacity: 1; transform: translateX(12px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes calendar-date-enter-from-left {
-  from { opacity: 0.72; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-::view-transition-old(calendar-month-grid),
-::view-transition-new(calendar-month-grid),
-::view-transition-old(calendar-date-content),
-::view-transition-new(calendar-date-content) {
-  animation-duration: 240ms;
-  animation-timing-function: ease-out;
-}
-
-:root[data-motion-direction="next"]::view-transition-old(calendar-month-grid),
-:root[data-motion-direction="next"]::view-transition-old(calendar-date-content) {
-  animation-name: calendar-page-exit-left;
-}
-
-:root[data-motion-direction="next"]::view-transition-new(calendar-month-grid),
-:root[data-motion-direction="next"]::view-transition-new(calendar-date-content) {
-  animation-name: calendar-page-enter-right;
-}
-
-:root[data-motion-direction="previous"]::view-transition-old(calendar-month-grid),
-:root[data-motion-direction="previous"]::view-transition-old(calendar-date-content) {
-  animation-name: calendar-page-exit-right;
-}
-
-:root[data-motion-direction="previous"]::view-transition-new(calendar-month-grid),
-:root[data-motion-direction="previous"]::view-transition-new(calendar-date-content) {
-  animation-name: calendar-page-enter-left;
-}
-
-@keyframes calendar-page-exit-left {
-  to { opacity: 0; transform: translateX(-14px); }
-}
-
-@keyframes calendar-page-enter-right {
-  from { opacity: 0; transform: translateX(14px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes calendar-page-exit-right {
-  to { opacity: 0; transform: translateX(14px); }
-}
-
-@keyframes calendar-page-enter-left {
-  from { opacity: 0; transform: translateX(-14px); }
+  from { opacity: 1; transform: translateX(-12px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
