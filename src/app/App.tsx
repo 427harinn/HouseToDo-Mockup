@@ -17,6 +17,7 @@ import {
   MembersPage,
   NotificationsPage,
   OtherLandingPage,
+  StoragePage,
 } from '../pages/OtherPage';
 import { homeFixtures, homeUiLabStates, type HomeFixture, type HomeTask, type HomeUiLabState } from '../fixtures/home';
 import { getShoppingHistoryItems, shoppingFixtures, shoppingUiLabStates, type ShoppingFixture, type ShoppingItem, type ShoppingUiLabState } from '../fixtures/shopping';
@@ -98,15 +99,17 @@ export function App() {
     );
   }
 
-  if (route.pathname === '/other/members' || route.pathname === '/other/notifications' || route.pathname === '/other/household' || route.pathname === '/other/account') {
+  if (route.pathname === '/other/members' || route.pathname === '/other/notifications' || route.pathname === '/other/storage' || route.pathname === '/other/household' || route.pathname === '/other/account') {
     const state = route.searchParams.get('uilabState') ?? 'normal';
     const page = route.pathname === '/other/members'
-      ? <MembersPage key={`${route.pathname}-${state}`} state={state} />
-      : route.pathname === '/other/notifications'
-        ? <NotificationsPage key={`${route.pathname}-${state}`} state={state} />
-        : route.pathname === '/other/household'
-          ? <HouseholdPage key={`${route.pathname}-${state}`} state={state} />
-          : <AccountPage key={`${route.pathname}-${state}`} state={state} />;
+        ? <MembersPage key={`${route.pathname}-${state}`} state={state} />
+        : route.pathname === '/other/notifications'
+          ? <NotificationsPage key={`${route.pathname}-${state}`} state={state} />
+          : route.pathname === '/other/storage'
+            ? <StoragePage key={`${route.pathname}-${state}`} state={state} />
+            : route.pathname === '/other/household'
+              ? <HouseholdPage key={`${route.pathname}-${state}`} state={state} />
+              : <AccountPage key={`${route.pathname}-${state}`} state={state} />;
 
     return <AppShell currentPath="" showBottomNavigation={false}>{page}</AppShell>;
   }

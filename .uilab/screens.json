@@ -9,6 +9,7 @@
   "other": { "name": "Other", "path": "/other", "defaultState": "normal" },
   "members": { "name": "Members", "path": "/other/members", "defaultState": "normal" },
   "notifications": { "name": "Notifications", "path": "/other/notifications", "defaultState": "normal" },
+  "storage": { "name": "Storage", "path": "/other/storage", "defaultState": "normal" },
   "household-settings": { "name": "Household Settings", "path": "/other/household", "defaultState": "normal" },
   "account": { "name": "Account", "path": "/other/account", "defaultState": "normal" }
 }

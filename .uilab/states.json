@@ -52,8 +52,12 @@
     "normal": { "name": "Normal" }, "invite-open": { "name": "Invite sheet open" }
   },
   "notifications": {
-    "normal": { "name": "Normal" }, "morning-off": { "name": "Morning notification off" },
-    "all-off": { "name": "All notifications off" }
+    "normal": { "name": "Normal" }, "device-off": { "name": "Device notifications off" },
+    "morning-off": { "name": "Morning notification off" },
+    "all-schedule-off": { "name": "All schedule notifications off" }
+  },
+  "storage": {
+    "normal": { "name": "Normal" }, "near-limit": { "name": "Near limit" }
   },
   "household-settings": {
     "normal": { "name": "Normal" }, "timezone-open": { "name": "Timezone sheet open" },

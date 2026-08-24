@@ -8,17 +8,18 @@ function renderRoute(path: string) {
 }
 
 describe('M7 Other / Settings', () => {
-  it('renders the four-row Other landing and navigates to each detail route', async () => {
+  it('renders the five-row Other landing and navigates to each detail route', async () => {
     renderRoute('#/other');
 
     expect(screen.getByRole('heading', { name: 'その他' })).toBeVisible();
     expect(screen.getByRole('navigation', { name: 'その他の設定' })).toBeVisible();
-    expect(within(screen.getByRole('navigation', { name: 'その他の設定' })).getAllByRole('link')).toHaveLength(4);
+    expect(within(screen.getByRole('navigation', { name: 'その他の設定' })).getAllByRole('link')).toHaveLength(5);
     expect(screen.getByRole('navigation', { name: 'メインナビゲーション' })).toBeVisible();
 
     const routes = [
       ['メンバー', '#/other/members', 'メンバー'],
       ['通知', '#/other/notifications', '通知'],
+      ['ストレージ', '#/other/storage', 'ストレージ'],
       ['家庭設定', '#/other/household', '家庭設定'],
       ['アカウント', '#/other/account', 'アカウント'],
     ] as const;
@@ -69,8 +70,31 @@ describe('M7 Other / Settings', () => {
     expect(screen.queryByLabelText('夜のまとめ通知の時刻')).not.toBeInTheDocument();
   });
 
-  it('supports all-off and unknown notification states', async () => {
-    renderRoute('#/other/notifications?uilabState=all-off');
+  it('disables schedules when device notifications are off without changing their values', () => {
+    renderRoute('#/other/notifications?uilabState=device-off');
+    const deviceToggle = screen.getByLabelText('この端末の通知');
+    const morningToggle = screen.getByLabelText('朝のまとめ通知');
+    const eveningToggle = screen.getByLabelText('夜のまとめ通知');
+
+    expect(deviceToggle).not.toBeChecked();
+    expect(morningToggle).toBeChecked();
+    expect(eveningToggle).toBeChecked();
+    expect(morningToggle).toBeDisabled();
+    expect(eveningToggle).toBeDisabled();
+    expect(screen.getByLabelText('朝のまとめ通知の時刻')).toBeDisabled();
+    expect(screen.getByLabelText('夜のまとめ通知の時刻')).toBeDisabled();
+
+    fireEvent.click(deviceToggle);
+    expect(deviceToggle).toBeChecked();
+    expect(morningToggle).toBeChecked();
+    expect(eveningToggle).toBeChecked();
+    expect(morningToggle).toBeEnabled();
+    expect(eveningToggle).toBeEnabled();
+  });
+
+  it('supports all-schedule-off and unknown notification states', async () => {
+    renderRoute('#/other/notifications?uilabState=all-schedule-off');
+    expect(screen.getByLabelText('この端末の通知')).toBeChecked();
     expect(screen.getByLabelText('朝のまとめ通知')).not.toBeChecked();
     expect(screen.getByLabelText('夜のまとめ通知')).not.toBeChecked();
     expect(screen.queryByLabelText('朝のまとめ通知の時刻')).not.toBeInTheDocument();
@@ -78,7 +102,21 @@ describe('M7 Other / Settings', () => {
 
     window.location.hash = '#/other/notifications?uilabState=unknown';
     await waitFor(() => expect(screen.getByLabelText('朝のまとめ通知')).toBeChecked());
+    expect(screen.getByLabelText('この端末の通知')).toBeChecked();
     expect(screen.getByLabelText('夜のまとめ通知')).toBeChecked();
+  });
+
+  it('shows storage usage and keeps the near-limit bar within 100 percent', async () => {
+    renderRoute('#/other/storage?uilabState=normal');
+    expect(screen.getByRole('heading', { name: 'ストレージ' })).toBeVisible();
+    expect(screen.getByText('12 MB / 100 MB')).toBeVisible();
+    expect(screen.getByText('12%')).toBeVisible();
+    expect(screen.getByRole('progressbar', { name: 'ストレージ使用量' })).toHaveAttribute('aria-valuenow', '12');
+
+    window.location.hash = '#/other/storage?uilabState=near-limit';
+    await waitFor(() => expect(screen.getByText('92 MB / 100 MB')).toBeVisible());
+    expect(screen.getByText('92%')).toBeVisible();
+    expect(screen.getByRole('progressbar', { name: 'ストレージ使用量' })).toHaveAttribute('aria-valuenow', '92');
   });
 
   it('supports household editing, timezone selection, and local save feedback', () => {
