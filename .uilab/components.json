@@ -2,6 +2,15 @@
   "AppShell.BottomNavigation": { "selector": "[data-uilab-component='AppShell.BottomNavigation']", "instances": "single", "editable": ["position", "width", "height", "padding", "background", "border"] },
   "AppShell.AddSheet": { "selector": "[data-uilab-component='AppShell.AddSheet']", "instances": "single", "editable": ["width", "height", "padding", "background", "borderRadius"] },
 
+  "Entry.Page": { "selector": "[data-uilab-component='Entry.Page']", "instances": "single", "editable": ["width", "height", "padding", "background"] },
+  "Entry.Header": { "selector": "[data-uilab-component='Entry.Header']", "instances": "single", "editable": ["width", "padding", "margin", "color", "background"] },
+  "Entry.Title": { "selector": "[data-uilab-component='Entry.Title']", "instances": "single", "editable": ["fontSize", "fontWeight", "lineHeight", "color"] },
+  "Entry.Form": { "selector": "[data-uilab-component='Entry.Form']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "background"] },
+  "Entry.Field": { "selector": "[data-uilab-component='Entry.Field']", "instances": "multiple", "editable": ["width", "padding", "margin", "gap", "fontSize", "color", "background", "border", "borderRadius"] },
+  "Entry.FieldError": { "selector": "[data-uilab-component='Entry.FieldError']", "instances": "multiple", "editable": ["fontSize", "fontWeight", "lineHeight", "color"] },
+  "Entry.PrimaryAction": { "selector": "[data-uilab-component='Entry.PrimaryAction']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
+  "Entry.SecondaryLink": { "selector": "[data-uilab-component='Entry.SecondaryLink']", "instances": "multiple", "editable": ["fontSize", "fontWeight", "lineHeight", "color", "background"] },
+
   "Home.Page": { "selector": "[data-uilab-component='Home.Page']", "instances": "single", "editable": ["width", "height", "padding", "background"] },
   "Home.Header": { "selector": "[data-uilab-component='Home.Header']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "color", "background"] },
   "Home.Date": { "selector": "[data-uilab-component='Home.Date']", "instances": "single", "editable": ["fontSize", "fontWeight", "lineHeight", "color"] },

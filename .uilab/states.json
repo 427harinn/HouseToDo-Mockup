@@ -25,6 +25,18 @@
     "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
     "empty": { "name": "Empty" }
   },
+  "login": {
+    "normal": { "name": "Normal" }, "error": { "name": "Login error" }
+  },
+  "register": {
+    "normal": { "name": "Normal" }, "error": { "name": "Registration error" }
+  },
+  "household-create": {
+    "normal": { "name": "Normal" }
+  },
+  "household-join": {
+    "normal": { "name": "Normal" }, "invalid-code": { "name": "Invalid invite code" }
+  },
   "task-add": {
     "normal": { "name": "Normal" }, "repeat-sheet": { "name": "Repeat sheet" },
     "weekday-repeat": { "name": "Weekday repeat" }, "time-specific": { "name": "Time specific" },
