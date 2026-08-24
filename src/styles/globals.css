@@ -41,6 +41,14 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+.motion-pressable {
+  transition: transform 90ms ease-out;
+}
+
+.motion-pressable:active {
+  transform: scale(0.99);
+}
+
 .foundation-page {
   width: min(100% - (2 * var(--space-4)), 40rem);
   margin: 0 auto;
@@ -91,5 +99,9 @@ a:focus-visible {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .motion-pressable:active {
+    transform: none;
   }
 }

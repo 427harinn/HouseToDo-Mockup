@@ -1,9 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppShell } from '../components/AppShell/AppShell';
 import { App } from './App';
 
 describe('hash routing', () => {
+  beforeEach(() => vi.useRealTimers());
   it('renders the foundation route directly from the hash', () => {
     window.location.hash = '#/foundation?uilabState=normal';
 
@@ -54,6 +55,7 @@ describe('hash routing', () => {
   });
 
   it('shares Shopping purchase and restore with the Home count', async () => {
+    vi.useFakeTimers();
     window.location.hash = '#/shopping?uilabState=normal';
     render(<App />);
 
@@ -61,6 +63,8 @@ describe('hash routing', () => {
     if (!milkRow) throw new Error('Expected the milk row');
     fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: /^購入$/ }));
+    act(() => vi.advanceTimersByTime(200));
+    vi.useRealTimers();
 
     fireEvent.click(screen.getByRole('link', { name: 'ホーム' }));
     await waitFor(() => expect(screen.getByRole('link', { name: '買い物 5件' })).toBeVisible());
@@ -71,13 +75,17 @@ describe('hash routing', () => {
     const purchasedMilk = document.querySelector('[data-uilab-id="shopping-milk"]');
     if (!purchasedMilk) throw new Error('Expected purchased milk');
     fireEvent.click(purchasedMilk.querySelector('.shopping-item-row__main') as HTMLElement);
+    vi.useFakeTimers();
     fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    act(() => vi.advanceTimersByTime(180));
+    vi.useRealTimers();
 
     fireEvent.click(screen.getByRole('link', { name: 'ホーム' }));
     await waitFor(() => expect(screen.getByRole('link', { name: '買い物 6件' })).toBeVisible());
   });
 
   it('removes a purchased Shopping item from Calendar and restores its planned date', async () => {
+    vi.useFakeTimers();
     window.location.hash = '#/shopping?uilabState=normal';
     render(<App />);
 
@@ -85,6 +93,8 @@ describe('hash routing', () => {
     if (!milkRow) throw new Error('Expected the milk row');
     fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: /^購入$/ }));
+    act(() => vi.advanceTimersByTime(200));
+    vi.useRealTimers();
 
     fireEvent.click(screen.getByRole('link', { name: 'カレンダー' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible());
@@ -99,7 +109,10 @@ describe('hash routing', () => {
     const purchasedMilk = document.querySelector('[data-uilab-id="shopping-milk"]');
     if (!purchasedMilk) throw new Error('Expected purchased milk');
     fireEvent.click(purchasedMilk.querySelector('.shopping-item-row__main') as HTMLElement);
+    vi.useFakeTimers();
     fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    act(() => vi.advanceTimersByTime(180));
+    vi.useRealTimers();
 
     fireEvent.click(screen.getByRole('link', { name: 'カレンダー' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: '2026年8月' })).toBeVisible());
@@ -124,6 +137,20 @@ describe('hash routing', () => {
     expect(screen.queryByRole('dialog', { name: '追加' })).not.toBeInTheDocument();
     expect(window.location.hash).toBe('#/home?uilabState=normal');
     expect(screen.getByRole('heading', { name: 'やること' })).toBeVisible();
+  });
+
+  it('keeps the Add sheet open for an internal press and allows the choice to work', async () => {
+    window.location.hash = '#/home?uilabState=normal';
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: '追加' }));
+    const choice = screen.getByRole('button', { name: '家事' });
+    fireEvent.pointerDown(choice, { clientX: 195, clientY: 640 });
+    fireEvent.pointerMove(choice, { clientX: 195, clientY: 760 });
+    fireEvent.pointerUp(choice, { clientX: 195, clientY: 760 });
+    expect(screen.getByRole('dialog', { name: '追加' })).toBeVisible();
+
+    fireEvent.click(choice);
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を追加' })).toBeVisible());
   });
 
   it('keeps long content in a separate scroll region from bottom navigation', () => {

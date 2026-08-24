@@ -36,11 +36,16 @@
   align-items: stretch;
   min-height: 70px;
   background: var(--color-bg);
+  transform: translateX(var(--swipe-offset, 0px));
   transition: transform 180ms ease-out;
 }
 
+.home-task-row.is-swipe-dragging .home-task-row__content {
+  transition: none;
+}
+
 .home-task-row.is-actions-open .home-task-row__content {
-  transform: translateX(-136px);
+  transform: translateX(var(--swipe-offset, -136px));
 }
 
 .home-task-row__main {
@@ -99,12 +104,24 @@
   transform: scale(1.06);
 }
 
+.home-task-row.is-completing-row {
+  animation: home-task-complete-exit 90ms ease-out 260ms both;
+}
+
+.home-task-row.is-passing-row {
+  animation: home-task-pass-exit 200ms ease-out both;
+}
+
+.home-history-row.is-restoring-row {
+  animation: home-history-restore-enter 180ms ease-out both;
+}
+
 .task-check svg {
   width: 15px;
   height: 15px;
   color: #fff;
   stroke-width: 3;
-  animation: task-check-enter 180ms ease-out both;
+  animation: task-check-enter 160ms ease-out both;
 }
 
 .home-task-row__details {
@@ -262,14 +279,16 @@
 
 .home-completed__list {
   border-top: 1px solid var(--color-border);
+  animation: home-history-content-enter 180ms ease-out both;
 }
 
 .home-passed__list {
   border-top: 1px solid var(--color-border);
+  animation: home-history-content-enter 180ms ease-out both;
 }
 
 .home-task-row--completed.is-actions-open .home-task-row__content {
-  transform: translateX(-136px);
+  transform: translateX(var(--swipe-offset, -136px));
 }
 
 .home-history-row .home-task-row__content {
@@ -294,7 +313,7 @@
 }
 
 .home-history-row.is-actions-open .home-task-row__content {
-  transform: translateX(-136px);
+  transform: translateX(var(--swipe-offset, -136px));
 }
 
 .home-history-row.is-actions-open:has(.home-task-row__actions--restore-only) .home-task-row__content {
@@ -381,6 +400,26 @@
   }
 }
 
+@keyframes home-task-pass-exit {
+  from { opacity: 1; transform: translateX(0); max-height: 72px; }
+  to { opacity: 0; transform: translateX(-12px); max-height: 0; }
+}
+
+@keyframes home-history-restore-enter {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes home-task-complete-exit {
+  from { opacity: 1; max-height: 96px; transform: scale(1); }
+  to { opacity: 0; max-height: 0; transform: scale(0.985); }
+}
+
+@keyframes home-history-content-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .home-task-row:hover .home-task-row__more,
   .home-task-row:focus-within .home-task-row__more {
@@ -391,11 +430,11 @@
   }
 
   .home-task-row.is-actions-open .home-task-row__content {
-    transform: translateX(-136px);
+    transform: translateX(var(--swipe-offset, -136px));
   }
 
   .home-history-row.is-actions-open .home-task-row__content {
-    transform: translateX(-136px);
+    transform: translateX(var(--swipe-offset, -136px));
   }
 
   .home-history-row.is-actions-open:has(.home-task-row__actions--restore-only) .home-task-row__content {
@@ -409,11 +448,11 @@
   }
 
   .home-task-row.is-actions-open .home-task-row__content {
-    transform: translateX(-136px);
+    transform: translateX(var(--swipe-offset, -136px));
   }
 
   .home-history-row.is-actions-open .home-task-row__content {
-    transform: translateX(-136px);
+    transform: translateX(var(--swipe-offset, -136px));
   }
 
   .home-history-row.is-actions-open:has(.home-task-row__actions--restore-only) .home-task-row__content {

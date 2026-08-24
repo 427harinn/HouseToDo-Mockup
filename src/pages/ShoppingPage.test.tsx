@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
 import { shoppingFixtures } from '../fixtures/shopping';
 
@@ -15,6 +15,7 @@ function activeList() {
 }
 
 describe('ShoppingPage', () => {
+  beforeEach(() => vi.useRealTimers());
   it('replaces the Shopping placeholder and renders oldest-first rows', () => {
     renderShopping('normal');
 
@@ -71,9 +72,11 @@ describe('ShoppingPage', () => {
   });
 
   it('moves a purchased item to the purchased section and updates the count', () => {
+    vi.useFakeTimers();
     renderShopping('expanded');
 
     fireEvent.click(screen.getByRole('button', { name: '購入' }));
+    act(() => vi.advanceTimersByTime(200));
 
     const list = document.querySelector('[data-uilab-component="Shopping.ActiveList"]');
     if (!list) throw new Error('Expected the active shopping list');
@@ -87,12 +90,14 @@ describe('ShoppingPage', () => {
   });
 
   it('preserves an already-open purchased section when purchasing an item', () => {
+    vi.useFakeTimers();
     renderShopping('purchased-open');
 
     const milkRow = document.querySelector('[data-uilab-id="shopping-milk"]');
     if (!milkRow) throw new Error('Expected the milk row');
     fireEvent.click(milkRow.querySelector('.shopping-item-row__main') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: '購入' }));
+    act(() => vi.advanceTimersByTime(200));
 
     expect(screen.getByText('購入済み 3件')).toBeVisible();
     expect(screen.getByText('牛乳')).toBeVisible();
@@ -112,6 +117,7 @@ describe('ShoppingPage', () => {
   });
 
   it('expands a purchased row with restore and returns it to active', () => {
+    vi.useFakeTimers();
     renderShopping('purchased-open');
 
     const eggsRow = document.querySelector('[data-uilab-id="purchased-eggs"]');
@@ -121,6 +127,7 @@ describe('ShoppingPage', () => {
     expect(screen.getByText('朝食と作り置き用。')).toBeVisible();
 
     fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    act(() => vi.advanceTimersByTime(180));
     expect(screen.getByText('卵')).toBeVisible();
     expect(screen.getByText('購入済み 1件')).toBeVisible();
     expect(screen.getByRole('button', { name: /卵.*10個/ })).toBeVisible();
@@ -144,6 +151,21 @@ describe('ShoppingPage', () => {
     );
     expect(swipeMore).toHaveAttribute('aria-hidden', 'true');
     expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the row background normal and cancels reorder when a swipe is intentional', () => {
+    renderShopping('normal');
+    const row = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!row) throw new Error('Expected the milk row');
+
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 300, clientY: 120 }));
+    fireEvent(row, new MouseEvent('pointermove', { bubbles: true, clientX: 260, clientY: 121 }));
+    expect(row).toHaveClass('is-swipe-dragging');
+    expect(row).not.toHaveClass('is-dragging');
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 140, clientY: 121 }));
+
+    expect(row).not.toHaveClass('is-dragging');
+    expect(row).toHaveClass('is-actions-open');
   });
 
   it('provides a focus-only keyboard/mouse fallback for 編集', () => {
@@ -187,6 +209,7 @@ describe('ShoppingPage', () => {
       act(() => {
         vi.advanceTimersByTime(360);
       });
+      expect(milkRow).toHaveClass('is-dragging');
       act(() => {
         fireEvent(bananaRow, new MouseEvent('pointermove', { bubbles: true, clientX: 180, clientY: 2 }));
         fireEvent(milkRow, new MouseEvent('pointerup', { bubbles: true, clientX: 180, clientY: 2 }));
@@ -273,11 +296,13 @@ describe('ShoppingPage', () => {
   });
 
   it('restores a visible purchased item without changing its planned date', () => {
+    vi.useFakeTimers();
     renderShopping('purchased-auto-filtered');
     const eggsRow = document.querySelector('[data-uilab-id="purchased-eggs"]');
     if (!eggsRow) throw new Error('Expected visible purchased eggs row');
     fireEvent.click(eggsRow.querySelector('.shopping-item-row__main') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    act(() => vi.advanceTimersByTime(180));
 
     expect(screen.getByText('購入済み 0件')).toBeVisible();
     expect(screen.getByRole('button', { name: /卵.*10個/ })).toBeVisible();
@@ -303,6 +328,7 @@ describe('ShoppingPage', () => {
   });
 
   it('hides purchased planned dates, shows purchase metadata, and restores the original date', () => {
+    vi.useFakeTimers();
     renderShopping('purchased-open');
     expect(screen.getByText('今日 8:32')).toBeVisible();
     expect(screen.getByRole('img', { name: '購入者: はる' })).toBeVisible();
@@ -314,6 +340,7 @@ describe('ShoppingPage', () => {
     if (!eggsRow) throw new Error('Expected purchased eggs row');
     fireEvent.click(eggsRow.querySelector('.shopping-item-row__main') as HTMLElement);
     fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+    act(() => vi.advanceTimersByTime(180));
     const restoredRow = document.querySelector('[data-uilab-component="Shopping.ItemRow"][data-uilab-id="purchased-eggs"]');
     if (!restoredRow) throw new Error('Expected restored eggs row');
     expect(within(restoredRow as HTMLElement).getByText('8/20予定')).toBeVisible();
