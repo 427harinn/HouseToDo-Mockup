@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Camera, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BottomSheet } from '../components/BottomSheet/BottomSheet';
+import { storageFixtures, type StorageUiLabState } from '../fixtures/other';
 
 type Member = {
   id: string;
@@ -35,6 +36,7 @@ const INVITE_CODE = 'HOUSE-4821';
 const OTHER_ROUTES = [
   { path: '#/other/members', label: 'メンバー', id: 'other-members' },
   { path: '#/other/notifications', label: '通知', id: 'other-notifications' },
+  { path: '#/other/storage', label: 'ストレージ', id: 'other-storage' },
   { path: '#/other/household', label: '家庭設定', id: 'other-household' },
   { path: '#/other/account', label: 'アカウント', id: 'other-account' },
 ];
@@ -105,9 +107,10 @@ export function MembersPage({ state }: { state: string }) {
 }
 
 export function NotificationsPage({ state }: { state: string }) {
-  const safeState = normalizeState(state, ['normal', 'morning-off', 'all-off'] as const);
-  const [morningEnabled, setMorningEnabled] = useState(safeState !== 'morning-off' && safeState !== 'all-off');
-  const [eveningEnabled, setEveningEnabled] = useState(safeState !== 'all-off');
+  const safeState = normalizeState(state, ['normal', 'device-off', 'morning-off', 'all-schedule-off'] as const);
+  const [deviceNotificationsEnabled, setDeviceNotificationsEnabled] = useState(safeState !== 'device-off');
+  const [morningEnabled, setMorningEnabled] = useState(safeState !== 'morning-off' && safeState !== 'all-schedule-off');
+  const [eveningEnabled, setEveningEnabled] = useState(safeState !== 'all-schedule-off');
   const [morningTime, setMorningTime] = useState('09:00');
   const [eveningTime, setEveningTime] = useState('21:00');
 
@@ -115,28 +118,69 @@ export function NotificationsPage({ state }: { state: string }) {
     <section className="screen-content settings-page notifications-page" data-uilab-component="Settings.Page" data-uilab-id="notifications-page">
       <SettingsHeader title="通知" />
       <div className="settings-list">
-        <label className="settings-toggle" data-uilab-component="Notifications.MorningToggle" data-uilab-id="notifications-morning-toggle">
+        <label className="settings-toggle" data-uilab-component="Notifications.DeviceToggle" data-uilab-id="notifications-device-toggle">
+          <span>この端末の通知</span>
+          <input aria-label="この端末の通知" type="checkbox" checked={deviceNotificationsEnabled} onChange={(event) => setDeviceNotificationsEnabled(event.target.checked)} />
+          <span className="settings-toggle__visual" aria-hidden="true" />
+        </label>
+        <label className={`settings-toggle${deviceNotificationsEnabled ? '' : ' settings-toggle--disabled'}`} data-uilab-component="Notifications.MorningToggle" data-uilab-id="notifications-morning-toggle">
           <span>朝のまとめ通知</span>
-          <input aria-label="朝のまとめ通知" type="checkbox" checked={morningEnabled} onChange={(event) => setMorningEnabled(event.target.checked)} />
+          <input aria-label="朝のまとめ通知" type="checkbox" checked={morningEnabled} disabled={!deviceNotificationsEnabled} onChange={(event) => setMorningEnabled(event.target.checked)} />
           <span className="settings-toggle__visual" aria-hidden="true" />
         </label>
         {morningEnabled ? (
-          <label className="settings-field settings-field--time" data-uilab-component="Notifications.MorningTime" data-uilab-id="notifications-morning-time">
+          <label className={`settings-field settings-field--time${deviceNotificationsEnabled ? '' : ' settings-field--disabled'}`} data-uilab-component="Notifications.MorningTime" data-uilab-id="notifications-morning-time">
             <span>時刻</span>
-            <input aria-label="朝のまとめ通知の時刻" type="time" value={morningTime} onChange={(event) => setMorningTime(event.target.value)} />
+            <input aria-label="朝のまとめ通知の時刻" type="time" value={morningTime} disabled={!deviceNotificationsEnabled} onChange={(event) => setMorningTime(event.target.value)} />
           </label>
         ) : null}
-        <label className="settings-toggle" data-uilab-component="Notifications.EveningToggle" data-uilab-id="notifications-evening-toggle">
+        <label className={`settings-toggle${deviceNotificationsEnabled ? '' : ' settings-toggle--disabled'}`} data-uilab-component="Notifications.EveningToggle" data-uilab-id="notifications-evening-toggle">
           <span>夜のまとめ通知</span>
-          <input aria-label="夜のまとめ通知" type="checkbox" checked={eveningEnabled} onChange={(event) => setEveningEnabled(event.target.checked)} />
+          <input aria-label="夜のまとめ通知" type="checkbox" checked={eveningEnabled} disabled={!deviceNotificationsEnabled} onChange={(event) => setEveningEnabled(event.target.checked)} />
           <span className="settings-toggle__visual" aria-hidden="true" />
         </label>
         {eveningEnabled ? (
-          <label className="settings-field settings-field--time" data-uilab-component="Notifications.EveningTime" data-uilab-id="notifications-evening-time">
+          <label className={`settings-field settings-field--time${deviceNotificationsEnabled ? '' : ' settings-field--disabled'}`} data-uilab-component="Notifications.EveningTime" data-uilab-id="notifications-evening-time">
             <span>時刻</span>
-            <input aria-label="夜のまとめ通知の時刻" type="time" value={eveningTime} onChange={(event) => setEveningTime(event.target.value)} />
+            <input aria-label="夜のまとめ通知の時刻" type="time" value={eveningTime} disabled={!deviceNotificationsEnabled} onChange={(event) => setEveningTime(event.target.value)} />
           </label>
         ) : null}
+      </div>
+    </section>
+  );
+}
+
+export function StoragePage({ state }: { state: string }) {
+  const safeState = normalizeState<StorageUiLabState>(state, ['normal', 'near-limit']);
+  const fixture = storageFixtures[safeState];
+  const usagePercent = Math.min(100, Math.max(0, Math.round((fixture.usedMb / fixture.limitMb) * 100)));
+  const remainingMb = Math.max(0, fixture.limitMb - fixture.usedMb);
+  const isNearLimit = safeState === 'near-limit';
+
+  return (
+    <section className="screen-content settings-page storage-page" data-uilab-component="Settings.Page" data-uilab-id="storage-page">
+      <SettingsHeader title="ストレージ" />
+      <div className="settings-list storage-page__summary" data-uilab-component="Storage.Summary" data-uilab-id="storage-summary">
+        <div className="storage-page__usage-row">
+          <span>使用量</span>
+          <strong>{fixture.usedMb} MB / {fixture.limitMb} MB</strong>
+        </div>
+        <div className="storage-page__bar" data-uilab-component="Storage.UsageBar" data-uilab-id="storage-usage-bar">
+          <div
+            className={`storage-page__bar-fill${isNearLimit ? ' storage-page__bar-fill--near-limit' : ''}`}
+            role="progressbar"
+            aria-label="ストレージ使用量"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={usagePercent}
+            style={{ width: `${usagePercent}%` }}
+          />
+        </div>
+        <div className="storage-page__details">
+          <span>使用割合</span>
+          <strong>{usagePercent}%</strong>
+        </div>
+        <p className="storage-page__remaining">残り {remainingMb} MB</p>
       </div>
     </section>
   );

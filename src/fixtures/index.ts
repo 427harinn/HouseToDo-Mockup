@@ -7,3 +7,5 @@ export const foundationFixtures: Record<UiLabState, { label: string }> = {
 
 export { uiLabStates } from './types';
 export type { UiLabState } from './types';
+export { storageFixtures, storageUiLabStates } from './other';
+export type { StorageFixture, StorageUiLabState } from './other';
