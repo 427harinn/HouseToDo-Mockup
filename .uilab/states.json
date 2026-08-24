@@ -2,7 +2,11 @@
   "home": {
     "normal": { "name": "Normal" }, "overdue": { "name": "Overdue" },
     "assigned": { "name": "Assigned" }, "mixed": { "name": "Mixed" },
-    "completed-open": { "name": "Completed open" }, "many": { "name": "Many tasks" },
+    "completed-collapsed": { "name": "Completed collapsed" }, "completed-open": { "name": "Completed open" },
+    "passed-collapsed": { "name": "Passed collapsed" }, "passed-open": { "name": "Passed open" },
+    "completed-and-passed": { "name": "Completed and passed" }, "completed-swipe": { "name": "Completed swipe actions" },
+    "passed-swipe": { "name": "Passed swipe actions" }, "deleted-record-swipe": { "name": "Deleted record restore only" },
+    "many": { "name": "Many tasks" },
     "long-text": { "name": "Long text" }, "empty": { "name": "Empty" }
   },
   "calendar": {

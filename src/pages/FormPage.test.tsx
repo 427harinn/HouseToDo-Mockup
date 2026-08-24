@@ -101,9 +101,10 @@ describe('M6 add and edit forms', () => {
   it('keeps edit forms free of reuse and separates delete confirmation', () => {
     renderRoute('#/tasks/edit?uilabState=normal');
     expect(screen.queryByText('以前の項目から選ぶ')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '削除' })).toBeVisible();
-    fireEvent.click(screen.getByRole('button', { name: '削除' }));
+    expect(screen.getByRole('button', { name: 'この家事を削除' })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'この家事を削除' }));
     expect(screen.getByRole('dialog', { name: '家事を削除しますか？' })).toBeVisible();
+    expect(screen.queryByText('モック上の操作です。')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
     expect(screen.queryByRole('dialog', { name: '家事を削除しますか？' })).not.toBeInTheDocument();
   });
@@ -121,6 +122,7 @@ describe('M6 add and edit forms', () => {
     window.location.hash = '#/shopping/edit?uilabState=delete-confirm';
     await waitFor(() => expect(screen.getByRole('dialog', { name: '買い物を削除しますか？' })).toBeVisible());
     expect(screen.queryByText('以前の項目から選ぶ')).not.toBeInTheDocument();
+    expect(screen.queryByText('モック上の操作です。')).not.toBeInTheDocument();
 
     window.location.hash = '#/shopping/new?uilabState=unknown';
     await waitFor(() => expect(screen.getByRole('heading', { name: '買い物を追加' })).toBeVisible());

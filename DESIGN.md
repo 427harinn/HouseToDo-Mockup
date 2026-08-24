@@ -407,6 +407,8 @@ Instead keep a consistent interaction grammar:
 - bottom sheets = modal selections/details
 - gestures should have visible fallback controls where discovery matters
 
+When UI has the same meaning, a similar operation, or the same role, reuse the existing colors, spacing, sizes, and interaction patterns. Introduce a new treatment only when the semantics or hierarchy truly differ.
+
 ---
 
 # 13. Home

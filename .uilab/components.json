@@ -17,6 +17,13 @@
   "Home.CompletedRow": { "selector": "[data-uilab-component='Home.CompletedRow']", "instances": "multiple", "editable": ["position", "width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
   "Home.CompletedRow.MoreButton": { "selector": "[data-uilab-component='Home.CompletedRow.MoreButton']", "instances": "multiple", "editable": ["width", "height", "padding", "color", "background", "borderRadius", "opacity"] },
   "Home.CompletedRow.Edit": { "selector": "[data-uilab-component='Home.CompletedRow.Edit']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
+  "Home.CompletedRow.Restore": { "selector": "[data-uilab-component='Home.CompletedRow.Restore']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
+  "Home.PassedSection": { "selector": "[data-uilab-component='Home.PassedSection']", "instances": "single", "editable": ["width", "padding", "margin", "background", "border", "borderRadius"] },
+  "Home.PassedToggle": { "selector": "[data-uilab-component='Home.PassedToggle']", "instances": "single", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background"] },
+  "Home.PassedRow": { "selector": "[data-uilab-component='Home.PassedRow']", "instances": "multiple", "editable": ["position", "width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
+  "Home.PassedRow.MoreButton": { "selector": "[data-uilab-component='Home.PassedRow.MoreButton']", "instances": "multiple", "editable": ["width", "height", "padding", "color", "background", "borderRadius", "opacity"] },
+  "Home.PassedRow.Edit": { "selector": "[data-uilab-component='Home.PassedRow.Edit']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
+  "Home.PassedRow.Restore": { "selector": "[data-uilab-component='Home.PassedRow.Restore']", "instances": "multiple", "editable": ["width", "height", "padding", "fontSize", "fontWeight", "color", "background", "border", "opacity"] },
   "Home.ShoppingSummary": { "selector": "[data-uilab-component='Home.ShoppingSummary']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
 
   "Calendar.Page": { "selector": "[data-uilab-component='Calendar.Page']", "instances": "single", "editable": ["width", "height", "padding", "background"] },

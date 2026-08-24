@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useHashRoute } from './router';
 import { AppShell } from '../components/AppShell/AppShell';
 import { FoundationPage } from '../pages/FoundationPage';
@@ -17,9 +18,22 @@ import {
   NotificationsPage,
   OtherLandingPage,
 } from '../pages/OtherPage';
+import { homeFixtures, homeUiLabStates, type HomeFixture, type HomeTask, type HomeUiLabState } from '../fixtures/home';
 
 export function App() {
   const route = useHashRoute();
+  const [homeSessions, setHomeSessions] = useState<Partial<Record<HomeUiLabState, HomeFixture>>>({});
+
+  const readHomeState = (value: string | null): HomeUiLabState => (
+    value && homeUiLabStates.includes(value as HomeUiLabState) ? value as HomeUiLabState : 'normal'
+  );
+
+  const updateHomeSession = (state: HomeUiLabState, update: (fixture: HomeFixture) => HomeFixture) => {
+    setHomeSessions((current) => {
+      const base = current[state] ?? homeFixtures[state];
+      return { ...current, [state]: update(base) };
+    });
+  };
 
   if (route.pathname === '/foundation') {
     return <FoundationPage routePath={route.pathname} />;
@@ -27,12 +41,20 @@ export function App() {
 
   if (route.pathname === '/tasks/new' || route.pathname === '/tasks/edit') {
     const isEdit = route.pathname === '/tasks/edit';
+    const homeState = readHomeState(route.searchParams.get('homeState'));
+    const taskId = route.searchParams.get('taskId') ?? undefined;
+    const homeSession = homeSessions[homeState] ?? homeFixtures[homeState];
+    const editTask = isEdit && taskId ? findHomeTask(homeSession, taskId) : undefined;
     return (
       <AppShell currentPath="" showBottomNavigation={false}>
         <TaskFormPage
           key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`}
           isEdit={isEdit}
           state={route.searchParams.get('uilabState') ?? 'normal'}
+          initialTask={editTask}
+          onTaskSave={taskId ? (task) => updateHomeSession(homeState, (fixture) => updateTaskInFixture(fixture, taskId, task)) : undefined}
+          onTaskDelete={taskId ? () => updateHomeSession(homeState, (fixture) => deleteTaskInFixture(fixture, taskId)) : undefined}
+          homeState={route.searchParams.get('homeState') ?? undefined}
         />
       </AppShell>
     );
@@ -80,7 +102,12 @@ export function App() {
 
       return (
         <AppShell currentPath={route.pathname}>
-          <HomePage key={homeState} state={homeState} />
+          <HomePage
+            key={homeState}
+            state={homeState}
+            session={homeSessions[homeState]}
+            onSessionChange={(fixture) => setHomeSessions((current) => ({ ...current, [homeState]: fixture }))}
+          />
         </AppShell>
       );
     }
@@ -127,4 +154,28 @@ export function App() {
       <a href="#/home">ホームを開く</a>
     </main>
   );
+}
+
+function findHomeTask(fixture: HomeFixture, taskId: string): HomeTask | undefined {
+  return fixture.activeTasks.find((task) => task.id === taskId)
+    ?? fixture.completedTasks.find((task) => task.taskId === taskId)?.task
+    ?? fixture.passedTasks.find((task) => task.taskId === taskId)?.task;
+}
+
+function updateTaskInFixture(fixture: HomeFixture, taskId: string, updates: Pick<HomeTask, 'name' | 'assignee'>): HomeFixture {
+  return {
+    ...fixture,
+    activeTasks: fixture.activeTasks.map((task) => task.id === taskId ? { ...task, ...updates } : task),
+    completedTasks: fixture.completedTasks.map((task) => task.taskId === taskId ? { ...task, task: { ...task.task, ...updates } } : task),
+    passedTasks: fixture.passedTasks.map((task) => task.taskId === taskId ? { ...task, task: { ...task.task, ...updates } } : task),
+  };
+}
+
+function deleteTaskInFixture(fixture: HomeFixture, taskId: string): HomeFixture {
+  return {
+    ...fixture,
+    activeTasks: fixture.activeTasks.filter((task) => task.id !== taskId),
+    completedTasks: fixture.completedTasks.map((task) => task.taskId === taskId ? { ...task, deleted: true } : task),
+    passedTasks: fixture.passedTasks.map((task) => task.taskId === taskId ? { ...task, deleted: true } : task),
+  };
 }

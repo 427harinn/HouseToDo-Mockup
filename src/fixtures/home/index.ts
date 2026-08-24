@@ -1,4 +1,5 @@
 export { homeFixtures } from './fixtures';
+export { haru, yuki } from './fixtures';
 export {
   homeUiLabStates,
   type CompletedTask,
@@ -7,4 +8,5 @@ export {
   type HomeTask,
   type HomeTaskTimeScope,
   type HomeUiLabState,
+  type PassedTask,
 } from './types';
