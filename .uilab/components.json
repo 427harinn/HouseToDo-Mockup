@@ -72,6 +72,7 @@
   "TaskForm.Notification": { "selector": "[data-uilab-component='TaskForm.Notification']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "color", "background", "border", "borderRadius"] },
   "TaskForm.Assignee": { "selector": "[data-uilab-component='TaskForm.Assignee']", "instances": "single", "editable": ["width", "height", "padding", "margin", "gap", "fontSize", "fontWeight", "color", "background", "border", "borderRadius"] },
   "TaskForm.Memo": { "selector": "[data-uilab-component='TaskForm.Memo']", "instances": "single", "editable": ["width", "padding", "margin", "gap", "fontSize", "lineHeight", "color", "background", "border", "borderRadius"] },
+  "TaskForm.LastCompleted": { "selector": "[data-uilab-component='TaskForm.LastCompleted']", "instances": "single", "editable": ["width", "margin", "fontSize", "lineHeight", "color"] },
   "TaskForm.Save": { "selector": "[data-uilab-component='TaskForm.Save']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
   "TaskForm.Delete": { "selector": "[data-uilab-component='TaskForm.Delete']", "instances": "single", "editable": ["width", "height", "padding", "margin", "fontSize", "fontWeight", "color", "background", "border", "borderRadius", "opacity"] },
   "TaskForm.RepeatSheet": { "selector": "[data-uilab-component='TaskForm.RepeatSheet']", "instances": "single", "editable": ["width", "height", "padding", "background", "border", "borderRadius"] },

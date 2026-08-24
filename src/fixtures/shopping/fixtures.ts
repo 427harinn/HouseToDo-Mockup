@@ -58,6 +58,13 @@ const activeItems: ShoppingItem[] = [
   },
 ];
 
+const noQuantityItem: ShoppingItem = {
+  id: 'shopping-no-quantity',
+  name: 'レモン',
+  addedAt: '2026-08-20T09:00:00+09:00',
+  memo: '炭酸水に使う。',
+};
+
 const purchasedItems: ShoppingItem[] = [
   {
     id: 'purchased-eggs',
@@ -65,7 +72,7 @@ const purchasedItems: ShoppingItem[] = [
     quantity: '10個',
     addedAt: '2026-08-16T18:00:00+09:00',
     plannedDate: '2026-08-20',
-    purchasedAt: '今日 8:32',
+    purchasedAt: '2026-08-24T08:32:00+09:00',
     purchaser: haru,
     memo: '朝食と作り置き用。',
   },
@@ -74,9 +81,18 @@ const purchasedItems: ShoppingItem[] = [
     name: '玉ねぎ',
     quantity: '3個',
     addedAt: '2026-08-17T10:15:00+09:00',
-    purchasedAt: '昨日 17:20',
+    purchasedAt: '2026-08-23T17:20:00+09:00',
     purchaser: yuki,
     photoSrc: pantryPhoto,
+  },
+];
+
+const autoFilteredPurchasedItems: ShoppingItem[] = [
+  purchasedItems[0],
+  {
+    ...purchasedItems[1],
+    id: 'purchased-expired-onion',
+    purchasedAt: '2026-08-17T17:20:00+09:00',
   },
 ];
 
@@ -128,6 +144,18 @@ export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
     purchasedItems: [],
     initialExpandedId: 'shopping-detergent',
   },
+  'quantity-empty': { activeItems: [noQuantityItem, activeItems[1]], purchasedItems: [] },
+  deleted: {
+    activeItems: activeItems.filter((item) => item.id !== 'shopping-milk'),
+    purchasedItems,
+    historyItems: activeItems.filter((item) => item.id !== 'shopping-milk').concat(purchasedItems),
+  },
+  'purchased-auto-filtered': {
+    activeItems: [activeItems[1]],
+    purchasedItems: autoFilteredPurchasedItems,
+    historyItems: [activeItems[1], ...autoFilteredPurchasedItems],
+    initialPurchasedOpen: true,
+  },
   many: { activeItems: manyItems, purchasedItems },
   'long-text': {
     activeItems: longTextItems,
@@ -136,3 +164,8 @@ export const shoppingFixtures: Record<ShoppingUiLabState, ShoppingFixture> = {
   },
   empty: { activeItems: [], purchasedItems: [] },
 };
+
+export function getShoppingHistoryItems(fixture: ShoppingFixture): ShoppingItem[] {
+  const candidates = fixture.historyItems ?? [...fixture.activeItems, ...fixture.purchasedItems];
+  return [...new Map(candidates.map((item) => [item.id, item])).values()];
+}

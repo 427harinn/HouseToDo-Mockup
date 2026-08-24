@@ -317,6 +317,11 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+.shopping-purchased__header {
+  display: flex;
+  align-items: center;
+}
+
 .shopping-purchased__toggle {
   display: flex;
   align-items: center;

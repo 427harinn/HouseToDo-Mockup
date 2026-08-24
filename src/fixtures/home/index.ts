@@ -7,6 +7,8 @@ export {
   type HomePerson,
   type HomeTask,
   type HomeTaskTimeScope,
+  type HomeTaskRepeat,
+  type TaskHistoryEntry,
   type HomeUiLabState,
   type PassedTask,
 } from './types';

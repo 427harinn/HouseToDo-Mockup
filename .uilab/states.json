@@ -20,6 +20,8 @@
     "normal": { "name": "Normal" }, "planned-date": { "name": "Planned date" },
     "no-planned-date": { "name": "No planned date" }, "expanded": { "name": "Expanded item" },
     "purchased-open": { "name": "Purchased open" }, "photo": { "name": "Photo item" },
+    "quantity-empty": { "name": "Quantity omitted" }, "deleted": { "name": "Unpurchased item deleted" },
+    "purchased-auto-filtered": { "name": "Purchased items filtered by age" },
     "many": { "name": "Many items" }, "long-text": { "name": "Long text" },
     "empty": { "name": "Empty" }
   },
@@ -30,11 +32,14 @@
     "reuse-selected": { "name": "Reuse selected" }, "long-text": { "name": "Long text" }
   },
   "task-edit": {
-    "normal": { "name": "Normal" }, "delete-confirm": { "name": "Delete confirmation" }
+    "normal": { "name": "Normal" }, "delete-confirm": { "name": "Delete confirmation" },
+    "previous-completed": { "name": "Last completed date" }, "previous-none": { "name": "No completion history" },
+    "previous-passed-only": { "name": "Passed only, no completion" }
   },
   "shopping-add": {
     "normal": { "name": "Normal" }, "reuse-picker": { "name": "Reuse picker" },
-    "reuse-selected": { "name": "Reuse selected" }, "photo-selected": { "name": "Photo selected" },
+    "reuse-selected": { "name": "Reuse selected with photo" }, "reuse-no-photo-selected": { "name": "Reuse selected without photo" },
+    "photo-selected": { "name": "Photo selected" },
     "long-text": { "name": "Long text" }
   },
   "shopping-edit": {

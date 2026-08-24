@@ -11,8 +11,8 @@ const normalTasks: HomeTask[] = [
   { id: 'normal-filter', name: '空気清浄機のフィルター', deadlineText: '締切なし', timeScope: 'none' },
 ];
 
-const breakfastTask: HomeTask = { id: 'normal-completed-breakfast', name: '朝食の片付け', deadlineText: '今日中', timeScope: 'date' };
-const windowTask: HomeTask = { id: 'normal-completed-window', name: '窓を少し開ける', deadlineText: '今日中', timeScope: 'date' };
+const breakfastTask: HomeTask = { id: 'normal-completed-breakfast', name: '朝食の片付け', deadlineText: '今日中', timeScope: 'date', completionHistory: [{ date: '2026-08-18', outcome: 'completed' }] };
+const windowTask: HomeTask = { id: 'normal-completed-window', name: '窓を少し開ける', deadlineText: '今日中', timeScope: 'date', completionHistory: [{ date: '2026-08-19', outcome: 'completed' }, { date: '2026-08-20', outcome: 'passed' }] };
 const futonTask: HomeTask = { id: 'normal-passed-futon', name: '布団を干す', deadlineText: '今日中', timeScope: 'date', assignee: yuki };
 const plantTask: HomeTask = { id: 'normal-passed-plant', name: '観葉植物に水をあげる', deadlineText: '今日中', timeScope: 'date' };
 
