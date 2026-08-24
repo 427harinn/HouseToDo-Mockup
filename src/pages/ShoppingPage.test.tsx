@@ -153,6 +153,21 @@ describe('ShoppingPage', () => {
     expect(screen.queryByRole('button', { name: '削除' })).not.toBeInTheDocument();
   });
 
+  it('keeps the row background normal and cancels reorder when a swipe is intentional', () => {
+    renderShopping('normal');
+    const row = document.querySelector('[data-uilab-id="shopping-milk"]');
+    if (!row) throw new Error('Expected the milk row');
+
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 300, clientY: 120 }));
+    fireEvent(row, new MouseEvent('pointermove', { bubbles: true, clientX: 260, clientY: 121 }));
+    expect(row).toHaveClass('is-swipe-dragging');
+    expect(row).not.toHaveClass('is-dragging');
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 140, clientY: 121 }));
+
+    expect(row).not.toHaveClass('is-dragging');
+    expect(row).toHaveClass('is-actions-open');
+  });
+
   it('provides a focus-only keyboard/mouse fallback for 編集', () => {
     renderShopping('normal');
     const row = document.querySelector('[data-uilab-id="shopping-milk"]');
@@ -194,6 +209,7 @@ describe('ShoppingPage', () => {
       act(() => {
         vi.advanceTimersByTime(360);
       });
+      expect(milkRow).toHaveClass('is-dragging');
       act(() => {
         fireEvent(bananaRow, new MouseEvent('pointermove', { bubbles: true, clientX: 180, clientY: 2 }));
         fireEvent(milkRow, new MouseEvent('pointerup', { bubbles: true, clientX: 180, clientY: 2 }));

@@ -30,6 +30,11 @@
   background: var(--color-primary-soft);
 }
 
+.shopping-item-row.is-swipe-dragging {
+  opacity: 1;
+  background: var(--color-bg);
+}
+
 .shopping-item-row.is-drag-over {
   border-top: 2px solid var(--color-primary-strong);
 }

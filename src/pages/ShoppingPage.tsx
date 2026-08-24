@@ -349,6 +349,7 @@ function ShoppingItemRow({
   const longPressTimer = useRef<number | null>(null);
   const suppressClick = useRef(false);
   const dragStarted = useRef(false);
+  const gestureKind = useRef<'swipe' | 'vertical' | 'reorder' | null>(null);
   const rowRef = useRef<HTMLElement | null>(null);
   const swipeStartOffset = useRef(0);
   const [swipeOffset, setSwipeOffset] = useState(actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0);
@@ -365,13 +366,17 @@ function ShoppingItemRow({
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     gestureStart.current = { x: event.clientX, y: event.clientY };
     setIsSwiping(false);
+    gestureKind.current = null;
     swipeStartOffset.current = actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0;
     setSwipeOffset(swipeStartOffset.current);
     dragStarted.current = false;
     clearLongPress();
     if (!purchased) {
       longPressTimer.current = window.setTimeout(() => {
+        if (gestureStart.current === null || gestureKind.current !== null) return;
+        gestureKind.current = 'reorder';
         dragStarted.current = true;
+        setIsSwiping(false);
         onDragStart();
       }, 360);
     }
@@ -388,6 +393,17 @@ function ShoppingItemRow({
     const distanceX = Math.abs(start.x - event.clientX);
     const distanceY = Math.abs(start.y - event.clientY);
     const deltaX = event.clientX - start.x;
+    if (gestureKind.current === 'vertical') return;
+    if (!dragStarted.current && distanceX > 8 && distanceX > distanceY) {
+      gestureKind.current = 'swipe';
+      clearLongPress();
+    } else if (!dragStarted.current && distanceY > 8 && distanceY > distanceX) {
+      gestureKind.current = 'vertical';
+      clearLongPress();
+      setIsSwiping(false);
+      setSwipeOffset(actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0);
+      return;
+    }
     if (distanceX > distanceY && !dragStarted.current && !purchased) {
       setIsSwiping(true);
       setSwipeOffset(Math.max(-SHOPPING_SWIPE_ACTION_WIDTH, Math.min(0, swipeStartOffset.current + deltaX)));
@@ -403,6 +419,8 @@ function ShoppingItemRow({
     clearLongPress();
     const start = gestureStart.current;
     gestureStart.current = null;
+    const currentGesture = gestureKind.current;
+    gestureKind.current = null;
     setIsSwiping(false);
     if (!start) {
       if (!purchased && dragSessionActive && !dragging) onDragEnd();
@@ -412,6 +430,10 @@ function ShoppingItemRow({
       dragStarted.current = false;
       suppressClick.current = true;
       onDragEnd();
+      return;
+    }
+    if (currentGesture === 'vertical') {
+      setSwipeOffset(actionsOpen ? -SHOPPING_SWIPE_ACTION_WIDTH : 0);
       return;
     }
     if (!purchased && start.x - event.clientX > 48) {
@@ -456,6 +478,7 @@ function ShoppingItemRow({
       onPointerCancel={() => {
         clearLongPress();
         gestureStart.current = null;
+        gestureKind.current = null;
         if (dragStarted.current) onDragEnd();
         dragStarted.current = false;
         setIsSwiping(false);
