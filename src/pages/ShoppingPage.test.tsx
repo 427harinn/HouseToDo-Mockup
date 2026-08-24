@@ -260,6 +260,14 @@ describe('ShoppingPage', () => {
     expect(screen.getAllByText('ヨーグルト')).toHaveLength(4);
   });
 
+  it('shows the purchased organize action only when the section is expanded', () => {
+    renderShopping('normal');
+    expect(screen.queryByRole('button', { name: '購入済みを整理' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /購入済み \d+件/ }));
+    expect(screen.getByRole('button', { name: '購入済みを整理' })).toBeVisible();
+  });
+
   it('organizes purchased items immediately while keeping them available for reuse', async () => {
     renderShopping('purchased-organize-before');
     fireEvent.click(screen.getByRole('button', { name: '購入済みを整理' }));

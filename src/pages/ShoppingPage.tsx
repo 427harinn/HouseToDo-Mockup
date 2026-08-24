@@ -194,49 +194,51 @@ export function ShoppingPage({ state = getShoppingUiLabState(), initialItemId = 
             <span>購入済み {purchasedItems.length}件</span>
             <ChevronRight aria-hidden="true" className={purchasedOpen ? 'is-open' : ''} />
           </button>
-          {purchasedItems.length > 0 ? (
-            <button
-              type="button"
-              className="shopping-purchased__organize"
-              data-uilab-component="Shopping.PurchasedOrganize"
-              data-uilab-id="shopping-purchased-organize"
-              onClick={() => {
-                persistState(activeItems, [], fixture.historyItems ?? getShoppingHistoryItems(fixture));
-                setExpandedId(null);
-                setStatusMessage('購入済みを整理しました');
-              }}
-            >
-              購入済みを整理
-            </button>
-          ) : null}
         </div>
         {purchasedOpen && purchasedItems.length > 0 ? (
-          <div className="shopping-purchased__list">
-            {purchasedItems.map((item) => (
-              <ShoppingItemRow
-                key={item.id}
-          item={item}
-                purchased
-                expanded={expandedId === item.id}
-                actionsOpen={false}
-                dragging={false}
-                dragSessionActive={false}
-                dragOver={false}
-                onToggle={() => toggleExpanded(item.id)}
-                onPurchase={() => purchaseItem(item)}
-                onRestore={() => restoreItem(item)}
-                onEdit={() => undefined}
-                onSwipeOpen={() => undefined}
-                onDismissActions={() => undefined}
-                onDragStart={() => undefined}
-                onDragOver={() => undefined}
-                onDragEnd={() => undefined}
-                canMoveUp={false}
-                canMoveDown={false}
-                onMove={() => undefined}
-              />
-            ))}
-          </div>
+          <>
+            <div className="shopping-purchased__list">
+              {purchasedItems.map((item) => (
+                <ShoppingItemRow
+                  key={item.id}
+                  item={item}
+                  purchased
+                  expanded={expandedId === item.id}
+                  actionsOpen={false}
+                  dragging={false}
+                  dragSessionActive={false}
+                  dragOver={false}
+                  onToggle={() => toggleExpanded(item.id)}
+                  onPurchase={() => purchaseItem(item)}
+                  onRestore={() => restoreItem(item)}
+                  onEdit={() => undefined}
+                  onSwipeOpen={() => undefined}
+                  onDismissActions={() => undefined}
+                  onDragStart={() => undefined}
+                  onDragOver={() => undefined}
+                  onDragEnd={() => undefined}
+                  canMoveUp={false}
+                  canMoveDown={false}
+                  onMove={() => undefined}
+                />
+              ))}
+            </div>
+            <div className="shopping-purchased__organize-row">
+              <button
+                type="button"
+                className="shopping-purchased__organize"
+                data-uilab-component="Shopping.PurchasedOrganize"
+                data-uilab-id="shopping-purchased-organize"
+                onClick={() => {
+                  persistState(activeItems, [], fixture.historyItems ?? getShoppingHistoryItems(fixture));
+                  setExpandedId(null);
+                  setStatusMessage('購入済みを整理しました');
+                }}
+              >
+                購入済みを整理
+              </button>
+            </div>
+          </>
         ) : null}
       </section>
 
