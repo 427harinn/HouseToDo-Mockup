@@ -76,6 +76,8 @@
   border-left: 1px solid var(--color-border);
   background: var(--color-surface);
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
   view-transition-name: calendar-month-grid;
 }
 
@@ -292,11 +294,11 @@
   max-height: calc(100dvh - 32px);
   padding: var(--space-2) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
   overflow: hidden;
-  translate: var(--date-swipe-offset, 0px) 0;
   background: var(--color-surface);
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   animation: calendar-sheet-enter 220ms ease-out both;
-  view-transition-name: calendar-date-sheet;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .calendar-date-sheet__handle {
@@ -353,6 +355,15 @@
   min-height: 0;
   padding-top: var(--space-3);
   overflow-y: auto;
+  transform: translateX(var(--date-swipe-offset, 0px));
+  transition: transform 200ms ease-out;
+  user-select: none;
+  -webkit-user-select: none;
+  view-transition-name: calendar-date-content;
+}
+
+.calendar-date-sheet.is-swipe-dragging .calendar-date-sheet__content {
+  transition: none;
 }
 
 .calendar-date-sheet__content h2 {
@@ -411,12 +422,10 @@
   transition: background-color 180ms ease-out, transform 180ms ease-out;
 }
 
-.calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__header,
 .calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__content {
   animation: calendar-date-enter-from-right 220ms ease-out both;
 }
 
-.calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__header,
 .calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__content {
   animation: calendar-date-enter-from-left 220ms ease-out both;
 }
@@ -470,6 +479,16 @@
 .calendar-detail-task__more:focus-visible {
   opacity: 1;
   pointer-events: auto;
+}
+
+@media (max-width: 600px) {
+  .calendar-detail-task__more,
+  .calendar-detail-task:hover .calendar-detail-task__more,
+  .calendar-detail-task:focus-within .calendar-detail-task__more,
+  .calendar-detail-task__more:focus-visible {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .calendar-detail-task.is-actions-open .calendar-detail-task__more {
@@ -601,29 +620,29 @@
 
 ::view-transition-old(calendar-month-grid),
 ::view-transition-new(calendar-month-grid),
-::view-transition-old(calendar-date-sheet),
-::view-transition-new(calendar-date-sheet) {
+::view-transition-old(calendar-date-content),
+::view-transition-new(calendar-date-content) {
   animation-duration: 240ms;
   animation-timing-function: ease-out;
 }
 
 :root[data-motion-direction="next"]::view-transition-old(calendar-month-grid),
-:root[data-motion-direction="next"]::view-transition-old(calendar-date-sheet) {
+:root[data-motion-direction="next"]::view-transition-old(calendar-date-content) {
   animation-name: calendar-page-exit-left;
 }
 
 :root[data-motion-direction="next"]::view-transition-new(calendar-month-grid),
-:root[data-motion-direction="next"]::view-transition-new(calendar-date-sheet) {
+:root[data-motion-direction="next"]::view-transition-new(calendar-date-content) {
   animation-name: calendar-page-enter-right;
 }
 
 :root[data-motion-direction="previous"]::view-transition-old(calendar-month-grid),
-:root[data-motion-direction="previous"]::view-transition-old(calendar-date-sheet) {
+:root[data-motion-direction="previous"]::view-transition-old(calendar-date-content) {
   animation-name: calendar-page-exit-right;
 }
 
 :root[data-motion-direction="previous"]::view-transition-new(calendar-month-grid),
-:root[data-motion-direction="previous"]::view-transition-new(calendar-date-sheet) {
+:root[data-motion-direction="previous"]::view-transition-new(calendar-date-content) {
   animation-name: calendar-page-enter-left;
 }
 
@@ -694,9 +713,7 @@
 
   .calendar-month-grid.is-month-transitioning-next,
   .calendar-month-grid.is-month-transitioning-previous,
-  .calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__header,
   .calendar-date-sheet.is-date-transitioning-next .calendar-date-sheet__content,
-  .calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__header,
   .calendar-date-sheet.is-date-transitioning-previous .calendar-date-sheet__content {
     animation: none;
   }
@@ -710,7 +727,8 @@
     transition: none;
   }
 
-  .calendar-date-sheet {
-    translate: none;
+  .calendar-date-sheet__content {
+    transform: none;
+    transition: none;
   }
 }
