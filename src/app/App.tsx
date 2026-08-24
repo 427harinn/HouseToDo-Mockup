@@ -11,6 +11,7 @@ import { getCalendarUiLabState } from '../mock/calendarState';
 import { getShoppingUiLabState } from '../mock/shoppingState';
 import { TaskFormPage } from '../pages/TaskFormPage';
 import { ShoppingFormPage } from '../pages/ShoppingFormPage';
+import { EntryPage, type EntryPageKind } from '../pages/EntryPage';
 import {
   AccountPage,
   HouseholdPage,
@@ -51,6 +52,21 @@ export function App() {
 
   if (route.pathname === '/foundation') {
     return <FoundationPage routePath={route.pathname} />;
+  }
+
+  const entryPageKinds: Partial<Record<string, EntryPageKind>> = {
+    '/login': 'login',
+    '/register': 'register',
+    '/household/create': 'household-create',
+    '/household/join': 'household-join',
+  };
+  const entryPageKind = entryPageKinds[route.pathname];
+  if (entryPageKind) {
+    return (
+      <AppShell currentPath="" showBottomNavigation={false}>
+        <EntryPage key={`${route.pathname}-${route.searchParams.get('uilabState') ?? 'normal'}`} kind={entryPageKind} state={route.searchParams.get('uilabState') ?? 'normal'} />
+      </AppShell>
+    );
   }
 
   if (route.pathname === '/tasks/new' || route.pathname === '/tasks/edit') {

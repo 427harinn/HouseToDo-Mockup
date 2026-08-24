@@ -10,6 +10,7 @@ import './pages/CalendarPage.css';
 import './pages/ShoppingPage.css';
 import './pages/FormPage.css';
 import './pages/OtherPage.css';
+import './pages/EntryPage.css';
 import './styles/globals.css';
 import './styles/tokens.css';
 
