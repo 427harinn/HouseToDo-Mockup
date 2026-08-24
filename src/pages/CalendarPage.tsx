@@ -203,20 +203,15 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                     </button>
                   ) : null}
                   {dayShopping.length > 0 ? (
-                    <button
-                      type="button"
+                    <span
                       className="calendar-day-shopping"
-                      aria-label={`買い物${dayShopping.length}件`}
+                      aria-hidden="true"
                       data-uilab-component="Calendar.DayCell.ShoppingCount"
                       data-uilab-id={`calendar-day-${day.date}-shopping`}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        openDate(day.date);
-                      }}
                     >
                       <ShoppingCart aria-hidden="true" />
                       <span>{dayShopping.length}</span>
-                    </button>
+                    </span>
                   ) : null}
                 </div>
               </div>
@@ -347,9 +342,9 @@ function CalendarDateSheet({
               <ChevronRight aria-hidden="true" />
             </button>
           </section>
-          <section className="calendar-shopping-section" data-uilab-component="Calendar.DateSheet.ShoppingSection" data-uilab-id="calendar-date-sheet-shopping">
-            <h3>買うもの</h3>
-            {dateShopping.length > 0 ? (
+          {dateShopping.length > 0 ? (
+            <section className="calendar-shopping-section" data-uilab-component="Calendar.DateSheet.ShoppingSection" data-uilab-id="calendar-date-sheet-shopping">
+              <h3>買うもの</h3>
               <div className="calendar-shopping-list">
                 {dateShopping.map((item) => (
                   <button
@@ -367,10 +362,8 @@ function CalendarDateSheet({
                   </button>
                 ))}
               </div>
-            ) : (
-              <p className="calendar-date-section__empty">なし</p>
-            )}
-          </section>
+            </section>
+          ) : null}
         </div>
       </section>
     </div>
