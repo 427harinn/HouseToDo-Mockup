@@ -240,14 +240,13 @@
 
 .settings-field--disabled input {
   color: var(--color-text-secondary);
-  background: var(--color-bg);
+  background: var(--color-surface);
   cursor: not-allowed;
 }
 
 .settings-field--time {
   grid-template-columns: minmax(0, 1fr) minmax(0, 9rem);
   padding-left: var(--space-3);
-  background: var(--color-primary-soft);
 }
 
 .settings-actions {
