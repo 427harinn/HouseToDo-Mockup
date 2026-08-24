@@ -35,6 +35,10 @@ export type CalendarTask = {
   passed?: boolean;
   deleted?: boolean;
   completedBy?: CalendarPerson;
+  completedSnapshot?: {
+    name: string;
+    completedBy?: CalendarPerson;
+  };
   completionHistory?: TaskHistoryEntry[];
   assignee?: CalendarPerson;
   deadline?: boolean;

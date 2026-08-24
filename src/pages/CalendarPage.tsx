@@ -99,6 +99,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
       ...item,
       completed: true,
       completedBy: MOCK_COMPLETER,
+      completedSnapshot: { name: item.name, completedBy: MOCK_COMPLETER },
       completionHistory: [
         ...(item.completionHistory ?? []).filter((entry) => !(entry.date === completionDate && entry.outcome === 'completed')),
         { date: completionDate, outcome: 'completed' as const },
@@ -120,6 +121,7 @@ export function CalendarPage({ state = getCalendarUiLabState(), fixtureOverride,
       completed: false,
       deleted: false,
       completedBy: undefined,
+      completedSnapshot: undefined,
       completionHistory: item.completionHistory?.filter((entry) => !(entry.date === completionDate && entry.outcome === 'completed')),
     } : item));
     setStatusMessage(`「${task.name}」を戻しました`);
@@ -559,6 +561,9 @@ function CalendarDetailTask({
 function CalendarHistoryRow({ initialOpen, onEdit, onRestore, task }: { initialOpen: boolean; onEdit: () => void; onRestore: () => void; task: CalendarTask }) {
   const { actionsOpen, handleClickCapture, handlePointerCancel, handlePointerDown, handlePointerUp, setActionsOpen } = useHistoryRowActions(initialOpen);
   const isDeleted = task.deleted === true;
+  const snapshot = task.completedSnapshot;
+  const displayName = snapshot?.name ?? task.name;
+  const completedBy = snapshot?.completedBy ?? task.completedBy;
   return (
     <div
       className={`home-task-row home-history-row home-task-row--completed${isDeleted ? ' is-deleted' : ''}${actionsOpen ? ' is-actions-open' : ''}`}
@@ -571,13 +576,13 @@ function CalendarHistoryRow({ initialOpen, onEdit, onRestore, task }: { initialO
     >
       <div className="home-task-row__content">
         <div className="home-history-row__main">
-          <span className="home-task-row__details"><span className="home-task-row__name">{task.name}</span></span>
-          {task.completedBy ? <span className="home-avatar" role="img" aria-label={`完了者: ${task.completedBy.name}`} data-uilab-component="Home.TaskRow.Avatar">{task.completedBy.initials}</span> : null}
+          <span className="home-task-row__details"><span className="home-task-row__name">{displayName}</span></span>
+          {completedBy ? <span className="home-avatar" role="img" aria-label={`完了者: ${completedBy.name}`} data-uilab-component="Home.TaskRow.Avatar">{completedBy.initials}</span> : null}
         </div>
-        <button type="button" className="home-task-row__more" aria-label={`${task.name}の操作`} aria-expanded={actionsOpen} onClick={() => setActionsOpen((open) => !open)}><Ellipsis aria-hidden="true" /></button>
+        <button type="button" className="home-task-row__more" aria-label={`${displayName}の操作`} aria-expanded={actionsOpen} onClick={() => setActionsOpen((open) => !open)}><Ellipsis aria-hidden="true" /></button>
       </div>
       {actionsOpen ? (
-        <div className={`home-task-row__actions${isDeleted ? ' home-task-row__actions--restore-only' : ''}`} aria-label={`${task.name}の操作メニュー`}>
+        <div className={`home-task-row__actions${isDeleted ? ' home-task-row__actions--restore-only' : ''}`} aria-label={`${displayName}の操作メニュー`}>
           <span className="home-task-row__actions-spacer" aria-hidden="true" />
           {!isDeleted ? <button type="button" data-uilab-component="Calendar.CompletedRow.Edit" onClick={onEdit}>編集</button> : null}
           <button type="button" className="is-restore" data-uilab-component="Calendar.CompletedRow.Restore" onClick={onRestore}>戻す</button>

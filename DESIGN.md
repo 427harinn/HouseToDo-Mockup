@@ -1,6 +1,6 @@
 # HouseToDo DESIGN.md
 
-> Version: v1 — Director / System / major screen interaction decisions reflected as of 2026-08-20.
+> Version: v1 — Director / System / major screen interaction decisions reflected as of 2026-08-24. This specification date is independent from the deterministic Mockup `MOCK_TODAY`.
 
 ## 0. Purpose
 
@@ -524,13 +524,31 @@ Expanded rows show:
 
 Pass items do not appear here.
 
-## 13.8 In-progress state
+## 13.8 Passed tasks
+
+Move passed records to a bottom collapsed area:
+
+`パス済み N`
+
+Default: collapsed. Show today's records only.
+
+Expanded rows show:
+
+- task name
+- assignee avatar when an assignee exists
+- no passer identity, pass time, deadline, or detailed history
+- normal tap does nothing
+- left swipe reveals `編集 / 戻す`
+
+Passed records use the same row colors, spacing, action width, and restore interaction as the completed area. `戻す` immediately returns the task to today's unfinished list.
+
+## 13.9 In-progress state
 
 Do not visually emphasize “in progress” on Home.
 
 Household tasks rarely need that state visible in the primary list.
 
-## 13.9 Shopping summary
+## 13.10 Shopping summary
 
 At the bottom of Home:
 
@@ -542,7 +560,7 @@ Do not show product names on Home.
 
 The count is the current number of unpurchased Shopping items. It includes items with a planned date today, a past or future planned date, and no planned date. Purchased items are excluded. It must update when an item is purchased or restored.
 
-## 13.10 Empty state
+## 13.11 Empty state
 
 Use:
 
@@ -1097,7 +1115,7 @@ Use bottom full-width save where necessary.
 
 ## 18.6 Storage
 
-Storage is a settings screen showing this device's storage usage and remaining capacity. It uses the same restrained settings-list treatment; storage is not a new product feature beyond the existing settings fixture.
+Storage is a settings screen for HouseToDo-managed image storage, showing image-storage usage and the applicable household/account limit. It does not describe this device's local disk capacity. Use the same restrained settings-list treatment; storage is not a new product feature beyond the existing settings fixture.
 
 ## 18.7 Account
 

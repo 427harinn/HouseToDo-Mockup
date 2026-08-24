@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { App } from '../app/App';
 
@@ -201,6 +201,28 @@ describe('CalendarPage', () => {
     expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
   });
 
+  it('represents the restored completed state as unfinished with no completed section', () => {
+    renderCalendar('completed-restore');
+
+    expect(screen.queryByText(/完了済み/)).not.toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
+    expect(within(screen.getByRole('dialog')).getByText('窓を少し開ける')).toBeVisible();
+  });
+
+  it('keeps the Calendar completion snapshot when the task definition is edited', async () => {
+    renderCalendar('completed-swipe');
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
+    fireEvent.change(screen.getByLabelText('家事名'), { target: { value: '朝食の片付け（更新後）' } });
+    fireEvent.click(screen.getByRole('button', { name: '保存' }));
+    fireEvent.click(screen.getByRole('button', { name: '戻る' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '8月20日 木曜日' })).toBeVisible());
+    expect(screen.getByText('朝食の片付け')).toBeVisible();
+    expect(screen.queryByText('朝食の片付け（更新後）')).not.toBeInTheDocument();
+  });
+
   it('shows restore only for a deleted completed Calendar record and re-enables it', () => {
     renderCalendar('deleted-completed-swipe');
 
@@ -215,7 +237,7 @@ describe('CalendarPage', () => {
     expect(within(screen.getByRole('dialog')).getByText('朝食の片付け')).toBeVisible();
   });
 
-  it('keeps the Calendar task id and selected date when editing', () => {
+  it('keeps the Calendar task id and selected date when editing and returning', async () => {
     renderCalendar('date-open');
     const task = screen.getByRole('dialog').querySelector('[data-uilab-id="calendar-aug-20"]');
     if (!task) throw new Error('Expected a Calendar task row');
@@ -223,9 +245,13 @@ describe('CalendarPage', () => {
     fireEvent(task, new MouseEvent('pointerup', { bubbles: true, clientX: 160 }));
     fireEvent.click(screen.getByRole('button', { name: '編集' }));
 
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
     expect(window.location.hash).toContain('origin=calendar');
     expect(window.location.hash).toContain('calendarDate=2026-08-20');
     expect(window.location.hash).toContain('taskId=calendar-aug-20');
+
+    fireEvent.click(screen.getByRole('button', { name: '戻る' }));
+    await waitFor(() => expect(screen.getByRole('dialog', { name: '8月20日 木曜日' })).toBeVisible());
   });
 
   it('falls back to normal and preserves the grid for long text', () => {

@@ -1,6 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from '../app/App';
+import { HomePage } from './HomePage';
+import type { HomeFixture } from '../fixtures/home';
 
 function renderHome(state = 'normal') {
   window.location.hash = `#/home?uilabState=${state}`;
@@ -46,6 +48,34 @@ describe('HomePage', () => {
     expect(screen.getByText('完了済み 3').closest('button')).toHaveAttribute('aria-expanded', 'false');
   });
 
+  it('shows the fixed completion date in edit after completing a Home task', async () => {
+    vi.useFakeTimers();
+    renderHome();
+
+    fireEvent.click(screen.getByRole('button', { name: 'ゴミをまとめるを完了' }));
+    act(() => vi.advanceTimersByTime(180));
+    vi.useRealTimers();
+
+    fireEvent.click(screen.getByRole('button', { name: '完了済み 3' }));
+    swipeRow('completed-normal-trash');
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
+    expect(screen.getByText('前回：8/20')).toBeVisible();
+  });
+
+  it('does not create a previous-completion date when a Home task is passed', async () => {
+    renderHome();
+    swipeRow('normal-trash');
+    fireEvent.click(screen.getByRole('button', { name: 'パス' }));
+    fireEvent.click(screen.getByRole('button', { name: 'パス済み 2' }));
+    swipeRow('passed-normal-trash');
+    fireEvent.click(screen.getByRole('button', { name: '編集' }));
+
+    await waitFor(() => expect(screen.getByRole('heading', { name: '家事を編集' })).toBeVisible());
+    expect(screen.queryByText(/前回：/)).not.toBeInTheDocument();
+  });
+
   it('moves a passed task to the collapsed passed section and supports expansion', () => {
     renderHome();
     swipeRow('normal-trash');
@@ -85,6 +115,40 @@ describe('HomePage', () => {
     expect(screen.queryByRole('img', { name: '完了者: はる' })).not.toBeInTheDocument();
     expect(screen.getByText('「朝食の片付け」を戻しました')).toBeVisible();
 
+  });
+
+  it('removes only today completion history when a completed Home task is undone', () => {
+    const fixture: HomeFixture = {
+      activeTasks: [],
+      completedTasks: [{
+        id: 'completed-history-task',
+        taskId: 'history-task',
+        name: '履歴を確認する',
+        task: {
+          id: 'history-task',
+          name: '履歴を確認する',
+          deadlineText: '今日中',
+          timeScope: 'date',
+          completionHistory: [
+            { date: '2026-08-18', outcome: 'completed' },
+            { date: '2026-08-20', outcome: 'completed' },
+          ],
+        },
+        completedBy: { id: 'haru', name: 'はる', initials: 'は' },
+      }],
+      passedTasks: [],
+      initialCompletedOpen: true,
+    };
+    const onSessionChange = vi.fn();
+    render(<HomePage state="completed-open" session={fixture} onSessionChange={onSessionChange} />);
+
+    swipeRow('completed-history-task');
+    fireEvent.click(screen.getByRole('button', { name: '戻す' }));
+
+    const nextFixture = onSessionChange.mock.calls.at(-1)?.[0] as HomeFixture;
+    expect(nextFixture.activeTasks[0].completionHistory).toEqual([
+      { date: '2026-08-18', outcome: 'completed' },
+    ]);
   });
 
   it('restores a passed task with its original assignee', () => {
