@@ -230,6 +230,23 @@ describe('CalendarPage', () => {
     expect(window.location.hash).toBe('#/shopping?item=shopping-milk');
   });
 
+  it('keeps shopping counts anchored to the day cell outside the task flow', () => {
+    const { unmount } = renderCalendar('shopping');
+    const singleTaskMarker = document.querySelector('[data-uilab-id="calendar-day-2026-08-20-shopping"]');
+
+    expect(singleTaskMarker?.parentElement?.classList.contains('calendar-day-cell')).toBe(true);
+    expect(singleTaskMarker?.closest('.calendar-day-tasks')).toBeNull();
+    expect(singleTaskMarker?.parentElement?.classList.contains('has-shopping')).toBe(true);
+    unmount();
+
+    renderCalendar('dense');
+    const denseTaskMarker = document.querySelector('[data-uilab-id="calendar-day-2026-08-20-shopping"]');
+
+    expect(screen.getByRole('button', { name: /8月20日 木曜日、タスク5件、買い物1件/ })).toBeVisible();
+    expect(denseTaskMarker?.parentElement?.classList.contains('calendar-day-cell')).toBe(true);
+    expect(denseTaskMarker?.closest('.calendar-day-tasks')).toBeNull();
+  });
+
   it('does not show shopping counts when no item has a planned date', () => {
     renderCalendar('shopping-none');
     expect(document.querySelectorAll('.calendar-day-shopping')).toHaveLength(0);

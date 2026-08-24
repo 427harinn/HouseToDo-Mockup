@@ -150,7 +150,7 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
             return (
               <div
                 key={day.date}
-                className={`calendar-day-cell${day.isCurrentMonth ? '' : ' is-outside-month'}`}
+                className={`calendar-day-cell${day.isCurrentMonth ? '' : ' is-outside-month'}${dayShopping.length > 0 ? ' has-shopping' : ''}`}
                 data-uilab-component="Calendar.DayCell"
                 data-uilab-id={day.date}
                 role="button"
@@ -202,18 +202,18 @@ export function CalendarPage({ state = getCalendarUiLabState() }: CalendarPagePr
                       +{moreCount}
                     </button>
                   ) : null}
-                  {dayShopping.length > 0 ? (
-                    <span
-                      className="calendar-day-shopping"
-                      aria-hidden="true"
-                      data-uilab-component="Calendar.DayCell.ShoppingCount"
-                      data-uilab-id={`calendar-day-${day.date}-shopping`}
-                    >
-                      <ShoppingCart aria-hidden="true" />
-                      <span>{dayShopping.length}</span>
-                    </span>
-                  ) : null}
                 </div>
+                {dayShopping.length > 0 ? (
+                  <span
+                    className="calendar-day-shopping"
+                    aria-hidden="true"
+                    data-uilab-component="Calendar.DayCell.ShoppingCount"
+                    data-uilab-id={`calendar-day-${day.date}-shopping`}
+                  >
+                    <ShoppingCart aria-hidden="true" />
+                    <span>{dayShopping.length}</span>
+                  </span>
+                ) : null}
               </div>
             );
           })}
