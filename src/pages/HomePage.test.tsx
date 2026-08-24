@@ -42,6 +42,8 @@ describe('HomePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ゴミをまとめるを完了' }));
     expect(document.querySelector('[data-uilab-id="normal-trash"] .is-completing')).toBeTruthy();
     act(() => vi.advanceTimersByTime(180));
+    expect(screen.getByText('ゴミをまとめる')).toBeVisible();
+    act(() => vi.advanceTimersByTime(170));
 
     expect(screen.queryByText('ゴミをまとめる')).not.toBeInTheDocument();
     expect(screen.getByText('完了済み 3')).toBeVisible();
@@ -58,6 +60,17 @@ describe('HomePage', () => {
 
     expect(screen.getByText('ゴミをまとめる')).toBeVisible();
     expect(screen.queryByText('完了済み 3')).not.toBeInTheDocument();
+  });
+
+  it('clears the swipe-drag state after a vertical gesture', () => {
+    renderHome();
+    const row = document.querySelector('[data-uilab-id="normal-trash"]');
+    if (!row) throw new Error('Expected the task row');
+    fireEvent(row, new MouseEvent('pointerdown', { bubbles: true, clientX: 220, clientY: 120 }));
+    fireEvent(row, new MouseEvent('pointermove', { bubbles: true, clientX: 222, clientY: 160 }));
+    expect(row).not.toHaveClass('is-swipe-dragging');
+    fireEvent(row, new MouseEvent('pointerup', { bubbles: true, clientX: 222, clientY: 180 }));
+    expect(row).not.toHaveClass('is-swipe-dragging');
   });
 
   it('keeps the final completion state available with reduced motion', () => {
@@ -86,7 +99,7 @@ describe('HomePage', () => {
     renderHome();
 
     fireEvent.click(screen.getByRole('button', { name: 'ゴミをまとめるを完了' }));
-    act(() => vi.advanceTimersByTime(180));
+    act(() => vi.advanceTimersByTime(350));
     vi.useRealTimers();
 
     fireEvent.click(screen.getByRole('button', { name: '完了済み 3' }));

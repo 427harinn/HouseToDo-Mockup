@@ -4,6 +4,7 @@ Playwright `recordVideo` WebM recordings captured at 390×844. Each file contain
 
 - `task-complete.webm`
 - `task-swipe.webm`
+- `shopping-swipe.webm`
 - `shopping-expand-purchase.webm`
 - `bottom-sheet-drag-dismiss.webm`
 - `calendar-month-swipe.webm`

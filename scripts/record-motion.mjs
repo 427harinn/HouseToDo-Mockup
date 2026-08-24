@@ -82,8 +82,15 @@ try {
     const row = page.locator('[data-uilab-id="normal-trash"]');
     const box = await row.boundingBox();
     if (!box) throw new Error('Home task row was not measurable');
-    await drag(page, { x: box.x + 280, y: box.y + box.height / 2 }, { x: box.x + 144, y: box.y + box.height / 2 });
+    await drag(page, { x: box.x + 280, y: box.y + box.height / 2 }, { x: box.x + 144, y: box.y + box.height / 2 }, 160);
   }, 'home-swipe-open-390x844.png');
+
+  await record('shopping-swipe.webm', '#/shopping?uilabState=normal', async (page) => {
+    const row = page.locator('[data-uilab-id="shopping-milk"]');
+    const box = await row.boundingBox();
+    if (!box) throw new Error('Shopping row was not measurable');
+    await drag(page, { x: box.x + 280, y: box.y + box.height / 2 }, { x: box.x + 144, y: box.y + box.height / 2 }, 160);
+  }, 'shopping-swipe-open-390x844.png');
 
   await record('shopping-expand-purchase.webm', '#/shopping?uilabState=normal', async (page) => {
     await page.getByRole('button', { name: /牛乳/ }).first().click();
@@ -98,21 +105,21 @@ try {
     const box = await handle.boundingBox();
     if (!box) throw new Error('Bottom sheet handle was not measurable');
     await page.screenshot({ path: join(screenshotDir, 'bottom-sheet-open-390x844.png') });
-    await drag(page, { x: box.x + box.width / 2, y: box.y + 2 }, { x: box.x + box.width / 2, y: box.y + 105 });
+    await drag(page, { x: box.x + box.width / 2, y: box.y + 2 }, { x: box.x + box.width / 2, y: box.y + 105 }, 220);
   }, null);
 
   await record('calendar-month-swipe.webm', '#/calendar?uilabState=normal', async (page) => {
     const grid = page.locator('.calendar-month-grid');
     const box = await grid.boundingBox();
     if (!box) throw new Error('Calendar month grid was not measurable');
-    await drag(page, { x: box.x + box.width - 50, y: box.y + box.height / 2 }, { x: box.x + 50, y: box.y + box.height / 2 });
+    await drag(page, { x: box.x + box.width - 50, y: box.y + box.height / 2 }, { x: box.x + 50, y: box.y + box.height / 2 }, 200);
   }, 'calendar-next-month-390x844.png');
 
   await record('calendar-day-swipe.webm', '#/calendar?uilabState=date-open', async (page) => {
     const sheet = page.getByRole('dialog');
     const box = await sheet.boundingBox();
     if (!box) throw new Error('Calendar date sheet was not measurable');
-    await drag(page, { x: box.x + box.width - 52, y: box.y + 72 }, { x: box.x + 52, y: box.y + 72 });
+    await drag(page, { x: box.x + box.width - 52, y: box.y + 72 }, { x: box.x + 52, y: box.y + 72 }, 200);
   }, 'calendar-date-next-390x844.png');
 
   await record('calendar-task-complete.webm', '#/calendar?uilabState=date-open', async (page) => {

@@ -275,10 +275,12 @@ function useHomeRowActions(initialOpen = false) {
   const startY = useRef<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(initialOpen ? -136 : 0);
   const [isDragging, setIsDragging] = useState(false);
+  const verticalGesture = useRef(false);
   const suppressClick = useRef(false);
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     startX.current = event.clientX;
     startY.current = event.clientY;
+    verticalGesture.current = false;
     setIsDragging(true);
     suppressClick.current = false;
   };
@@ -286,7 +288,13 @@ function useHomeRowActions(initialOpen = false) {
     if (startX.current === null || startY.current === null) return;
     const deltaX = event.clientX - startX.current;
     const deltaY = event.clientY - startY.current;
-    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) return;
+    if (verticalGesture.current) return;
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+      verticalGesture.current = true;
+      setIsDragging(false);
+      setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0);
+      return;
+    }
     const base = actionsOpen ? -136 : 0;
     setSwipeOffset(Math.max(-136, Math.min(0, base + deltaX)));
   };
@@ -296,16 +304,18 @@ function useHomeRowActions(initialOpen = false) {
     const startYValue = startY.current;
     startX.current = null;
     startY.current = null;
-    if (startYValue !== null && Math.abs(event.clientY - startYValue) > Math.abs(distance)) {
-      setSwipeOffset(actionsOpen ? -136 : 0);
+    const wasVerticalGesture = verticalGesture.current;
+    verticalGesture.current = false;
+    setIsDragging(false);
+    if (wasVerticalGesture || (startYValue !== null && Math.abs(event.clientY - startYValue) > Math.abs(distance))) {
+      setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0);
       return;
     }
-    setIsDragging(false);
     if (distance > 48) { suppressClick.current = true; setActionsOpen(true); setSwipeOffset(-HOME_SWIPE_ACTION_WIDTH); }
     else if (distance < -24 && actionsOpen) { suppressClick.current = true; setActionsOpen(false); setSwipeOffset(0); }
-    else setSwipeOffset(actionsOpen ? -136 : 0);
+    else setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0);
   };
-  const handlePointerCancel = () => { startX.current = null; startY.current = null; setIsDragging(false); setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0); };
+  const handlePointerCancel = () => { startX.current = null; startY.current = null; verticalGesture.current = false; setIsDragging(false); setSwipeOffset(actionsOpen ? -HOME_SWIPE_ACTION_WIDTH : 0); };
   const toggleActions = () => {
     setActionsOpen((open) => {
       const nextOpen = !open;

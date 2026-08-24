@@ -432,11 +432,11 @@
   margin: 2px;
   color: #fff;
   stroke-width: 3;
-  animation: calendar-task-check-enter 180ms ease-out both;
+  animation: calendar-task-check-enter 160ms ease-out both;
 }
 
 .calendar-detail-task.is-completing {
-  animation: calendar-task-complete-exit 180ms ease-out both;
+  animation: calendar-task-complete-exit 90ms ease-out 260ms both;
 }
 
 .calendar-detail-task.is-passing {
@@ -651,9 +651,8 @@
 }
 
 @keyframes calendar-task-complete-exit {
-  0% { opacity: 1; max-height: 64px; transform: scale(1); }
-  38% { opacity: 1; max-height: 64px; transform: scale(1); }
-  100% { opacity: 0; max-height: 0; transform: scale(0.985); }
+  from { opacity: 1; max-height: 64px; transform: scale(1); }
+  to { opacity: 0; max-height: 0; transform: scale(0.985); }
 }
 
 @keyframes calendar-task-pass-exit {

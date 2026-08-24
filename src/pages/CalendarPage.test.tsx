@@ -172,6 +172,8 @@ describe('CalendarPage', () => {
     fireEvent.click(screen.getByRole('dialog').querySelector('.calendar-detail-task__main')!);
     expect(within(screen.getByRole('dialog')).getByText(taskName)).toBeVisible();
     act(() => vi.advanceTimersByTime(180));
+    expect(within(screen.getByRole('dialog')).getByText(taskName)).toBeVisible();
+    act(() => vi.advanceTimersByTime(170));
 
     expect(screen.queryByText(taskName)).not.toBeInTheDocument();
     expect(screen.getByText('完了済み 1')).toBeVisible();

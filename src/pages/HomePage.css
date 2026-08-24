@@ -105,7 +105,7 @@
 }
 
 .home-task-row.is-completing-row {
-  animation: home-task-complete-exit 180ms ease-out both;
+  animation: home-task-complete-exit 90ms ease-out 260ms both;
 }
 
 .home-task-row.is-passing-row {
@@ -121,7 +121,7 @@
   height: 15px;
   color: #fff;
   stroke-width: 3;
-  animation: task-check-enter 180ms ease-out both;
+  animation: task-check-enter 160ms ease-out both;
 }
 
 .home-task-row__details {
@@ -411,9 +411,8 @@
 }
 
 @keyframes home-task-complete-exit {
-  0% { opacity: 1; max-height: 96px; transform: scale(1); }
-  38% { opacity: 1; max-height: 96px; transform: scale(1); }
-  100% { opacity: 0; max-height: 0; transform: scale(0.985); }
+  from { opacity: 1; max-height: 96px; transform: scale(1); }
+  to { opacity: 0; max-height: 0; transform: scale(0.985); }
 }
 
 @keyframes home-history-content-enter {
